@@ -1,0 +1,317 @@
+.c-skin { 
+    color: var(--text-color);
+    /* 1rem = 10px */
+    --bs-gutter-x: 15px; /* 15px */
+    --bs-gutter-y: 15px; /* 15px */
+}
+
+/* =================================================================
+   COMPONENTE: UTILIDADES GLOBALES (GLOBALS)
+   Clases auxiliares y utilidades de uso general en toda la aplicación
+   ================================================================= */
+
+/* -----------------------------------------------------------------
+   COLORES DE TEXTO
+   Utilidades para cambiar el color del texto según su propósito
+   ----------------------------------------------------------------- */
+
+   .c-skin .text-highlighted {
+    color: var(--z-text-highlight-color);
+}
+
+.c-skin .text-muted {
+    color: var(--z-text-light-color);
+}
+
+/* Colores semánticos de texto */
+.c-skin .text-success {
+    color: var(--z-success) !important;
+}
+
+.c-skin .text-warning {
+    color: var(--z-warning-color) !important;
+}
+
+.c-skin .text-danger {
+    color: var(--z-danger-color) !important;
+}
+
+.c-skin .text-info {
+    color: var(--z-link-color);
+}
+
+/* -----------------------------------------------------------------
+   UTILIDADES DE MÁRGENES
+   Clases para resetear márgenes en diferentes direcciones
+   ----------------------------------------------------------------- */
+
+.c-skin .m-t-n {
+    margin-top: 0 !important;
+}
+
+.c-skin .m-b-n {
+    margin-bottom: 0 !important;
+}
+
+.c-skin .m-r-n {
+    margin-right: 0 !important;
+}
+
+.c-skin .m-l-n {
+    margin-left: 0 !important;
+}
+
+/* Tamaños de margen por dirección */
+.c-skin .m-t-xs {
+    margin-top: 5px !important;
+}
+
+.c-skin .m-t-sm {
+    margin-top: 10px !important;
+}
+
+.c-skin .m-t-md {
+    margin-top: 15px !important;
+}
+
+.c-skin .m-t-lg {
+    margin-top: 20px !important;
+}
+
+.c-skin .m-r-xs {
+    margin-right: 5px !important;
+}
+
+.c-skin .m-r-sm {
+    margin-right: 10px !important;
+}
+
+.c-skin .m-r-md {
+    margin-right: 15px !important;
+}
+
+.c-skin .m-r-lg {
+    margin-right: 20px !important;
+}
+
+.c-skin .m-b-xs {
+    margin-bottom: 5px !important;
+}
+
+.c-skin .m-b-sm {
+    margin-bottom: 10px !important;
+}
+
+.c-skin .m-b-md {
+    margin-bottom: 15px !important;
+}
+
+.c-skin .m-b-lg {
+    margin-bottom: 20px !important;
+}
+
+.c-skin .m-l-xs {
+    margin-left: 5px !important;
+}
+
+.c-skin .m-l-sm {
+    margin-left: 10px !important;
+}
+
+.c-skin .m-l-md {
+    margin-left: 15px !important;
+}
+
+.c-skin .m-l-lg {
+    margin-left: 20px !important;
+}
+
+/* -----------------------------------------------------------------
+   UTILIDADES DE PADDING
+   Clases para resetear padding en diferentes direcciones
+   ----------------------------------------------------------------- */
+
+.c-skin .p-t-n {
+    padding-top: 0 !important;
+}
+
+.c-skin .p-b-n {
+    padding-bottom: 0 !important;
+}
+
+.c-skin .p-r-n {
+    padding-right: 0 !important;
+}
+
+.c-skin .p-l-n{
+    padding-left: 0!important;
+}
+
+/* Padding horizontal específico */
+.c-skin .p-hz-sm {
+    padding-left: var(--padding-lg) !important;
+    padding-right: var(--padding-lg) !important;
+}
+
+/* -----------------------------------------------------------------
+   SISTEMA FLEXBOX
+   Utilidades para layout flexible
+   ----------------------------------------------------------------- */
+
+/* Display flex */
+.c-skin .d-flex {
+    display: flex !important;
+}
+
+/* -----------------------------------------------------------------
+   JUSTIFY CONTENT - ALINEACIÓN HORIZONTAL
+   Control de distribución horizontal de elementos flex
+   ----------------------------------------------------------------- */
+
+.c-skin .justify-content-start {
+    justify-content: flex-start !important;
+}
+
+.c-skin .justify-content-center {
+    justify-content: center !important;
+}
+
+.c-skin .justify-content-end {
+    justify-content: flex-end !important;
+}
+
+.c-skin .justify-content-between {
+    justify-content: space-between !important;
+}
+
+.c-skin .justify-content-around {
+    justify-content: space-around !important;
+}
+
+.c-skin .justify-content-evenly {
+    justify-content: space-evenly !important;
+}
+
+/* -----------------------------------------------------------------
+   ALIGN ITEMS - ALINEACIÓN VERTICAL
+   Control de alineación vertical de elementos flex
+   ----------------------------------------------------------------- */
+
+.c-skin .align-items-start {
+    align-items: flex-start !important;
+}
+
+.c-skin .align-items-center {
+    align-items: center !important;
+}
+
+.c-skin .align-items-end {
+    align-items: flex-end !important;
+}
+
+.c-skin .align-items-stretch {
+    align-items: stretch !important;
+}
+
+.c-skin .align-items-baseline {
+    align-items: baseline !important;
+}
+
+/* -----------------------------------------------------------------
+   FLEX WRAP - CONTROL DE ENVOLTORIO
+   Control de cómo se envuelven los elementos flex
+   ----------------------------------------------------------------- */
+
+.c-skin .flex-wrap,
+.c-skin .wrap {
+    flex-wrap: wrap !important;
+}
+
+.c-skin .flex-nowrap,
+.c-skin .no-wrap {
+    flex-wrap: nowrap !important;
+}
+
+/* -----------------------------------------------------------------
+   UTILIDADES DE GAP
+   Espaciado entre elementos flex y grid
+   ----------------------------------------------------------------- */
+
+.c-skin .gap-xs {
+    gap: 0.5rem !important;
+}
+
+.c-skin .gap-sm {
+    gap: 1rem !important;
+}
+
+.c-skin .gap-md {
+    gap: 1.5rem !important;
+}
+
+.c-skin .gap-lg {
+    gap: 2rem !important;
+}
+
+.c-skin .gap-xl {
+    gap: 3rem !important;
+}
+
+/* -----------------------------------------------------------------
+   UTILIDADES DE BORDES
+   Control básico de bordes
+   ----------------------------------------------------------------- */
+
+.c-skin .z-border-none {
+    border: none !important;
+}
+
+/* -----------------------------------------------------------------
+   UTILIDADES DE POSICIONAMIENTO Y FORMATO
+   Clases auxiliares para posicionamiento y formato de texto
+   ----------------------------------------------------------------- */
+
+/* Centrado vertical */
+.center-vertically {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Prevenir salto de línea */
+.nowrap {
+    white-space: nowrap;
+}
+
+/* Elemento solo visible en impresión */
+.show-print {
+    visibility: hidden;
+    position: absolute;
+}
+
+/* -----------------------------------------------------------------
+   ESTILOS PARA IMPRESIÓN
+   Adaptaciones específicas para medios impresos
+   ----------------------------------------------------------------- */
+
+@media print {
+    .show-print {
+        visibility: visible;
+        position: relative;
+        height: 50px;
+    }
+
+    .toast {
+        display: none;
+    }
+}
+
+/* -----------------------------------------------------------------
+   DISEÑO RESPONSIVO - MÓVILES
+   Adaptaciones para dispositivos móviles
+   ----------------------------------------------------------------- */
+
+@media only screen and (max-width: 768px) {
+    .c-skin .header.row {
+        margin: 0
+    }
+}

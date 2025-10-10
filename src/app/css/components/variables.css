@@ -1,0 +1,54 @@
+
+:root {
+    /*colors*/
+    --primary-color: #1E3A8A;
+    --border-color-grey: #B1B1B1;
+    --bg-color: #EEEEEE;
+    --bg-lightcolor: #F8F8F8;
+    /*base colors*/
+    --text-color: #585858;
+    --text-highlight-color: #212121;
+    --text-light-color: #707070;
+    --link-color: #2680EB;
+    /* Keep the primary and success colors from the first root only */
+    --success-color: #059669;
+    --danger-color: #E00A23;
+    --warning-color: #FB9435;
+    /*special colors*/
+    --darkblue-color: #0556B7;
+    --lightblue-color: #E5F1FF;
+    --darkred-color: #DB001A;
+    --lightred-color: #FFF1F3;
+    --lightgreen-color: #ECFBEA;
+    --lightorange-color: #FCF4EB;
+    /*padding*/
+    --padding-sm: 5px; /* 5px */
+    --padding-md: 10px; /* 10px */
+    --padding-lg: 15px; /* 15px */
+    --padding-input: 12px; /* 12px */
+    /*font sizes*/
+    --label-font: clamp(11px, 0.5vw, 14px);         /* 11px-14px scaled */
+    --small-font: clamp(11px, 0.5vw, 14px);         /* 11px-14px scaled */
+    --medium-font: clamp(13px, 0.6vw, 16px);        /* 13px-16px scaled */
+    --heading1-font: clamp(30px, 1.4vw, 33px);        /* 30px-33px scaled */
+    --heading2-font: clamp(24px, 1.1vw, 27px);      /* 24px-27px scaled */
+    --heading3-font: clamp(16px, 0.7vw, 19px);      /* 16px-19px scaled */
+    --heading4-font: clamp(14px, 0.6vw, 17px);      /* 14px-17px scaled */
+    --heading5-font: clamp(12px, 0.6vw, 15px);      /* 12px-15px scaled */
+    --heading6-font: clamp(10px, 0.4vw, 13px);        /* 10px-13px scaled */
+    /*font-weights*/
+    --light-fweight: 100;
+    --medium-fweight: 400;
+    --bold-fweight: 600;
+    /*opacity*/
+    --mid-opacity: 0.5;
+    /*height*/
+    --desktop-height: clamp(28px, 1.2vw, 31px);     /* 28px-31px scaled */
+    --mobile-height: clamp(40px, 1.7vw, 43px);        /* 40px-43px scaled */
+    /*width*/
+    --btn-small-minwidth: clamp(50px, 2vw, 53px);      /* 50px-53px scaled */
+    --btn-minwidth: clamp(120px, 5vw, 123px);          /* 120px-123px scaled */
+    /*alto del label sobre los elementos (por ej. input)*/
+    /*sería utilizado en elementos que no tengan un label superior, y deban emparejarse con otro elemento que sí lo tenga*/
+    --label-takenup-space: clamp(20px, 0.8vw, 23px);   /* 20px-23px scaled */
+}

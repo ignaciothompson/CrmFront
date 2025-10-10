@@ -1,0 +1,313 @@
+/* =================================================================
+   COMPONENTE: BOTONES (BUTTONS)
+   Estilos para todos los tipos de botones del sistema
+   ================================================================= */
+
+/* -----------------------------------------------------------------
+   BOTONES BÁSICOS - ESTILOS BASE
+   Configuración general según guía de estilos
+   ----------------------------------------------------------------- */
+
+   .c-skin .btn.c-btn {
+       height: var(--desktop-height) !important;
+       min-width: var(--btn-minwidth);
+       font-size: var(--medium-font);
+       padding: 0 var(--padding-lg);
+       transition: background-color ease-in-out 0.3s, color ease-in-out 0.3s, border-color ease-in-out 0.3s;
+       vertical-align: top;
+   }
+   
+   /* Variantes de tamaño de botones */
+   .c-skin .btn.c-btn.btn-small{ /* botón pequeño, por ejemplo un botón de sí/no */
+       min-width: var(--btn-small-minwidth);
+   }
+   
+   .c-skin .btn.c-btn.btn-square { /* botón cuadrado, por ejemplo para inputs de búsqueda (agenda de contactos tiene uno) */
+       min-width: var(--desktop-height);
+       padding: 0;
+   }
+   
+   /* Adaptación para dispositivos móviles */
+   .c-skin .mobile .btn.c-btn {
+       height: var(--mobile-height) !important;
+   }
+   
+   .c-skin .mobile .btn.c-btn.btn-square {
+       width: var(--mobile-height) !important;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN PRIMARIO - ACCIÓN PRINCIPAL
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-primary {
+       color: white;
+       border-color: var(--primary-color);
+       background-color: var(--primary-color);
+   }
+   
+   /* Estados interactivos del botón primario */
+   .c-skin .btn.c-btn.btn-primary:active, .c-skin .btn.c-btn.btn-primary:hover, .c-skin .btn.c-btn.btn-primary:focus {
+       color: white !important;
+       background-color: var(--link-color) !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN POR DEFECTO Y VARIANTES
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-default {
+       color: var(--text-highlight-color);
+       border-color: var(--bg-color);
+       background-color: var(--bg-color);
+   }
+   
+   /* Estados interactivos del botón default */
+   .c-skin .btn.c-btn.btn-default:active, .c-skin .btn.c-btn.btn-default:hover, .c-skin .btn.c-btn.btn-default:focus{
+       color: white !important;
+       background-color: var(--link-color) !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* Estados especiales para botones default en grupos de input */
+   .c-skin .input-group button.btn.c-btn.btn-default:hover, .c-skin .input-group button.btn.c-btn.btn-default:focus {
+       color: var(--link-color) !important;
+       background-color: var(--bg-color) !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN OUTLINE (CON BORDE)
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-default-outline,
+   .c-skin .btn.z-button.btn-default-outline {
+       color: var(--border-color-grey);
+       border-color: var(--border-color-grey);
+       background-color: transparent;
+   }
+   
+   /* Estados interactivos del botón outline */
+   .c-skin .btn.c-btn.btn-default-outline:active, .c-skin .btn.c-btn.btn-default-outline:hover, .c-skin .btn.c-btn.btn-default-outline:focus,
+   .c-skin .btn.z-button.btn-default-outline:active, .c-skin .btn.z-button.btn-default-outline:hover, .c-skin .btn.z-button.btn-default-outline:focus {
+       color: white !important;
+       background-color: var(--link-color) !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* Modificación para eliminar bordes en outline */
+   .c-skin .btn.c-btn.btn-default-outline,
+   .c-skin .btn.z-button.btn-default-outline {
+       border-color: transparent;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN GRIS Y VARIANTES
+      como el btn-grey no está en la guía de estilos, lo voy a hacer como el default pero le agrego un borde gris para poder usarlo en botones pequeños como btn-square
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-grey {
+    color: var(--text-highlight-color);
+       border-color: var(--border-color-grey);
+       background-color: var(--bg-color);
+   }
+   
+   /* Estados interactivos del botón gris */
+   .c-skin .btn.c-btn.btn-grey:active, .c-skin .btn.c-btn.btn-grey:hover, .c-skin .btn.c-btn.btn-grey:focus {
+       color: white !important;
+       background-color: var(--link-color) !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* Estados especiales para botones grises en grupos de input */
+   .c-skin .input-group button.btn.c-btn.btn-grey:hover, .c-skin .input-group button.btn.c-btn.btn-grey:focus {
+       color: var(--link-color) !important;
+       background-color: var(--bg-color) !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN BLANCO
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-white {
+       color: var(--text-highlight-color);
+       border-color: var(--border-color-grey);
+       background-color: white;
+   }
+   
+   /* Estados interactivos del botón blanco */
+    .c-skin .btn.c-btn.btn-white:active, .btn.c-btn.btn-white:hover, .btn.c-btn.btn-white:focus {
+       color: var(--link-color) !important;
+       background-color: transparent !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* Estados para elementos hijos de botones blancos */
+   .c-skin .btn.c-btn.btn-white:active > *, .btn.c-btn.btn-white:hover > *, .btn.c-btn.btn-white:focus > * {
+       color: var(--link-color) !important;
+   }
+   
+   /* Botón blanco sin borde */
+   .c-skin .btn.c-btn.btn-white.btn-borderless {
+       border-color: white;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN AZUL
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-blue,
+   .c-skin .btn.z-button.btn-blue {
+       color: white;
+       border-color: var(--link-color);
+       background-color: var(--link-color);
+   }
+   
+   /* Estados interactivos del botón azul */
+   .c-skin .btn.c-btn.btn-blue:active, .btn.c-btn.btn-blue:hover, .btn.c-btn.btn-blue:focus {
+       color: var(--link-color) !important;
+       background-color: transparent !important;
+       border-color: var(--z-link-color) !important;
+       z-index: 5;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTÓN DE ÉXITO
+      ----------------------------------------------------------------- */
+   
+   .c-skin .btn.c-btn.btn-success {
+       color: white;
+       border-color: var(--success-color);
+       background-color: var(--success-color);
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTONES DE ACCIÓN - EDITAR Y ELIMINAR
+      Botones para acciones comunes en listados y formularios
+      ----------------------------------------------------------------- */
+   
+   /* Transición para que se vea más natural el cambio de color */
+   .c-skin .btn-table, 
+   .c-skin .btn-table {
+       cursor: pointer;
+       color: var(--text-color);
+       margin-left: var(--padding-sm);
+   }
+
+   /* -----------------------------------------------------------------
+      BOTONES DE FECHA
+      Se usa para los controles de los informes 
+      -- se debe usar la clase en el div que contiene al botón (ejemplo en filtros del mayor de cuentas)
+      ----------------------------------------------------------------- */
+   
+   .c-skin .c-date-btn button {
+       border: 1px solid var(--border-color-grey);
+       background-color: var(--bg-color);
+       border-right: none;
+       box-shadow: none;
+       height: var(--desktop-height);
+       width: var(--desktop-height);
+       padding: 0;
+       font-size: var(--medium-font);
+   }
+   
+   /* Estados interactivos de botones de fecha */
+   .c-skin .c-date-btn button:active, .c-date-btn button:hover, .c-date-btn button:focus {
+       color: var(--link-color) !important;
+       background-color: transparent !important;
+       border-color: var(--link-color) !important;
+       z-index: 5;
+   }
+   
+   /* Estados para elementos hijos de botones de fecha */
+   .c-skin .c-date-btn button:active > *, .c-date-btn button:hover > *, .c-date-btn button:focus > * {
+       color: var(--link-color) !important;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTONES DE COMBO MIXTO
+      Ejemplo: consulta de precios
+      ----------------------------------------------------------------- */
+   
+   .c-btn-combo {
+       height: var(--desktop-height);
+       border-color: var(--border-color-grey);
+       font-family: open sans;
+       color: var(--text-highlight-color);
+       font-size: var(--medium-font);
+       padding: 0 var(--padding-md);
+       width: 100%;
+       margin-bottom: 0px;
+   }
+   
+   .mobile .c-btn-combo {
+       height: var(--mobile-height);
+   }
+   
+   .z-dropdown-menu {
+       position: absolute;
+       top: 26px;
+       left: 1px;
+       will-change: top, left;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTONES DESHABILITADOS
+      Estados para botones no interactivos
+      ----------------------------------------------------------------- */
+   
+   /* todo tipo de botón al deshabilitarse, aclara su color un 50%, agrego las clases de íconos ya que igual varía su color a pesar de no ser botones */
+   .btn:disabled, .btnEditar:disabled, .btnEliminar:disabled {
+       opacity: var(--mid-opacity);
+   }
+   
+   /* Regla consolidada para botones default y grey deshabilitados - corrigiendo sintaxis del archivo original */
+   .c-skin .btn.c-btn.btn-default:disabled,
+   .c-skin .btn.c-btn.btn-grey:disabled,
+   .c-skin .btn.z-button.btn-default:disabled,
+   .c-skin .btn.z-button.btn-grey:disabled {
+       color: var(--text-highlight-color) !important;
+   }
+   
+   /* -----------------------------------------------------------------
+      BOTONES DE BÚSQUEDA (COMENTADO - REEMPLAZADO POR BTN-SQUARE)
+      Botones buscar que van unidos al input
+      ----------------------------------------------------------------- */
+   /*
+       Lo reemplazo para utilizar btn-square, ejemplo en agenda de contactos
+   
+   .c-skin .c-btn-search { 
+       border: 1px solid #B1B1B1;
+       background-color: var(--z-bg-color);
+       box-shadow: none;
+       padding-left: 20px;
+       padding-right: 20px;
+       height: var(--z-desktop-height);
+       font-size: 12px;
+   }
+   .c-skin .c-btn-search:hover{
+       border: 1px solid var(--z-link-color);
+       background-color: var(--z-link-color);
+       color: white;
+   }*/
+   @media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
+       .c-skin .btn.c-btn,
+       .c-skin .btn.z-button,
+       .c-skin .input-group-btn {
+           height: var(--z-mobile-height) !important;
+       }
+   
+           .c-skin .btn.c-btn.btn-square,
+           .c-skin .btn.z-button.btn-square {
+               width: var(--z-mobile-height) !important;
+           }
+   }

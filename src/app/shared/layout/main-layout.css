@@ -1,0 +1,4 @@
+.layout { height: 100vh; }
+.sidebar-wrapper { width: 220px; transition: width .2s ease; }
+.content-wrapper { min-width: 0; background: #EEEEEE; }
+.app-content { background: #EEEEEE; }

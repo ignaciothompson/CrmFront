@@ -5,6 +5,14 @@
     "packageManager": "npm"
   },
   "newProjectRoot": "projects",
+  "schematics": {
+    "@schematics/angular:component": {
+      "flat": false,
+      "inlineStyle": false,
+      "inlineTemplate": false,
+      "skipTests": true
+    }
+  },
   "projects": {
     "crm-dashboard-fe": {
       "projectType": "application",
@@ -56,6 +64,9 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "src/app/css/main.css",
               "src/styles.css"
             ]
           },

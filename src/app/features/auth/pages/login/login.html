@@ -1,0 +1,6 @@
+<form [formGroup]="form" (ngSubmit)="login()" class="p-4" style="max-width:360px;margin:auto;">
+	<h5 class="mb-3">Iniciar sesión</h5>
+	<input class="form-control mb-2" placeholder="Email" formControlName="email" type="email" />
+	<input class="form-control mb-3" placeholder="Password" formControlName="password" type="password" />
+	<button class="btn btn-primary w-100" type="submit">Entrar</button>
+</form>
