@@ -1,8 +1,18 @@
 .c-skin { 
     color: var(--text-color);
-    /* 1rem = 10px */
-    --bs-gutter-x: 15px; /* 15px */
-    --bs-gutter-y: 15px; /* 15px */
+}
+
+.c-skin .row {
+    width: 100%;
+}
+
+.c-skin .row > * {
+    --bs-gutter-x: 20px;
+    --bs-gutter-y: 0px;
+}
+
+.c-skin b{
+    font-weight: var(--bold-fweight);
 }
 
 /* =================================================================
@@ -16,28 +26,28 @@
    ----------------------------------------------------------------- */
 
    .c-skin .text-highlighted {
-    color: var(--z-text-highlight-color);
+    color: var(--text-highlight-color);
 }
 
 .c-skin .text-muted {
-    color: var(--z-text-light-color);
+    color: var(--text-light-color);
 }
 
 /* Colores semánticos de texto */
 .c-skin .text-success {
-    color: var(--z-success) !important;
+    color: var(--success-color) !important;
 }
 
 .c-skin .text-warning {
-    color: var(--z-warning-color) !important;
+    color: var(--warning-color) !important;
 }
 
 .c-skin .text-danger {
-    color: var(--z-danger-color) !important;
+    color: var(--danger-color) !important;
 }
 
 .c-skin .text-info {
-    color: var(--z-link-color);
+    color: var(--link-color) !important;
 }
 
 /* -----------------------------------------------------------------
@@ -238,23 +248,23 @@
    ----------------------------------------------------------------- */
 
 .c-skin .gap-xs {
-    gap: 0.5rem !important;
+    gap: 5px !important;
 }
 
 .c-skin .gap-sm {
-    gap: 1rem !important;
+    gap: 10px !important;
 }
 
 .c-skin .gap-md {
-    gap: 1.5rem !important;
+    gap: 15px !important;
 }
 
 .c-skin .gap-lg {
-    gap: 2rem !important;
+    gap: 20px !important;
 }
 
 .c-skin .gap-xl {
-    gap: 3rem !important;
+    gap: 30px !important;
 }
 
 /* -----------------------------------------------------------------
@@ -262,7 +272,7 @@
    Control básico de bordes
    ----------------------------------------------------------------- */
 
-.c-skin .z-border-none {
+.c-skin .c-border-none {
     border: none !important;
 }
 

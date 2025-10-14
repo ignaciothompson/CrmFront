@@ -1,0 +1,92 @@
+/* Cards - containers and variants */
+
+/* Base container behavior */
+.c-skin .cards-container-1,
+.c-skin .cards-container-2,
+.c-skin .cards-container-3,
+.c-skin .cards-container-4,
+.c-skin .cards-container-5 {
+  /* layout */
+  --card-gap: 15px;
+  display: flex;
+  flex-wrap: wrap; /* wrap on smaller screens */
+  justify-content: center;
+  gap: var(--card-gap);
+}
+
+/* Card base styles */
+.c-skin .card {
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 8px 14px -10px rgba(0, 0, 0, 0.18);
+  border: none;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  gap: 15px;
+}
+
+.c-skin .card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%; /* perfect circle */
+  background: var(--lightblue-color);
+  color: var(--darkblue-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  flex: 0 0 auto;
+}
+
+.c-skin .card-icon i {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.c-skin .card-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.c-skin .card-title {
+  font-size: 16px;
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.c-skin .card-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* Color variants (affect the number only) */
+.c-skin .card.danger .card-value { color: var(--danger-color); }
+.c-skin .card.warning .card-value { color: var(--warning-color); }
+.c-skin .card.success .card-value { color: var(--success-color); }
+.c-skin .card.info .card-value { color: var(--link-color); }
+
+/* Desktop: keep all cards in a single row per container size */
+@media (min-width: 992px) {
+  .c-skin .cards-container-1 > .card { flex: 0 0 100%; }
+  .c-skin .cards-container-2 > .card { flex: 0 0 calc((100% - var(--card-gap) * 1) / 2); }
+  .c-skin .cards-container-3 > .card { flex: 0 0 calc((100% - var(--card-gap) * 2) / 3); }
+  .c-skin .cards-container-4 > .card { flex: 0 0 calc((100% - var(--card-gap) * 3) / 4); }
+  .c-skin .cards-container-5 > .card { flex: 0 0 calc((100% - var(--card-gap) * 4) / 5); }
+}
+
+/* Below desktop: allow wrapping and keep cards fairly wide */
+.c-skin .cards-container-1 > .card,
+.c-skin .cards-container-2 > .card,
+.c-skin .cards-container-3 > .card,
+.c-skin .cards-container-4 > .card,
+.c-skin .cards-container-5 > .card {
+  flex: 1 1 260px;
+  max-width: 100%;
+}
+
+

@@ -1,0 +1,66 @@
+/* =================================================================
+   COMPONENTE: TABLAS (TABLES)
+   Estilos para tablas con prefijo .c-table bajo .c-skin
+   ================================================================= */
+
+.c-skin .table.c-table {
+    border-collapse: collapse;
+}
+
+.c-skin .table.c-table th {
+    border-bottom: 2px solid var(--primary-color);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 5px 10px;
+}
+
+.c-skin .table.c-table td {
+    font-size: 15px;
+    font-weight: 400;
+    padding: 7px 10px;
+    vertical-align: center;
+}
+
+/* -----------------------------------------------------------------
+   TABLA CON CABECERA FIJA Y CUERPO SCROLLABLE
+   ----------------------------------------------------------------- */
+
+.c-skin .table.c-table.table-fixed {
+    table-layout: fixed;
+}
+
+.c-skin .table.c-table.table-fixed thead,
+.c-skin .table.c-table.table-fixed tbody {
+    display: block;
+}
+
+.c-skin .table.c-table.table-fixed tbody {
+    max-height: var(--table-max-height, 400px);
+    overflow-y: auto;
+}
+
+.c-skin .table.c-table.table-fixed tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.c-skin .table.c-table.table-fixed thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #ffffff; /* mantener el fondo al hacer sticky */
+}
+
+/* -----------------------------------------------------------------
+   TABLA STRIPED (FILAS ALTERNADAS)
+   ----------------------------------------------------------------- */
+
+.c-skin .table.c-table.table-striped tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.c-skin .table.c-table.table-striped tbody tr:nth-child(even) {
+    background-color: var(--bg-lightcolor); /* #f8f8f8 */
+}
+

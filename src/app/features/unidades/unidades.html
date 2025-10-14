@@ -1,1 +1,138 @@
-<p>unidades works!</p>
+<div class="subheader">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <label for="desde" class="c-label">Desde</label>
+            <div class="input-group input-range">
+                <input type="date" class="form-control c-input">
+                <input type="date" class="form-control c-input">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2">
+            <label for="localidad" class="c-label">Localidad</label>
+            <select id="localidad" class="form-control c-input">
+                <option value="">Todas</option>
+                <option value="norte">Norte</option>
+                <option value="sur">Sur</option>
+                <option value="este">Este</option>
+                <option value="oeste">Oeste</option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2">
+            <label for="tamano" class="c-label">Tamaño</label>
+            <select id="tamano" class="form-control c-input">
+                <option value="">Todos</option>
+                <option value="pequeno">Pequeño</option>
+                <option value="mediano">Mediano</option>
+                <option value="grande">Grande</option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2">
+            <label for="precio-min" class="c-label">Precio</label>
+            <div class="input-group input-range">
+                <input type="number" id="precio-min" class="form-control c-input" placeholder="Min">
+                <input type="number" id="precio-max" class="form-control c-input" placeholder="Max">
+            </div>
+        </div>
+    </div>
+    <button class="btn c-btn btn-primary">Filtrar</button>
+</div>
+
+<div class="frame">
+    <div class="frame-title">
+        <h4>Unidades (25)</h4>
+        <div class="frame-actions">
+            <button (click)="goNuevo()" class="btn c-btn btn-primary pull-end">Nuevo</button>
+        </div>
+    </div>
+    <div class="frame-body scroll-table">
+        <table class="table c-table table-fixed table-striped">
+            <thead>
+                <tr>
+                    <th>Proyecto</th>
+                    <th>Localidad</th>
+                    <th>Tamaño</th>
+                    <th>Precio</th>
+                    <th>Fecha entrega</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Torres del Parque</td>
+                    <td>Norte</td>
+                    <td>Mediano</td>
+                    <td>$120,000</td>
+                    <td>2026-03-01</td>
+                    <td class="text-end"  >
+                        <a href="javascript:;" (click)="goEditar(1)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Altos de la Costa</td>
+                    <td>Sur</td>
+                    <td>Grande</td>
+                    <td>$195,000</td>
+                    <td>2025-12-15</td>
+                    <td class="text-end">
+                        <a href="javascript:;" (click)="goEditar(2)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vista Andina</td>
+                    <td>Este</td>
+                    <td>Pequeño</td>
+                    <td>$89,900</td>
+                    <td>2025-08-20</td>
+                    <td class="text-end">
+                        <a href="javascript:;" (click)="goEditar(3)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Jardines del Río</td>
+                    <td>Oeste</td>
+                    <td>Mediano</td>
+                    <td>$132,500</td>
+                    <td>2026-05-10</td>
+                    <td class="text-end">
+                        <a href="javascript:;" (click)="goEditar(4)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Puerto Nuevo</td>
+                    <td>Norte</td>
+                    <td>Grande</td>
+                    <td>$210,000</td>
+                    <td>2027-01-30</td>
+                    <td class="text-end">
+                        <a href="javascript:;" (click)="goEditar(5)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Parque Central</td>
+                    <td>Sur</td>
+                    <td>Pequeño</td>
+                    <td>$99,000</td>
+                    <td>2025-09-05</td>
+                    <td class="text-end">
+                        <a href="javascript:;" (click)="goEditar(6)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="frame-footer">
+        
+    </div>
+</div>

@@ -14,7 +14,7 @@ export class Header {
 	constructor(private router: Router) {}
 
 	goToUserSettings() {
-		this.router.navigateByUrl('/usuarios');
+		this.router.navigateByUrl('/usuario');
 	}
 
   goHome() {

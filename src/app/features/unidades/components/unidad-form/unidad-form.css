@@ -1,0 +1,9 @@
+.frame .frame-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.frame .frame-body .row > [class^="col-"] {
+    margin-bottom: 15px;
+}
+

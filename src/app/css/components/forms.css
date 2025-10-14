@@ -1,0 +1,111 @@
+/* =================================================================
+   COMPONENTE: CAMPOS DE ENTRADA (INPUTS)
+   Estilos para inputs, selects, textareas y elementos de formulario
+   ================================================================= */
+
+
+/* -----------------------------------------------------------------
+   CAMPOS DE ENTRADA BÁSICOS
+   Estilos base para inputs, selects y textareas
+   ----------------------------------------------------------------- */
+
+/* se utiliza la clase en conjunto con "form-control" */
+.c-skin select.form-control.c-select,
+.c-skin select.form-control.c-input,
+.c-skin input.form-control.c-input,
+.c-skin textarea.form-control.c-input {
+    border-color: var(--border-color-grey);
+    color: var(--text-color);
+    font-size: var(--medium-font);
+    font-weight: var(--medium-fweight);
+    padding: 0 var(--padding-input);
+    width: 100%;
+    border-radius: 5px; /* Probando bordes redondeados */
+}
+
+/* Altura estándar para inputs y selects */
+.c-skin select.form-control.c-select,
+.c-skin select.form-control.c-input,
+.c-skin input.form-control.c-input {
+    height: var(--desktop-height) !important; 
+}
+
+/* al colocar height important en los elementos, el textarea no cambia su altura de forma apropiada, hay que ponérselo así para que no pise otros valores */
+.c-skin textarea.form-control.c-input {
+    min-height: var(--desktop-height);
+    height: var(--desktop-height);
+    min-width: 100%;
+    max-width: 100%;
+    resize: vertical;
+    padding-top: var(--padding-sm);
+}
+
+.c-skin select.form-control.c-input {
+    appearance: listbox;
+}
+/* -----------------------------------------------------------------
+   ADAPTACIONES MÓVILES
+   Ajustes de altura para dispositivos móviles
+   ----------------------------------------------------------------- */
+
+.c-skin .mobile select.form-control.c-input,
+.c-skin .mobile input.form-control.c-input,
+.c-skin .mobile textarea.form-control.c-input {
+    height: var(--mobile-height) !important;
+}
+
+.c-skin .mobile select.form-control.c-select,
+.c-skin .mobile select.form-control.c-input,
+.c-skin .mobile input.form-control.c-input {
+    height: var(--mobile-height) !important;
+}
+
+/* -----------------------------------------------------------------
+   TIPOS ESPECIALES DE INPUT
+   Ajustes para tipos específicos de campos
+   ----------------------------------------------------------------- */
+
+/* Input para archivos */
+.c-skin input.form-control.c-input[type="file"] {
+    padding-top: 3px;
+}
+
+/* -----------------------------------------------------------------
+   GRUPOS DE INPUT - RANGO
+   Campos para rangos (desde/hasta)
+   ----------------------------------------------------------------- */
+
+.c-skin .input-group.input-range {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+/* -----------------------------------------------------------------
+   GRUPOS DE INPUT - COMBO
+   Combinación de select y input en un mismo control
+   ----------------------------------------------------------------- */
+
+.c-skin .input-group.c-combo div.tipos select {
+    display: inline-block;
+    width: 160px;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.c-skin .input-group.c-combo div.opciones {
+    display: inline-block;
+    width: calc(100% - 159px);
+    margin-left: -2px;
+    vertical-align: top;
+}
+
+
+
+@media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
+
+    .c-skin input.form-control.c-input,
+    .c-skin select.form-control.c-input,
+    .c-skin textarea.form-control.c-input {
+        height: var(--mobile-height) !important;
+    }
+}

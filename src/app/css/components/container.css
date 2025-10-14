@@ -1,0 +1,56 @@
+/* Subheaders */
+.c-skin .subheader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 15px;
+  background: #fff;
+  margin: -15px -15px 15px -15px;
+  padding: 15px;
+}
+
+/* Frames */
+.c-skin .frame {
+  background: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 15px;
+
+  /* bottom-only shadow, consistent with cards */
+  box-shadow: 0 8px 14px -10px rgba(0, 0, 0, 0.18);
+}
+
+.c-skin .frame-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 15px;
+}
+
+.c-skin .frame-title h4 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-highlight-color);
+}
+
+/* Optional wrapper for right-aligned title actions */
+.c-skin .frame-title .frame-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-skin .frame-body.scroll-table {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.c-skin .frame-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+

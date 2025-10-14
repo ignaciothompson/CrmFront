@@ -2,6 +2,7 @@
 :root {
     /*colors*/
     --primary-color: #1E3A8A;
+    --primary-faded-color: #526780;
     --border-color-grey: #B1B1B1;
     --bg-color: #EEEEEE;
     --bg-lightcolor: #F8F8F8;
@@ -21,6 +22,16 @@
     --lightred-color: #FFF1F3;
     --lightgreen-color: #ECFBEA;
     --lightorange-color: #FCF4EB;
+    /*accent variants derived from primary and success*/
+    --primary-hover-color: #17306E;        /* darker primary for hover */
+    --primary-soft-bg: #E8EEF9;            /* soft background tint for primary */
+    --primary-soft-border: #C8D4F4;        /* subtle border for primary surfaces */
+    --primary-contrast: #FFFFFF;           /* text/icon on solid primary */
+
+    --success-hover-color: #047857;        /* darker success for hover */
+    --success-soft-bg: var(--lightgreen-color); /* reuse existing light green */
+    --success-soft-border: #CDEED8;        /* subtle border for success surfaces */
+    --success-contrast: #FFFFFF;           /* text/icon on solid success */
     /*padding*/
     --padding-sm: 5px; /* 5px */
     --padding-md: 10px; /* 10px */
@@ -43,7 +54,7 @@
     /*opacity*/
     --mid-opacity: 0.5;
     /*height*/
-    --desktop-height: clamp(28px, 1.2vw, 31px);     /* 28px-31px scaled */
+    --desktop-height: clamp(32px, 1.2vw, 35px);     /* 32px-35px scaled */
     --mobile-height: clamp(40px, 1.7vw, 43px);        /* 40px-43px scaled */
     /*width*/
     --btn-small-minwidth: clamp(50px, 2vw, 53px);      /* 50px-53px scaled */

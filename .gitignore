@@ -41,3 +41,12 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+.emulator-data/
+
+# Firebase (emulators and CLI)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+storage-debug.log
+ui-debug.log

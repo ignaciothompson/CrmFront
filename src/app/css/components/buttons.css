@@ -11,7 +11,8 @@
    .c-skin .btn.c-btn {
        height: var(--desktop-height) !important;
        min-width: var(--btn-minwidth);
-       font-size: var(--medium-font);
+       font-size: 14px;
+       font-weight: 600;
        padding: 0 var(--padding-lg);
        transition: background-color ease-in-out 0.3s, color ease-in-out 0.3s, border-color ease-in-out 0.3s;
        vertical-align: top;
@@ -85,7 +86,7 @@
       ----------------------------------------------------------------- */
    
    .c-skin .btn.c-btn.btn-default-outline,
-   .c-skin .btn.z-button.btn-default-outline {
+   .c-skin .btn.c-button.btn-default-outline {
        color: var(--border-color-grey);
        border-color: var(--border-color-grey);
        background-color: transparent;
@@ -93,7 +94,7 @@
    
    /* Estados interactivos del botón outline */
    .c-skin .btn.c-btn.btn-default-outline:active, .c-skin .btn.c-btn.btn-default-outline:hover, .c-skin .btn.c-btn.btn-default-outline:focus,
-   .c-skin .btn.z-button.btn-default-outline:active, .c-skin .btn.z-button.btn-default-outline:hover, .c-skin .btn.z-button.btn-default-outline:focus {
+   .c-skin .btn.c-button.btn-default-outline:active, .c-skin .btn.c-button.btn-default-outline:hover, .c-skin .btn.c-button.btn-default-outline:focus {
        color: white !important;
        background-color: var(--link-color) !important;
        border-color: var(--link-color) !important;
@@ -102,7 +103,7 @@
    
    /* Modificación para eliminar bordes en outline */
    .c-skin .btn.c-btn.btn-default-outline,
-   .c-skin .btn.z-button.btn-default-outline {
+   .c-skin .btn.c-button.btn-default-outline {
        border-color: transparent;
    }
    
@@ -166,7 +167,7 @@
       ----------------------------------------------------------------- */
    
    .c-skin .btn.c-btn.btn-blue,
-   .c-skin .btn.z-button.btn-blue {
+   .c-skin .btn.c-button.btn-blue {
        color: white;
        border-color: var(--link-color);
        background-color: var(--link-color);
@@ -176,7 +177,7 @@
    .c-skin .btn.c-btn.btn-blue:active, .btn.c-btn.btn-blue:hover, .btn.c-btn.btn-blue:focus {
        color: var(--link-color) !important;
        background-color: transparent !important;
-       border-color: var(--z-link-color) !important;
+       border-color: var(--link-color) !important;
        z-index: 5;
    }
    
@@ -201,6 +202,25 @@
        cursor: pointer;
        color: var(--text-color);
        margin-left: var(--padding-sm);
+       background: transparent;
+       border: none;
+       padding: 0;
+       text-decoration: none;
+       line-height: 1;
+   }
+
+   /* Hover/focus por defecto: color de enlace */
+   .c-skin .btn-table:hover,
+   .c-skin .btn-table:focus {
+       color: var(--link-color) !important;
+       background: transparent !important;
+       border-color: transparent !important;
+   }
+
+   /* Variante eliminar: usa color de peligro al interactuar */
+   .c-skin .btn-table.eliminar:hover,
+   .c-skin .btn-table.eliminar:focus {
+       color: var(--danger-color) !important;
    }
 
    /* -----------------------------------------------------------------
@@ -253,7 +273,7 @@
        height: var(--mobile-height);
    }
    
-   .z-dropdown-menu {
+   .c-dropdown-menu {
        position: absolute;
        top: 26px;
        left: 1px;
@@ -264,50 +284,25 @@
       BOTONES DESHABILITADOS
       Estados para botones no interactivos
       ----------------------------------------------------------------- */
-   
-   /* todo tipo de botón al deshabilitarse, aclara su color un 50%, agrego las clases de íconos ya que igual varía su color a pesar de no ser botones */
-   .btn:disabled, .btnEditar:disabled, .btnEliminar:disabled {
-       opacity: var(--mid-opacity);
-   }
+
    
    /* Regla consolidada para botones default y grey deshabilitados - corrigiendo sintaxis del archivo original */
    .c-skin .btn.c-btn.btn-default:disabled,
    .c-skin .btn.c-btn.btn-grey:disabled,
-   .c-skin .btn.z-button.btn-default:disabled,
-   .c-skin .btn.z-button.btn-grey:disabled {
+   .c-skin .btn.c-button.btn-default:disabled,
+   .c-skin .btn.c-button.btn-grey:disabled {
        color: var(--text-highlight-color) !important;
    }
    
-   /* -----------------------------------------------------------------
-      BOTONES DE BÚSQUEDA (COMENTADO - REEMPLAZADO POR BTN-SQUARE)
-      Botones buscar que van unidos al input
-      ----------------------------------------------------------------- */
-   /*
-       Lo reemplazo para utilizar btn-square, ejemplo en agenda de contactos
-   
-   .c-skin .c-btn-search { 
-       border: 1px solid #B1B1B1;
-       background-color: var(--z-bg-color);
-       box-shadow: none;
-       padding-left: 20px;
-       padding-right: 20px;
-       height: var(--z-desktop-height);
-       font-size: 12px;
-   }
-   .c-skin .c-btn-search:hover{
-       border: 1px solid var(--z-link-color);
-       background-color: var(--z-link-color);
-       color: white;
-   }*/
    @media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
        .c-skin .btn.c-btn,
-       .c-skin .btn.z-button,
+       .c-skin .btn.c-button,
        .c-skin .input-group-btn {
-           height: var(--z-mobile-height) !important;
+           height: var(--mobile-height) !important;
        }
    
            .c-skin .btn.c-btn.btn-square,
-           .c-skin .btn.z-button.btn-square {
-               width: var(--z-mobile-height) !important;
+           .c-skin .btn.c-button.btn-square {
+               width: var(--mobile-height) !important;
            }
    }
