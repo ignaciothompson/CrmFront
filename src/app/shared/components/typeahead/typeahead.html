@@ -1,0 +1,11 @@
+<input type="text"
+       class="form-control c-input"
+       [ngbTypeahead]="search"
+       [resultFormatter]="formatter"
+       [inputFormatter]="formatter"
+       [placeholder]="placeholder"
+       [(ngModel)]="inputText"
+       (ngModelChange)="onInputChanged($event)"
+       (selectItem)="onSelect($event)" />
+
+

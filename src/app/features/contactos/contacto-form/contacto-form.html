@@ -1,0 +1,96 @@
+<div class="frame">
+    <div class="frame-title">
+        <h4>{{ id ? 'Editar Contacto' : 'Nuevo Contacto' }}</h4>
+    </div>
+    <div class="frame-body">
+        <div class="row">
+            <div class="col-xs-12 m-0"><h6 class="bold">Datos Basicos</h6></div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="nombre">Nombre</label>
+                <input id="nombre" class="form-control c-input" [(ngModel)]="model.Nombre" name="Nombre" />
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="apellido">Apellido</label>
+                <input id="apellido" class="form-control c-input" [(ngModel)]="model.Apellido" name="Apellido" />
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="celular">Celular</label>
+                <input id="celular" class="form-control c-input" [(ngModel)]="model.Celular" name="Celular" />
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="mail">Mail</label>
+                <input id="mail" type="email" class="form-control c-input" [(ngModel)]="model.Mail" name="Mail" />
+            </div>
+
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label">Pareja</label>
+                <select class="form-control c-input" [(ngModel)]="model.Pareja" name="Pareja" (ngModelChange)="onParejaChange()">
+                    <option [ngValue]="true">Sí</option>
+                    <option [ngValue]="false">No</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label">Familia</label>
+                <select class="form-control c-input" [(ngModel)]="model.familia" name="familia" [disabled]="!model.Pareja">
+                    <option [ngValue]="true">Sí</option>
+                    <option [ngValue]="false">No</option>
+                </select>
+            </div>
+
+            <div class="col-xs-12 m-0"><h6 class="bold">Dirección</h6></div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="dirCiudad">Ciudad</label>
+                <select id="dirCiudad" class="form-control c-input" [(ngModel)]="model.direccion.Ciudad" name="dirCiudad" (ngModelChange)="onCiudadDireccionChange()">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let c of ciudades" [value]="c.value">{{ c.label }}</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="dirBarrio">Barrio</label>
+                <select id="dirBarrio" class="form-control c-input" [(ngModel)]="model.direccion.Barrio" name="dirBarrio" [disabled]="!model.direccion.Ciudad">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let b of barriosDireccion" [value]="b">{{ b }}</option>
+                </select>
+            </div>
+
+            <div class="col-xs-12 m-0"><h6 class="bold">Preferencia</h6></div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="prefCiudad">Ciudad</label>
+                <select id="prefCiudad" class="form-control c-input" [(ngModel)]="model.preferencia.Ciudad" name="prefCiudad" (ngModelChange)="onCiudadPreferenciaChange()">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let c of ciudades" [value]="c.value">{{ c.label }}</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="prefBarrio">Barrio</label>
+                <select id="prefBarrio" class="form-control c-input" [(ngModel)]="model.preferencia.Barrio" name="prefBarrio" [disabled]="!model.preferencia.Ciudad">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let b of barriosPreferencia" [value]="b">{{ b }}</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="tipoResidencia">Tipo de residencia</label>
+                <select id="tipoResidencia" class="form-control c-input" [(ngModel)]="model.preferencia.TipoResidencia" name="tipoResidencia">
+                    <option value="">Seleccione</option>
+                    <option>Apartamento</option>
+                    <option>Casa</option>
+                    <option>Duplex</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="cuartos">Cuartos</label>
+                <select id="cuartos" class="form-control c-input" [(ngModel)]="model.preferencia.Cuartos" name="cuartos">
+                    <option [ngValue]="null">Seleccione</option>
+                    <option [ngValue]="1">1</option>
+                    <option [ngValue]="2">2</option>
+                    <option [ngValue]="3">3</option>
+                    <option [ngValue]="4">4+</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="frame-footer">
+        <button routerLink="/contactos" class="btn c-btn btn-default">Cancelar</button>
+        <button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
+    </div>
+</div>

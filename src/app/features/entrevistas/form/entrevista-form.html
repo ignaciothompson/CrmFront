@@ -1,0 +1,36 @@
+<div class="frame">
+  <div class="frame-title">
+    <h4>Nueva Entrevista</h4>
+  </div>
+  <div class="frame-body">
+    <div class="row">
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label">Contacto</label>
+        <typeahead [(ngModel)]="contactoId" name="contactoId" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Buscar contacto..."></typeahead>
+
+        <label class="c-label">Comentario / Nota</label>
+        <textarea class="form-control c-input" rows="6" [(ngModel)]="comentario" name="comentario"></textarea>
+
+        <div class="row">
+          <div class="col-xs-12 col-sm-6">
+            <label class="c-label">Fecha</label>
+            <input class="form-control c-input" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" [ngModel]="fecha" name="fecha">
+          </div>
+          <div class="col-xs-12 col-sm-6">
+            <label class="c-label">Hora</label>
+            <ngb-timepicker [(ngModel)]="hora" name="hora" [spinners]="true"></ngb-timepicker>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-8">
+        <full-calendar [options]="calendarOptions"></full-calendar>
+      </div>
+    </div>
+  </div>
+  <div class="frame-footer">
+    <button routerLink="/entrevistas" class="btn c-btn btn-default">Cancelar</button>
+    <button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
+  </div>
+</div>
+
+

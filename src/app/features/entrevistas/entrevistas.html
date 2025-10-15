@@ -1,5 +1,35 @@
-<div class="page">
-  <h2 class="m-0">Entrevistas</h2>
+<div class="frame">
+  <div class="frame-title">
+    <h4>Entrevistas</h4>
+    <div class="frame-actions">
+      <button class="btn c-btn btn-primary" routerLink="/entrevistas/form">Agregar</button>
+    </div>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Pendiente</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items">
+          <td>{{ it?.Nombre }}</td>
+          <td>{{ it?.Apellido }}</td>
+          <td>{{ it?.Entrevista?.Fecha || '-' }}</td>
+          <td>{{ it?.Entrevista?.Hora || '-' }}</td>
+          <td>{{ it?.EntrevistaPendiente ? 'Sí' : 'No' }}</td>
+        </tr>
+        <tr *ngIf="!items.length">
+          <td colspan="5" class="text-center">Sin resultados</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 

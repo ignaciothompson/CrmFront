@@ -4,6 +4,10 @@
 }
 
 .frame .frame-body .row > [class^="col-"] {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+.frame .frame-body .row > [class^="col-"] > h6 {
+    font-weight: 600;
 }
 

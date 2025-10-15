@@ -1,20 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { UnidadesRoutingModule } from './unidades-routing-module';
 import { Unidades } from './unidades';
-import { UnidadList } from './pages/unidad-list/unidad-list';
-import { UnidadForm } from './components/unidad-form/unidad-form';
+import { UnidadForm } from './unidad-form/unidad-form';
 
 
 @NgModule({
   declarations: [
     Unidades,
-    UnidadList,
     UnidadForm
   ],
   imports: [
     CommonModule,
+    FormsModule,
     UnidadesRoutingModule
   ]
 })

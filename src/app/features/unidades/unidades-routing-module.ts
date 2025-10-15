@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { Unidades } from './unidades';
-import { UnidadForm } from './components/unidad-form/unidad-form';
+import { UnidadForm } from './unidad-form/unidad-form';
 
 const routes: Routes = [
   { path: '', component: Unidades },

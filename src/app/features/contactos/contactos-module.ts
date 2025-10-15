@@ -1,21 +1,23 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { ContactosRoutingModule } from './contactos-routing-module';
 import { Contactos } from './contactos';
-import { ContactoList } from './pages/contacto-list/contacto-list';
-import { ContactoForm } from './components/contacto-form/contacto-form';
+import { ContactoForm } from './contacto-form/contacto-form';
+import { SharedModule } from '../../shared/shared-module';
 
 
 @NgModule({
   declarations: [
     Contactos,
-    ContactoList,
     ContactoForm
   ],
   imports: [
     CommonModule,
-    ContactosRoutingModule
+    FormsModule,
+    ContactosRoutingModule,
+    SharedModule
   ]
 })
 export class ContactosModule { }

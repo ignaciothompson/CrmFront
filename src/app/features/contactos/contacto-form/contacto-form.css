@@ -1,0 +1,13 @@
+.frame .frame-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.frame .frame-body .row > [class^="col-"] {
+    margin-bottom: 10px;
+}
+
+.frame .frame-body .row > [class^="col-"] > h6 {
+    margin-top: 10px;
+    font-weight: 600;
+}

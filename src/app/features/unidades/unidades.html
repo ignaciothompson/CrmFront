@@ -8,13 +8,19 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="localidad" class="c-label">Localidad</label>
-            <select id="localidad" class="form-control c-input">
+            <label for="localidad" class="c-label">Ciudad</label>
+            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad" (ngModelChange)="onCiudadChange()">
                 <option value="">Todas</option>
-                <option value="norte">Norte</option>
-                <option value="sur">Sur</option>
-                <option value="este">Este</option>
-                <option value="oeste">Oeste</option>
+                <option value="norte">Montevideo</option>
+                <option value="sur">Canelones</option>
+                <option value="este">Maldonado</option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2">
+            <label for="proyecto" class="c-label">Barrio</label>
+            <select id="proyecto" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio" (ngModelChange)="onBarrioChange()">
+                <option value="">Todos</option>
+                <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
             </select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2">
@@ -57,77 +63,20 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Torres del Parque</td>
-                    <td>Norte</td>
-                    <td>Mediano</td>
-                    <td>$120,000</td>
-                    <td>2026-03-01</td>
-                    <td class="text-end"  >
-                        <a href="javascript:;" (click)="goEditar(1)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                <tr *ngFor="let it of filteredUnidades">
+                    <td>{{ it.nombre || it.name }}</td>
+                    <td>{{ labelForCity(it.city || it.localidad) }}</td>
+                    <td>{{ it.tamano || it.size }}</td>
+                    <td>{{ it.precio | currency:'USD':'symbol':'1.0-0' }}</td>
+                    <td>{{ it.entrega || it.fechaEntrega }}</td>
+                    <td class="text-end">
+                        <a href="javascript:;" (click)="goEditar(it.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
                         <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
                         <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
                     </td>
                 </tr>
-                <tr>
-                    <td>Altos de la Costa</td>
-                    <td>Sur</td>
-                    <td>Grande</td>
-                    <td>$195,000</td>
-                    <td>2025-12-15</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(2)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Vista Andina</td>
-                    <td>Este</td>
-                    <td>Pequeño</td>
-                    <td>$89,900</td>
-                    <td>2025-08-20</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(3)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Jardines del Río</td>
-                    <td>Oeste</td>
-                    <td>Mediano</td>
-                    <td>$132,500</td>
-                    <td>2026-05-10</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(4)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Puerto Nuevo</td>
-                    <td>Norte</td>
-                    <td>Grande</td>
-                    <td>$210,000</td>
-                    <td>2027-01-30</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(5)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Parque Central</td>
-                    <td>Sur</td>
-                    <td>Pequeño</td>
-                    <td>$99,000</td>
-                    <td>2025-09-05</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(6)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
+                <tr *ngIf="!filteredUnidades.length">
+                    <td colspan="6" class="text-center">Sin resultados</td>
                 </tr>
             </tbody>
         </table>

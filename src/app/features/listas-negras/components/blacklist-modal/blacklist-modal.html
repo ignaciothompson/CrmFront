@@ -1,0 +1,21 @@
+<div class="modal-header">
+    <h5 class="modal-title">Agregar a Lista Negra</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-2">
+      <input class="form-control c-input" [(ngModel)]="query" placeholder="Buscar por nombre..." />
+    </div>
+    <div class="list-group" style="max-height: 300px; overflow: auto;">
+      <label class="list-group-item" *ngFor="let it of filtered">
+        <input class="form-check-input me-1" type="checkbox" [checked]="selectedIds.has(it.id)" (change)="toggle(it.id)">
+        {{ it.label }}
+      </label>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn c-btn btn-default" (click)="activeModal.dismiss()">Cancelar</button>
+    <button class="btn c-btn btn-primary" (click)="confirm()">Agregar</button>
+  </div>
+
+
