@@ -1,5 +1,39 @@
-<div class="page">
-  <h2 class="m-0">Reportes</h2>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="frame m-b-md">
+			<div class="frame-body">
+				<h5>Unidades registradas vs vendidas (mensual)</h5>
+				<ngx-charts-line-chart
+					[results]="registradasLine"
+					[showXAxisLabel]="true"
+					[showYAxisLabel]="true"
+					[xAxisLabel]="'Mes'"
+					[yAxisLabel]="'Registradas'">
+				</ngx-charts-line-chart>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12 col-sm-6">
+		<div class="frame m-b-md">
+			<div class="frame-body">
+				<h5>Entrevistas por mes</h5>
+				<ngx-charts-bar-vertical
+					[results]="entrevistasResults"
+					[showXAxisLabel]="true"
+					[showYAxisLabel]="true"
+					[xAxisLabel]="'Mes'"
+					[yAxisLabel]="'Entrevistas'">
+				</ngx-charts-bar-vertical>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12 col-sm-6">
+		<div class="frame m-b-md">
+			<div class="frame-body">
+				<h5>Unidades por ciudad</h5>
+				<ngx-charts-pie-chart [results]="unidadesByCity" [doughnut]="false">
+				</ngx-charts-pie-chart>
+			</div>
+		</div>
+	</div>
 </div>
-
-

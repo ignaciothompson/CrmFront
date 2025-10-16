@@ -1,0 +1,69 @@
+.filters-sidebar {
+    background: white;
+    padding: 15px;
+    position: relative;
+    top: -15px;
+    right: -15px;
+    height: 100%;
+    min-height: calc(100vh - 80px);
+}
+
+/* Card grid enhancements for unidad tiles */
+.cards-container-3 .card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    overflow: hidden;
+}
+
+.cards-container-3 .card .card-image img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.cards-container-3 .card .card-data {
+    padding: 12px 14px 14px 14px;
+}
+
+.cards-container-3 .card .card-title {
+    margin-bottom: 2px;
+}
+
+.cards-container-3 .card .card-subtitle {
+    font-size: 13px;
+    color: var(--muted-text-color);
+    margin-bottom: 6px;
+}
+
+.cards-container-3 .card .card-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+
+/* Sidebar filters */
+.filters-sidebar .filter-block {
+    border-bottom: 1px solid var(--border-color-grey);
+    padding: 10px 0;
+}
+
+.filters-sidebar .filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filters-sidebar .checkbox {
+    margin: 4px 0;
+}
+
+.filters-sidebar .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+}

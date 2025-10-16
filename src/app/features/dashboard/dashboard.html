@@ -5,7 +5,7 @@
         </div>
         <div class="card-data">
             <div class="card-title">Unidades Totales</div>
-            <div class="card-value">1250</div>
+            <div class="card-value">{{ totalUnidades }}</div>
         </div>
     </div>
     <div class="card">
@@ -14,7 +14,7 @@
         </div>
         <div class="card-data">
             <div class="card-title">Contactos</div>
-            <div class="card-value">500</div>
+            <div class="card-value">{{ totalContactos }}</div>
         </div>
     </div>
     <div class="card">
@@ -23,7 +23,7 @@
         </div>
         <div class="card-data">
             <div class="card-title">Unidades Disponibles</div>
-            <div class="card-value">1000</div>
+            <div class="card-value">{{ unidadesDisponibles }}</div>
         </div>
     </div>
     <div class="card">
@@ -31,8 +31,8 @@
             <i class="fa fa-info-circle"></i>
         </div>
         <div class="card-data">
-            <div class="card-title">Nuevos Contactos (30d)</div>
-            <div class="card-value">100</div>
+            <div class="card-title">Entrevistas</div>
+            <div class="card-value">{{ entrevistasPendientes }}</div>
         </div>
     </div>
 </div>
@@ -41,103 +41,29 @@
     <div class="col-xs-12 col-sm-8">
         <div class="frame">
             <div class="frame-title">
-                <h4>Actividad reciente</h4>
+                <h4>Calendario de entrevistas</h4>
             </div>
             <div class="frame-body">
-                <div class="recent-activity">
-                    <div class="activity-card primary">
-                        <div class="icon">
-                            <i class="far fa-address-card"></i>
-                        </div>
-                        <div class="activity-data">
-                            <div class="activity-text">Nuevo Contacto <b class="accent">"Mario Ruiz"</b> creado por <b class="accent">Ana López</b></div>
-                            <div class="activity-time">11:35 AM</div>
-                        </div>
-                        <div class="activity-link">
-                            <i class="fa fa-external-link"></i>
-                        </div>
-                    </div>
-                    <div class="activity-card primary">
-                        <div class="icon">
-                            <i class="far fa-home"></i>
-                        </div>
-                        <div class="activity-data">
-                            <div class="activity-text">Actualización unidad <b class="accent">"Apto 2B"</b> por <b class="accent">Juan Perez</b></div>
-                            <div class="activity-time">10:12 AM</div>
-                        </div>
-                        <div class="activity-link">
-                            <i class="fa fa-external-link"></i>
-                        </div>
-                    </div>
-                    <div class="activity-card success">
-                        <div class="icon">
-                            <i class="far fa-check-circle"></i>
-                        </div>
-                        <div class="activity-data">
-                            <div class="activity-text">Tarea completada <b class="accent">"Enviar propuesta"</b> por <b class="accent">Laura Díaz</b></div>
-                            <div class="activity-time">Ayer 5:20 PM</div>
-                        </div>
-                        <div class="activity-link">
-                            <i class="fa fa-external-link"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="frame-footer">
-                <button class="btn c-btn btn-primary">Ver más</button>
+                <full-calendar [options]="calendarOptions"></full-calendar>
             </div>
         </div>  
     </div>
     <div class="col-xs-12 col-sm-4">
         <div class="frame">
           <div class="frame-title">
-            <h4>Proyectos destacados</h4>
+            <h4>Actividad reciente</h4>
           </div>
           <div class="frame-body">
-            <div class="featured-projects">
-              <div class="project-row">
-                <div class="project-header">
-                  <span class="project-name">Torres del Parque</span>
-                  <span class="project-percent text-info">75%</span>
+            <div class="recent-activity">
+              <div class="activity-card" *ngFor="let a of recent" [ngClass]="a.tone || 'primary'">
+                <div class="icon"><i class="{{ a.icon }}"></i></div>
+                <div class="activity-data">
+                  <div class="activity-text">{{ a.text }}</div>
+                  <div class="activity-time">{{ a.time }}</div>
                 </div>
-                <div class="progress-track">
-                  <div class="progress-fill primary" style="width: 75%"></div>
-                </div>
-              </div>
-
-              <div class="project-row">
-                <div class="project-header">
-                  <span class="project-name">Villas del Sol</span>
-                  <span class="project-percent text-success">40%</span>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill success" style="width: 40%"></div>
-                </div>
-              </div>
-
-              <div class="project-row">
-                <div class="project-header">
-                  <span class="project-name">Condominio El Roble</span>
-                  <span class="project-percent text-info">90%</span>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill primary" style="width: 90%"></div>
-                </div>
-              </div>
-
-              <div class="project-row">
-                <div class="project-header">
-                  <span class="project-name">Residencial La Montaña</span>
-                  <span class="project-percent text-success">25%</span>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill success" style="width: 25%"></div>
-                </div>
+                <div class="activity-link"><i class="fa fa-external-link"></i></div>
               </div>
             </div>
-          </div>
-          <div class="frame-footer">
-            <button class="btn c-btn btn-primary">Ver todos</button>
           </div>
         </div>
     </div>

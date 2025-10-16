@@ -9,6 +9,7 @@
 @import './components/dropdowns.css';
 @import './components/container.css';
 @import './components/labels.css';
+@import './components/calendar.css';
 
 /* Components scope */
 .c-skin .btn-pill { border-radius: 999px; }

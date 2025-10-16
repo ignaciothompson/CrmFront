@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NotFound } from './shared/not-found/not-found';
 import { authGuard } from './core/guards/auth-guard';
-import { Login } from './features/auth/pages/login/login';
+import { Login } from './features/auth/login/login';
 import { MainLayout } from './shared/layout/main-layout';
 
 const routes: Routes = [
@@ -21,6 +21,7 @@ const routes: Routes = [
 			{ path: 'listas-negras', data: { title: 'Listas negras' }, loadChildren: () => import('./features/listas-negras/listas-negras-module').then(m => m.ListasNegrasModule) },
 			{ path: 'entrevistas', data: { title: 'Entrevistas' }, loadChildren: () => import('./features/entrevistas/entrevistas-module').then(m => m.EntrevistasModule) },
 			{ path: 'usuario', data: { title: 'Usuario' }, loadChildren: () => import('./features/usuario/usuario-module').then(m => m.UsuarioModule) },
+			{ path: 'importar', data: { title: 'Importar' }, loadChildren: () => import('./features/importar/importar-module').then(m => m.ImportarModule) },
 		]
 	},
 	{ path: '**', component: NotFound },

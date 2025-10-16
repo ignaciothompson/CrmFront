@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UnidadService } from '../../../core/services/unidad';
+import { ProyectoService } from '../../../core/services/proyecto';
+import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
 
 @Component({
   selector: 'app-unidad-form',
@@ -9,10 +11,13 @@ import { UnidadService } from '../../../core/services/unidad';
   styleUrl: './unidad-form.css'
 })
 export class UnidadForm {
-  constructor(private route: ActivatedRoute, private router: Router, private unidadService: UnidadService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private unidadService: UnidadService, private proyectoService: ProyectoService) {}
 
-  model: any = { nombre: '', tipo: 'Residencial', descripcion: '', estado: 'En planificación', unidades: null, entrega: '', ubicacion: '', inicio: '', city: '', barrio: '' };
+  model: any = { nombre: '', tipo: 'Residencial', descripcion: '', estado: 'En planificación', unidades: null, entrega: '', ubicacion: '', inicio: '', city: '', barrio: '', proyectoId: '', extras: [] };
   id?: string;
+  proyectoItems: Array<{ id: string; label: string }> = [];
+  proyectosAll: any[] = [];
+  extrasCatalog = EXTRAS_CATALOG;
   ciudades = [
     { value: 'norte', label: 'Montevideo' },
     { value: 'sur', label: 'Canelones' },
@@ -33,6 +38,10 @@ export class UnidadForm {
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id') ?? undefined;
+    this.proyectoService.getProyectos().subscribe(ps => {
+      this.proyectosAll = ps || [];
+      this.proyectoItems = this.proyectosAll.map(p => ({ id: String(p.id), label: String(p.nombre) }));
+    });
     if (this.id) {
       this.unidadService.getUnidadById(this.id).subscribe(u => {
         if (u) {
@@ -65,5 +74,28 @@ export class UnidadForm {
     } else {
       this.unidadService.addUnidad(payload).then(() => this.router.navigate(['/unidades']));
     }
+  }
+
+  onExtraChange(extraLabel: string, isChecked: boolean): void {
+    const currentExtras: string[] = Array.isArray(this.model.extras) ? this.model.extras.slice() : [];
+    const alreadyIncluded = currentExtras.includes(extraLabel);
+    if (isChecked && !alreadyIncluded) {
+      this.model.extras = [...currentExtras, extraLabel];
+      return;
+    }
+    if (!isChecked && alreadyIncluded) {
+      this.model.extras = currentExtras.filter((existingLabel: string) => existingLabel !== extraLabel);
+    }
+  }
+
+  onProyectoChange(): void {
+    const p = this.proyectosAll.find(x => String(x.id) === String(this.model.proyectoId));
+    if (!p) return;
+    // Denormalize values from proyecto into unidad model for fast filters
+    this.model.city = p.ciudad || p.city || this.model.city;
+    this.model.barrio = p.barrio || this.model.barrio;
+    // If unit type is empty, default from proyecto.tipo when present
+    if (!this.model.tipo && p.tipo) this.model.tipo = p.tipo;
+    this.recomputeBarrios();
   }
 }

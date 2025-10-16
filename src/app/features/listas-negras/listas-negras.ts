@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContactoService } from '../../core/services/contacto';
-import { BlacklistModal } from './components/blacklist-modal/blacklist-modal';
+import { BlacklistModal } from './blacklist-modal/blacklist-modal';
 
 @Component({
   selector: 'app-listas-negras',
@@ -13,11 +13,16 @@ export class ListasNegras {
   constructor(private modal: NgbModal, private contactoService: ContactoService) {}
 
   items: any[] = [];
+  all: any[] = [];
+  selectedId: string | null = null;
+  searchItems: Array<{ id: string; label: string }> = [];
 
   ngOnInit(): void {
     // Example: load from contactos with Lista Negra flag
     this.contactoService.getContactos().subscribe(cs => {
-      this.items = (cs || []).filter(c => !!c?.ListaNegra);
+      this.all = (cs || []);
+      this.items = this.all.filter(c => !!c?.ListaNegra);
+      this.searchItems = this.items.map(c => ({ id: String(c.id), label: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim() }));
     });
   }
 
@@ -34,6 +39,14 @@ export class ListasNegras {
         .then(() => {})
         .catch(() => {});
     }).catch(() => {});
+  }
+
+  onSearchChange(): void {
+    if (this.selectedId) {
+      this.items = this.all.filter(c => !!c?.ListaNegra && String(c.id) === String(this.selectedId));
+    } else {
+      this.items = this.all.filter(c => !!c?.ListaNegra);
+    }
   }
 }
 

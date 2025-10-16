@@ -2,13 +2,8 @@
     color: var(--text-color);
 }
 
-.c-skin .row {
+.c-skin .subheader .row {
     width: 100%;
-}
-
-.c-skin .row > * {
-    --bs-gutter-x: 20px;
-    --bs-gutter-y: 0px;
 }
 
 .c-skin b{

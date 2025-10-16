@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 import { DashboardRoutingModule } from './dashboard-routing-module';
 import { Dashboard } from './dashboard';
@@ -11,6 +12,7 @@ import { Dashboard } from './dashboard';
   ],
   imports: [
     CommonModule,
+    FullCalendarModule,
     DashboardRoutingModule
   ]
 })

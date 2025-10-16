@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { ReportesRoutingModule } from './reportes-routing-module';
 import { Reportes } from './reportes';
@@ -11,6 +12,7 @@ import { Reportes } from './reportes';
   ],
   imports: [
     CommonModule,
+    NgxChartsModule,
     ReportesRoutingModule
   ]
 })

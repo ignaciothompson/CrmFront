@@ -1,31 +1,35 @@
 <div class="frame">
-  <div class="frame-title">
-    <h4>Listas negras</h4>
-    <div class="frame-actions">
-      <button class="btn c-btn btn-primary" (click)="openAddModal()">Agregar</button>
-    </div>
-  </div>
-  <div class="frame-body scroll-table">
-    <table class="table c-table table-fixed table-striped">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Motivo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let it of items">
-          <td>{{ it.Nombre }}</td>
-          <td>{{ it.Apellido }}</td>
-          <td>{{ it.Motivo || '-' }}</td>
-        </tr>
-        <tr *ngIf="!items.length">
-          <td colspan="3" class="text-center">Sin resultados</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+	<div class="frame-title">
+		<typeahead [(ngModel)]="selectedId" name="blacklistSearch"
+					[items]="searchItems" idKey="id" labelKey="label"
+					placeholder="Buscar..."
+					(ngModelChange)="onSearchChange()"
+					style="max-width: 400px; width: 100%;"></typeahead>
+
+		<div class="frame-actions">
+			<button class="btn c-btn btn-primary"
+				(click)="openAddModal()">Agregar</button>
+		</div>
+	</div>
+	<div class="frame-body scroll-table">
+		<table class="table c-table table-fixed table-striped">
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Apellido</th>
+					<th>Motivo</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let it of items">
+					<td>{{ it.Nombre }}</td>
+					<td>{{ it.Apellido }}</td>
+					<td>{{ it.Motivo || '-' }}</td>
+				</tr>
+				<tr *ngIf="!items.length">
+					<td colspan="3" class="text-center">Sin resultados</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
-
-

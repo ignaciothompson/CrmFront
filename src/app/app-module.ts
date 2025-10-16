@@ -1,5 +1,6 @@
 import { NgModule, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -13,7 +14,7 @@ import { Header } from './shared/layout/header/header';
 import { Sidebar } from './shared/layout/sidebar/sidebar';
 import { MainLayout } from './shared/layout/main-layout';
 import { NotFound } from './shared/not-found/not-found';
-import { Login } from './features/auth/pages/login/login';
+import { Login } from './features/auth/login/login';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { Login } from './features/auth/pages/login/login';
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideAnimations(),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => {
       const auth = getAuth();

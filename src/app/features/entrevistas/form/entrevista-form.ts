@@ -16,6 +16,8 @@ export class EntrevistaForm {
   contactoId: string | null = null;
   contactoItems: Array<{ id: string; label: string }> = [];
   comentario: string = '';
+  unidadNombre: string = '';
+  location: string = '';
   fecha: { year: number; month: number; day: number } | null = null;
   hora: { hour: number; minute: number } = { hour: 9, minute: 0 };
   calendarOptions: any = {
@@ -41,7 +43,8 @@ export class EntrevistaForm {
     const horaStr = `${String(this.hora.hour).padStart(2,'0')}:${String(this.hora.minute).padStart(2,'0')}`;
     const payload = {
       EntrevistaPendiente: true,
-      Entrevista: { Fecha: fechaStr, Hora: horaStr, Comentario: this.comentario }
+      Entrevista: { Fecha: fechaStr, Hora: horaStr, Comentario: this.comentario },
+      Meet: { Fecha: fechaStr, Hora: horaStr, Comentario: this.comentario, Location: this.location, Unidad: { nombre: this.unidadNombre } }
     };
     this.contactoService.updateContacto(this.contactoId, payload).then(() => this.router.navigate(['/entrevistas']));
   }

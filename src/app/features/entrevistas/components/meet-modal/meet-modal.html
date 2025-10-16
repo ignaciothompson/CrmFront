@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h5 class="modal-title">Meet</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-xs-12 col-sm-6">
+      <div><b>Nombre:</b> {{ contacto?.Nombre }} {{ contacto?.Apellido }}</div>
+      <div><b>Tel:</b> {{ contacto?.Celular }}</div>
+      <div><b>Email:</b> {{ contacto?.Mail }}</div>
+    </div>
+    <div class="col-xs-12 col-sm-6">
+      <div><b>Unidad:</b> {{ meet?.Unidad?.nombre || '-' }}</div>
+      <div><b>Fecha:</b> {{ meet?.Fecha || '-' }}</div>
+      <div><b>Hora:</b> {{ meet?.Hora || '-' }}</div>
+      <div><b>Ubicación:</b> {{ meet?.Location || '-' }}</div>
+    </div>
+  </div>
+  <div class="m-t-sm">
+    <b>Comentario</b>
+    <div>{{ meet?.Comentario || '-' }}</div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn c-btn btn-default" (click)="activeModal.dismiss()">Cerrar</button>
+</div>
+
+

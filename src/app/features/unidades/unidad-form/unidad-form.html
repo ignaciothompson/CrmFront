@@ -31,6 +31,23 @@
             </div>
 
             <div class="col-xs-12 col-sm-4">
+                <label class="c-label" for="proyecto">Proyecto</label>
+                <typeahead id="proyecto" [(ngModel)]="model.proyectoId" name="proyectoId" [items]="proyectoItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="onProyectoChange()"></typeahead>
+            </div>
+
+            <div class="col-xs-12">
+                <label class="c-label">Extras</label>
+                <div class="checkbox-grid">
+                    <div class="checkbox" *ngFor="let e of extrasCatalog">
+                        <label>
+                            <input type="checkbox" [checked]="(model.extras || []).includes(e.label)" (change)="onExtraChange(e.label, $event.target.checked)">
+                            {{ e.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4">
                 <label class="c-label" for="unidades">Total Unidades</label>
                 <input id="unidades" class="form-control c-input" [(ngModel)]="model.unidades" name="unidades" placeholder="Ej: 150" />
             </div>
