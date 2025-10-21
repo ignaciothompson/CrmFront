@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="card-title">Comparativas</div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Creada</th>
+          <th>Unidades</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of comparativas">
+          <td>
+            {{ c?.contacto?.nombre || '-' }}
+            <div class="muted" *ngIf="c?.contacto?.telefono">{{ c?.contacto?.telefono }}</div>
+          </td>
+          <td>{{ formatDate(c?.createdAt) }}</td>
+          <td>{{ unitsSummary(c) }}</td>
+          <td class="text-right">
+            <button class="btn btn-link" title="Compartir" (click)="copyLink(c)">Compartir</button>
+            <button class="btn btn-link text-danger" title="Eliminar" (click)="delete(c)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+

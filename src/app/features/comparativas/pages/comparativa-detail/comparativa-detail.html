@@ -1,0 +1,76 @@
+<div class="comparativa-header">
+  <div class="header-image"></div>
+  <div class="header-overlay">
+    <h2>Comparativa</h2>
+    <div class="contacto" *ngIf="comparativa?.contacto">
+      <span><b>Cliente:</b> {{ comparativa?.contacto?.nombre }}</span>
+      <span class="m-l-sm"><b>Tel:</b> {{ comparativa?.contacto?.telefono }}</span>
+      <span class="m-l-sm"><b>Mail:</b> {{ comparativa?.contacto?.mail }}</span>
+    </div>
+  </div>
+  </div>
+
+<div class="row m-t">
+  <div class="col-xs-12 col-md-8">
+    <div class="card">
+      <div class="card-title">Unidades</div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Ciudad</th>
+              <th>Barrio</th>
+              <th>Cuartos</th>
+              <th>Baños</th>
+              <th>Tamaño</th>
+              <th>Precio</th>
+              <th>Expensas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of comparativa?.unidades">
+              <td>{{ u?.nombre }}</td>
+              <td>{{ u?.ciudad }}</td>
+              <td>{{ u?.barrio }}</td>
+              <td>{{ u?.dormitorios }}</td>
+              <td>{{ u?.banos }}</td>
+              <td>{{ u?.tamanoM2 }} m²</td>
+              <td>{{ u?.precioUSD | currency:'USD' }}</td>
+              <td>{{ u?.expensasUSD | currency:'USD' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Extras</div>
+      <div class="extras-grid">
+        <div class="extra-row" *ngFor="let u of comparativa?.unidades">
+          <div class="extra-title">{{ u?.nombre }}</div>
+          <div class="extra-tags">
+            <span class="tag" *ngFor="let e of (u?.extras || [])">{{ e }}</span>
+            <span class="muted" *ngIf="!(u?.extras?.length)">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-md-4">
+    <div class="card">
+      <div class="card-title">Mapa</div>
+      <div *ngIf="mapCenter; else noMap">
+        <google-map height="320px" width="100%" [center]="mapCenter" [zoom]="mapZoom">
+          <map-marker *ngFor="let m of markers" [position]="m.position" [label]="m.label || ''"></map-marker>
+        </google-map>
+      </div>
+      <ng-template #noMap>
+        <div class="muted">No hay coordenadas para estas unidades.</div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+

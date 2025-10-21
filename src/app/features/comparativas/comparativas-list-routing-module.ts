@@ -1,14 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Comparativas } from './comparativas';
+import { ComparativasListPage } from './pages/comparativas-list/comparativas-list';
 
 const routes: Routes = [
-  // Internal create/selection page under /comparativas
-  { path: '', component: Comparativas }
+  { path: '', component: ComparativasListPage }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class ComparativasRoutingModule { }
+export class ComparativasListRoutingModule { }
+
+

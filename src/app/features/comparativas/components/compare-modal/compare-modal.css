@@ -1,0 +1,8 @@
+.modal-body ul li {
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border-color-grey);
+}
+
+.modal-body ul li:last-child { border-bottom: none; }
+
+

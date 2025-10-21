@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, docData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc, doc, docData, deleteDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -19,5 +19,10 @@ export class ComparativaService {
 	addComparativa(payload: any) {
 		const ref = collection(this.firestore, 'comparativas');
 		return addDoc(ref, payload);
+	}
+
+	deleteComparativa(id: string) {
+		const ref = doc(this.firestore, `comparativas/${id}`);
+		return deleteDoc(ref);
 	}
 }

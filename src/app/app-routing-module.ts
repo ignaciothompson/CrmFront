@@ -7,6 +7,8 @@ import { MainLayout } from './shared/layout/main-layout';
 
 const routes: Routes = [
 	{ path: 'login', component: Login },
+  // Public access to shared comparativas by id (new public path)
+  { path: 'comparacion/:id', loadChildren: () => import('./features/comparativas/comparativas-public-module').then(m => m.ComparativasPublicModule) },
 	{
 		path: '',
 		component: MainLayout,
@@ -16,7 +18,8 @@ const routes: Routes = [
 			{ path: 'dashboard', data: { title: 'Dashboard' }, loadChildren: () => import('./features/dashboard/dashboard-module').then(m => m.DashboardModule) },
 			{ path: 'contactos', data: { title: 'Contactos' }, loadChildren: () => import('./features/contactos/contactos-module').then(m => m.ContactosModule) },
 			{ path: 'unidades', data: { title: 'Listado de Proyectos' }, loadChildren: () => import('./features/unidades/unidades-module').then(m => m.UnidadesModule) },
-			{ path: 'comparativas', data: { title: 'Comparativas' }, loadChildren: () => import('./features/comparativas/comparativas-module').then(m => m.ComparativasModule) },
+			{ path: 'comparativas', data: { title: 'Crear Comparativas' }, loadChildren: () => import('./features/comparativas/comparativas-module').then(m => m.ComparativasModule) },
+			{ path: 'listado-comparativas', data: { title: 'Comparativas' }, loadChildren: () => import('./features/comparativas/comparativas-list-module').then(m => m.ComparativasListModule) },
 			{ path: 'reportes', data: { title: 'Reportes' }, loadChildren: () => import('./features/reportes/reportes-module').then(m => m.ReportesModule) },
 			{ path: 'listas-negras', data: { title: 'Listas negras' }, loadChildren: () => import('./features/listas-negras/listas-negras-module').then(m => m.ListasNegrasModule) },
 			{ path: 'entrevistas', data: { title: 'Entrevistas' }, loadChildren: () => import('./features/entrevistas/entrevistas-module').then(m => m.EntrevistasModule) },

@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ComparativaService } from '../../core/services/comparativa';
+import { Router } from '@angular/router';
 import { UnidadService } from '../../core/services/unidad';
 import { ProyectoService } from '../../core/services/proyecto';
 import { EXTRAS_CATALOG } from '../../core/extras-catalog';
@@ -10,7 +13,13 @@ import { EXTRAS_CATALOG } from '../../core/extras-catalog';
   styleUrl: './comparativas.css'
 })
 export class Comparativas {
-  constructor(private unidadService: UnidadService, private proyectoService: ProyectoService) {}
+  constructor(
+    private unidadService: UnidadService,
+    private proyectoService: ProyectoService,
+    private modalService: NgbModal,
+    private comparativaService: ComparativaService,
+    private router: Router
+  ) {}
 
   // Filters state
   nameSelectedId: string | null = null;
@@ -63,6 +72,9 @@ export class Comparativas {
   distribuciones: string[] = ['Frente/Esquinero', 'Frente/Central', 'Contrafrente/Esquinero', 'Contrafrente/Central', 'Lateral', 'Inferior'];
   pisos: string[] = ['Bajo', 'Medio', 'Alto'];
   ocupaciones: string[] = ['A ocupar', '1 a 6 meses', '7 meses 1 año', '1 a 2 años', 'Mas de 2 años'];
+
+  // Compare selection state
+  private selectedIdSet: Set<string> = new Set<string>();
 
   ngOnInit(): void {
     this.unidadService.getUnidades().subscribe(us => {
@@ -214,6 +226,71 @@ export class Comparativas {
       disponibilidad,
       proyectoId: u?.proyectoId || ''
     };
+  }
+
+  // --- Compare selection methods ---
+  isSelected(u: any): boolean { return this.selectedIdSet.has(String(u.id)); }
+
+  toggleSelect(u: any): void {
+    const id = String(u?.id);
+    if (!id) return;
+    if (this.selectedIdSet.has(id)) {
+      this.selectedIdSet.delete(id);
+    } else {
+      this.selectedIdSet.add(id);
+    }
+  }
+
+  selectedCount(): number { return this.selectedIdSet.size; }
+
+  openCompareModal(event: MouseEvent): void {
+    event.stopPropagation();
+    const selectedUnits = this.items.filter(u => this.selectedIdSet.has(String(u.id)));
+    if (selectedUnits.length < 2) return;
+
+    // Lazy import modal component to avoid circular refs
+    import('./components/compare-modal/compare-modal').then(m => {
+      const modalRef = this.modalService.open(m.CompareModal, { size: 'lg', backdrop: 'static' });
+      (modalRef.componentInstance as any).unidades = selectedUnits;
+
+      modalRef.result.then((result: any) => {
+        if (!result) return;
+        const contacto = result?.contacto;
+        const now = Date.now();
+        const unidadesSnapshot = selectedUnits.map(u => ({
+          id: String(u.id),
+          nombre: u?.nombre || u?.name || '',
+          ciudad: u?.ciudad || u?.city || '',
+          barrio: u?.barrio || '',
+          dormitorios: u?.dormitorios ?? u?.cuartos ?? null,
+          banos: u?.banos ?? null,
+          tamanoM2: u?.tamanoM2 ?? u?.tamano ?? null,
+          precioUSD: u?.precioUSD ?? u?.precio ?? null,
+          expensasUSD: u?.expensasUSD ?? u?.expensas ?? null,
+          extras: Array.isArray(u?.extras) ? u.extras : [],
+          imagenUrl: u?.imagenUrl || u?.imagen || u?.image || null,
+          lat: u?.lat ?? u?.latitude ?? null,
+          lng: u?.lng ?? u?.longitude ?? null
+        }));
+
+        const payload = {
+          createdAt: now,
+          contacto: contacto ? {
+            id: String(contacto.id),
+            nombre: String(contacto.nombre || ''),
+            telefono: String(contacto.telefono || ''),
+            mail: contacto.mail || ''
+          } : null,
+          unidades: unidadesSnapshot
+        };
+
+        this.comparativaService.addComparativa(payload).then(ref => {
+          this.selectedIdSet.clear();
+          const id = (ref as any)?.id;
+          if (id) this.router.navigate(['/comparacion', id]);
+        });
+      }).catch(() => {});
+    });
   }
 }
 

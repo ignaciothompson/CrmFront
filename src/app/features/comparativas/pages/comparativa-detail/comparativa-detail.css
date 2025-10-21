@@ -1,0 +1,55 @@
+.comparativa-header {
+  position: relative;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f3f5f8;
+}
+
+.comparativa-header .header-image {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=1200&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.6);
+}
+
+.comparativa-header .header-overlay {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  padding: 16px;
+}
+
+.comparativa-header h2 { margin: 0 0 4px 0; }
+
+.comparativa-header .contacto span { margin-right: 8px; }
+
+.extras-grid .extra-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color-grey);
+}
+
+.extras-grid .extra-row:last-child { border-bottom: none; }
+
+.extras-grid .extra-title { width: 160px; font-weight: 600; font-size: 14px; }
+
+.extras-grid .extra-tags .tag {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  background: #f1f5ff;
+  color: #1d4ed8;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.muted { color: var(--muted-text-color); }
+
+

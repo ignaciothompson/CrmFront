@@ -1,0 +1,29 @@
+<div class="modal-header">
+  <h5 class="modal-title">Confirmar comparativa</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+  </div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-xs-12">
+      <p class="m-b-sm"><b>Unidades seleccionadas ({{ unidades?.length || 0 }}):</b></p>
+      <ul class="list-unstyled">
+        <li *ngFor="let u of unidades">
+          {{ u?.nombre || 'Unidad' }} — {{ u?.barrio || '-' }}, {{ u?.ciudad || u?.city || u?.localidad }} — {{ u?.precioUSD || u?.precio | currency:'USD' }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row m-t">
+    <div class="col-xs-12">
+      <label class="form-label"><b>Cliente</b></label>
+      <typeahead [(ngModel)]="selectedContactoId" name="selectedContactoId" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Buscar cliente..."></typeahead>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">Cancelar</button>
+  <button type="button" class="btn btn-primary" [disabled]="!unidades || unidades.length < 2" (click)="confirm()">Confirmar</button>
+</div>
+
+

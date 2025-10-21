@@ -67,3 +67,43 @@
     grid-template-columns: 1fr 1fr;
     column-gap: 12px;
 }
+
+/* Selection styles for compare flow */
+.cards-container-3 .card.selectable {
+    cursor: pointer;
+    position: relative;
+    border: 2px solid transparent;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.cards-container-3 .card.selectable:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.cards-container-3 .card.selectable.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+}
+
+.cards-container-3 .card.selectable .select-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(29, 78, 216, 0.95);
+    color: #fff;
+    border-radius: 16px;
+    padding: 2px 8px;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.compare-floating {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1050;
+}
+
+.compare-floating .btn {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
