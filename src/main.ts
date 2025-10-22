@@ -7,7 +7,7 @@ import { provideFirestore, getFirestore, connectFirestoreEmulator } from '@angul
 import { environment } from './environments/environment';
 import { App } from './app/app';
 import { AppRoutingModule } from './app/app-routing-module';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+// Remove Bootstrap JS import to avoid CommonJS warning; CSS is already included via angular.json
 
 bootstrapApplication(App, {
   providers: [
