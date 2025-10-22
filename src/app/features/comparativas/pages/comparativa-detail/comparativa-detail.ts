@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { GoogleMapsModule } from '@angular/google-maps';
 import { ActivatedRoute } from '@angular/router';
 import { ComparativaService } from '../../../../core/services/comparativa';
 
 @Component({
   selector: 'app-comparativa-detail',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, GoogleMapsModule],
   templateUrl: './comparativa-detail.html',
   styleUrl: './comparativa-detail.css'
 })

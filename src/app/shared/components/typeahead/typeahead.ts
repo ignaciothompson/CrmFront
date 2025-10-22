@@ -1,11 +1,14 @@
 import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
+import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
   selector: 'typeahead',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgbTypeaheadModule],
   templateUrl: './typeahead.html',
   styleUrl: './typeahead.css',
   providers: [

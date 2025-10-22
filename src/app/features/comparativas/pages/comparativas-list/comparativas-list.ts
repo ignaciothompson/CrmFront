@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ComparativaService } from '../../../../core/services/comparativa';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-comparativas-list',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './comparativas-list.html',
   styleUrl: './comparativas-list.css'
 })

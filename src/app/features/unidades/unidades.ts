@@ -1,11 +1,15 @@
 import { Component, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { UnidadService } from '../../core/services/unidad';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-unidades',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './unidades.html',
   styleUrl: './unidades.css'
 })

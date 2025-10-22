@@ -1,11 +1,16 @@
 import { Component, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { Router } from '@angular/router';
 import { ContactoService } from '../../core/services/contacto';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-contactos',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, TypeaheadComponent],
   templateUrl: './contactos.html',
   styleUrl: './contactos.css'
 })

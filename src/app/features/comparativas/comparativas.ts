@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ComparativaService } from '../../core/services/comparativa';
 import { Router } from '@angular/router';
@@ -8,7 +11,8 @@ import { EXTRAS_CATALOG } from '../../core/extras-catalog';
 
 @Component({
   selector: 'app-comparativas',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, TypeaheadComponent],
   templateUrl: './comparativas.html',
   styleUrl: './comparativas.css'
 })

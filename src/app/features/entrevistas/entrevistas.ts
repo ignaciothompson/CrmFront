@@ -1,9 +1,14 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../core/services/contacto';
 
 @Component({
   selector: 'app-entrevistas',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, TypeaheadComponent],
   templateUrl: './entrevistas.html',
   styleUrl: './entrevistas.css'
 })

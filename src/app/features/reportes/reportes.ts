@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
 
 @Component({
   selector: 'app-reportes',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, NgxChartsModule],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css'
 })

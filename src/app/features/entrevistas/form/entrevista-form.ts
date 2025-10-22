@@ -1,12 +1,18 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
+import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../../core/services/contacto';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
 @Component({
   selector: 'app-entrevista-form',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, NgbDatepickerModule, NgbTimepickerModule, FullCalendarModule, TypeaheadComponent],
   templateUrl: './entrevista-form.html',
   styleUrl: './entrevista-form.css'
 })

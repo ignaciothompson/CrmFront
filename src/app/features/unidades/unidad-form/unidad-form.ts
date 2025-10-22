@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
 import { UnidadService } from '../../../core/services/unidad';
 import { ProyectoService } from '../../../core/services/proyecto';
 import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
 
 @Component({
   selector: 'app-unidad-form',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, TypeaheadComponent],
   templateUrl: './unidad-form.html',
   styleUrl: './unidad-form.css'
 })

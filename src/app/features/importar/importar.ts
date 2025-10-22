@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ProyectoService } from '../../core/services/proyecto';
 import { UnidadService } from '../../core/services/unidad';
@@ -6,7 +8,8 @@ import { ContactoService } from '../../core/services/contacto';
 
 @Component({
   selector: 'app-importar',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './importar.html',
   styleUrl: './importar.css'
 })

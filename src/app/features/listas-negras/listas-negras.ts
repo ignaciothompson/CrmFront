@@ -1,11 +1,15 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContactoService } from '../../core/services/contacto';
 import { BlacklistModal } from './blacklist-modal/blacklist-modal';
 
 @Component({
   selector: 'app-listas-negras',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, TypeaheadComponent],
   templateUrl: './listas-negras.html',
   styleUrl: './listas-negras.css'
 })

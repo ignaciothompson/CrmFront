@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { Header } from './header/header';
+import { Sidebar } from './sidebar/sidebar';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, RouterModule, Header, Sidebar],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })

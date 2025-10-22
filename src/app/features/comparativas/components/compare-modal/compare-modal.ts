@@ -1,10 +1,15 @@
 import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { TypeaheadComponent } from '../../../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../../../core/services/contacto';
 
 @Component({
   selector: 'app-compare-modal',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgbTypeaheadModule, TypeaheadComponent],
   templateUrl: './compare-modal.html',
   styleUrl: './compare-modal.css'
 })

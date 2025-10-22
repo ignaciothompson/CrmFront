@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ContactoService } from '../../../core/services/contacto';
 
 @Component({
   selector: 'app-contacto-form',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './contacto-form.html',
   styleUrl: './contacto-form.css'
 })

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FullCalendarModule } from '@fullcalendar/angular';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -9,7 +11,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FullCalendarModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
