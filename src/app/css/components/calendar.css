@@ -1,0 +1,106 @@
+/* Broad theme via CSS variables (FullCalendar v6 supports these) */
+.c-skin {
+  --fc-border-color: #e5e7eb;
+  --fc-page-bg-color: #fff;
+  --fc-neutral-bg-color: #f8fafc;
+  --fc-today-bg-color: #fff6e5;
+
+  /* Make FC buttons look like .btn-white (no radius override) */
+  --fc-button-text-color: var(--text-highlight-color);
+  --fc-button-bg-color: #fff;
+  --fc-button-border-color: var(--border-color-grey);
+  --fc-button-hover-bg-color: transparent;
+  --fc-button-hover-border-color: var(--link-color);
+  --fc-button-active-bg-color: transparent;
+  --fc-button-active-border-color: var(--link-color);
+
+  --fc-event-bg-color: var(--success-color);
+  --fc-event-border-color: var(--success-color);
+  --fc-event-text-color: #fff;
+
+  --fc-today-bg-color: rgba(30, 58, 138, 0.10);
+}
+
+/* Toolbar layout and typography */
+.c-skin .fc .fc-toolbar {
+  gap: 0.5rem;
+}
+.c-skin .fc .fc-toolbar-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Match .btn-white hover states */
+.c-skin .fc .fc-toolbar .fc-button:hover,
+.c-skin .fc .fc-toolbar .fc-button:focus,
+.c-skin .fc .fc-toolbar .fc-button:active {
+  color: var(--link-color) !important;
+  background-color: transparent !important;
+  border-color: var(--link-color) !important;
+  box-shadow: none !important;
+}
+
+/* Match system button height (like .btn.c-btn) without changing radius */
+.c-skin .fc .fc-toolbar .fc-button {
+  height: var(--desktop-height);
+  padding: 0 var(--padding-lg);
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
+  .c-skin .fc .fc-toolbar .fc-button {
+    height: var(--mobile-height);
+  }
+}
+
+/* Header cells */
+.c-skin .fc .fc-col-header-cell {
+  background: #f3f4f6;
+  color: var(--text-color);
+  font-weight: 600;
+}
+.c-skin .fc .fc-col-header-cell a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+/* Day numbers */
+.c-skin .fc .fc-daygrid-day-number {
+  color: var(--text-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+
+/* Today highlight edge */
+.c-skin .fc .fc-day-today {
+  box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+
+/* Events */
+.c-skin .fc .fc-event {
+  background-color: var(--success-color) !important;
+  border-color: var(--success-color) !important;
+  color: #fff !important;
+  border-radius: 5px;
+  padding: 3px;
+}
+.c-skin .fc .fc-event .fc-event-time {
+  font-weight: 600;
+}
+
+.c-skin .fc .fc-event .fc-daygrid-event-dot {
+    display: none;
+}
+
+/* More link */
+.c-skin .fc .fc-daygrid-more-link {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* TimeGrid row height (week/day views) */
+.c-skin .fc .fc-timegrid-slot {
+  height: 90px;
+}

@@ -31,3 +31,18 @@
     width: 100%;
     max-width: 220px;
 }
+
+/* Apply same nav-link styling inside the sidebar footer */
+.app-sidebar .sidebar-footer .nav-link {
+	color: var(--text-color);
+	padding: 8px 12px !important; /* override Bootstrap p-0 */
+	border-radius: 6px;
+	display: inline-block;
+    width: 100%;
+}
+
+.app-sidebar .sidebar-footer .nav-link:hover,
+.app-sidebar .sidebar-footer .nav-link.active {
+	background-color: var(--primary-color);
+	color: #fff;
+}

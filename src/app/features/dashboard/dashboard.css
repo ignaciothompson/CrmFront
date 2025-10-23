@@ -53,66 +53,16 @@
 /* Color variants for activity cards */
 .activity-card.primary .icon {
     color: var(--primary-color);
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .activity-card.success .icon {
     color: var(--success-color);
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-/* Featured Projects */
-.featured-projects {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.activity-card.danger .icon {
+    color: var(--danger-color);
 }
 
-.featured-projects .project-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.featured-projects .project-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.featured-projects .project-name {
-    color: var(--text-color);
-}
-
-.featured-projects .project-percent {
-    font-weight: 600;
-}
-
-.featured-projects .progress-track {
-    width: 100%;
-    height: 8px;
-    background: #E9EEF5; /* soft track */
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.featured-projects .progress-fill {
-    height: 100%;
-    border-radius: 999px;
-}
-
-.featured-projects .progress-fill.primary {
-    background: var(--primary-color);
-}
-
-.featured-projects .progress-fill.success {
-    background: var(--success-color);
+.activity-card.warning .icon {
+    color: var(--warning-color);
 }

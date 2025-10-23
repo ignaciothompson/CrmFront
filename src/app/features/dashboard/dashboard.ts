@@ -29,9 +29,15 @@ export class Dashboard {
   calendarOptions: any = {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin],
     initialView: 'dayGridMonth',
-    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+    headerToolbar: {
+      left: 'dayGridMonth,timeGridWeek,timeGridDay',
+      center: 'title',
+      right: 'today prev,next'
+    },
     events: [] as any[],
-    eventClick: (info: any) => this.onEventClick(info)
+    eventClick: (info: any) => this.onEventClick(info),
+    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
+    height: '100%'
   };
 
   // Recent activity (keep structure)

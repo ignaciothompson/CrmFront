@@ -34,15 +34,11 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  border-radius: 50%; /* perfect circle */
-  background: var(--lightblue-color);
-  color: var(--darkblue-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  flex: 0 0 auto;
+  color: var(--text-color);
 }
 
 .c-skin .card-icon i {
-  font-size: 22px;
+  font-size: 36px;
   line-height: 1;
 }
 
@@ -65,18 +61,36 @@
 }
 
 /* Color variants (affect the number only) */
-.c-skin .card.danger .card-value { color: var(--danger-color); }
-.c-skin .card.warning .card-value { color: var(--warning-color); }
-.c-skin .card.success .card-value { color: var(--success-color); }
-.c-skin .card.info .card-value { color: var(--link-color); }
+.c-skin .card.danger .card-icon {
+  color: var(--danger-color);
+}
+.c-skin .card.warning .card-icon {
+  color: var(--warning-color);
+}
+.c-skin .card.success .card-icon {
+  color: var(--success-color);
+}
+.c-skin .card.info .card-icon {
+  color: var(--link-color);
+}
 
 /* Desktop: keep all cards in a single row per container size */
 @media (min-width: 992px) {
-  .c-skin .cards-container-1 > .card { flex: 0 0 100%; }
-  .c-skin .cards-container-2 > .card { flex: 0 0 calc((100% - var(--card-gap) * 1) / 2); }
-  .c-skin .cards-container-3 > .card { flex: 0 0 calc((100% - var(--card-gap) * 2) / 3); }
-  .c-skin .cards-container-4 > .card { flex: 0 0 calc((100% - var(--card-gap) * 3) / 4); }
-  .c-skin .cards-container-5 > .card { flex: 0 0 calc((100% - var(--card-gap) * 4) / 5); }
+  .c-skin .cards-container-1 > .card {
+    flex: 0 0 100%;
+  }
+  .c-skin .cards-container-2 > .card {
+    flex: 0 0 calc((100% - var(--card-gap) * 1) / 2);
+  }
+  .c-skin .cards-container-3 > .card {
+    flex: 0 0 calc((100% - var(--card-gap) * 2) / 3);
+  }
+  .c-skin .cards-container-4 > .card {
+    flex: 0 0 calc((100% - var(--card-gap) * 3) / 4);
+  }
+  .c-skin .cards-container-5 > .card {
+    flex: 0 0 calc((100% - var(--card-gap) * 4) / 5);
+  }
 }
 
 /* Below desktop: allow wrapping and keep cards fairly wide */
@@ -88,5 +102,3 @@
   flex: 1 1 260px;
   max-width: 100%;
 }
-
-

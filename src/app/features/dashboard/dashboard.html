@@ -1,37 +1,37 @@
 <div class="cards-container-4">
-    <div class="card">
+    <div class="card info">
         <div class="card-icon">
-            <i class="fa fa-info-circle"></i>
+            <i class="fa fa-building"></i>
         </div>
         <div class="card-data">
             <div class="card-title">Unidades Totales</div>
             <div class="card-value">{{ totalUnidades }}</div>
         </div>
     </div>
-    <div class="card">
+    <div class="card info">
         <div class="card-icon">
-            <i class="fa fa-info-circle"></i>
+            <i class="fa fa-users"></i>
         </div>
         <div class="card-data">
             <div class="card-title">Contactos</div>
             <div class="card-value">{{ totalContactos }}</div>
         </div>
     </div>
-    <div class="card">
+    <div class="card success">
         <div class="card-icon">
-            <i class="fa fa-info-circle"></i>
+            <i class="fa fa-house-circle-check"></i>
         </div>
         <div class="card-data">
             <div class="card-title">Unidades Disponibles</div>
             <div class="card-value">{{ unidadesDisponibles }}</div>
         </div>
     </div>
-    <div class="card">
+    <div class="card info">
         <div class="card-icon">
-            <i class="fa fa-info-circle"></i>
+            <i class="fa fa-microphone"></i>
         </div>
         <div class="card-data">
-            <div class="card-title">Entrevistas</div>
+            <div class="card-title">Meets pendientes</div>
             <div class="card-value">{{ entrevistasPendientes }}</div>
         </div>
     </div>
@@ -43,7 +43,7 @@
             <div class="frame-title">
                 <h4>Calendario de entrevistas</h4>
             </div>
-            <div class="frame-body">
+            <div class="frame-body" style="height: calc(100vh - 280px);">
                 <full-calendar [options]="calendarOptions"></full-calendar>
             </div>
         </div>  
