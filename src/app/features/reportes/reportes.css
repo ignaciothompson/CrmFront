@@ -1,5 +1,67 @@
-.page {
-  padding: 8px;
+.frame {
+  height: calc(100vh - 555px);
 }
 
+canvas{
+  height: calc(100vh - 620px) !important;
+}
+
+
+/* Chart visuals: 60% fill opacity, full on hover, with visible borders */
+:host ::ng-deep ngx-charts .bar rect,
+:host ::ng-deep ngx-charts .pie-chart .arc path,
+:host ::ng-deep ngx-charts .line-series .circle {
+  fill-opacity: 0.6;
+  transition: fill-opacity 0.2s ease, stroke-width 0.2s ease;
+  stroke-width: 2px;
+}
+
+:host ::ng-deep ngx-charts .bar rect:hover,
+:host ::ng-deep ngx-charts .pie-chart .arc path:hover,
+:host ::ng-deep ngx-charts .line-series .circle:hover {
+  fill-opacity: 1;
+}
+
+/* Fill available height for charts */
+.frame-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-fill {
+  flex: 1 1 auto;
+  min-height: 200px;
+  display: flex;
+  align-items: stretch;
+}
+
+.chart-fill ngx-charts {
+  width: 100%;
+}
+
+.frame-actions {
+  float: right;
+}
+
+.frame-actions.segmented .btn.c-btn.btn-small.btn-white {
+  margin-left: 0;
+  border-radius: 0;
+  border-right-width: 0;
+}
+
+.frame-actions.segmented .btn.c-btn.btn-small.btn-white:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.frame-actions.segmented .btn.c-btn.btn-small.btn-white:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-right-width: 1px;
+}
+
+.frame-actions.segmented .btn.c-btn.btn-small.btn-white.active {
+  background-color: var(--primary-color);
+  color: #fff;
+}
 

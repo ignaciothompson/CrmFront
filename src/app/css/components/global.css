@@ -83,6 +83,10 @@
     margin-top: 20px !important;
 }
 
+.c-skin .m-t-label{
+    margin-top: 24px;
+}
+
 .c-skin .m-r-xs {
     margin-right: 5px !important;
 }

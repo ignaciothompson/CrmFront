@@ -78,6 +78,19 @@
 .c-skin .input-group.input-range {
     display: flex;
     flex-wrap: nowrap;
+    width: 100%;
+}
+
+.c-skin .input-group.input-range .range-item { flex: 1 1 0; }
+
+.c-skin .input-group.input-range .range-item .form-control.c-input { width: 100%; }
+
+.c-skin .input-group.input-range .range-item:first-child .form-control.c-input {
+    border-radius: 5px 0 0 5px;
+}
+
+.c-skin .input-group.input-range .range-item:last-child .form-control.c-input {
+    border-radius: 0 5px 5px 0;
 }
 
 /* -----------------------------------------------------------------

@@ -1,38 +1,77 @@
+<div class="subheader">
+	<div class="row">
+		<div class="col-xs-12 col-sm-4">
+			<div class="input-group input-range">
+				<div class="range-item">
+					<label class="c-label" for="reportes-start-date">Desde</label>
+					<input id="reportes-start-date" type="date" class="form-control c-input" [(ngModel)]="startDateStr" (ngModelChange)="onStartDateChange($event)">
+				</div>
+				<div class="range-item">
+					<label class="c-label" for="reportes-end-date">Hasta</label>
+					<input id="reportes-end-date" type="date" class="form-control c-input" [(ngModel)]="endDateStr" (ngModelChange)="onEndDateChange($event)">
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-8 text-end m-t-label">
+			<button class="btn c-btn btn-square btn-white m-r-sm" (click)="resetRange()"><i class="fa fa-refresh"></i></button>
+			<button class="btn c-btn btn-primary" (click)="applyFilters()">Filtrar</button>
+		</div>
+	</div>
+</div>
 <div class="row">
 	<div class="col-xs-12">
 		<div class="frame m-b-md">
 			<div class="frame-body">
-				<h5>Unidades registradas vs vendidas (mensual)</h5>
-				<ngx-charts-line-chart
-					[results]="registradasLine"
-					[showXAxisLabel]="true"
-					[showYAxisLabel]="true"
-					[xAxisLabel]="'Mes'"
-					[yAxisLabel]="'Registradas'">
-				</ngx-charts-line-chart>
+				<h5>
+					Unidades registradas vs vendidas
+					<span class="frame-actions segmented">
+						<button class="btn c-btn btn-small btn-white" [class.active]="unidadesGroupMode==='month'" (click)="setUnidadesGroupMode('month')">Mes</button>
+						<button class="btn c-btn btn-small btn-white" [class.active]="unidadesGroupMode==='week'" (click)="setUnidadesGroupMode('week')">Semana</button>
+						<button class="btn c-btn btn-small btn-white" [class.active]="unidadesGroupMode==='day'" (click)="setUnidadesGroupMode('day')">Día</button>
+					</span>
+				</h5>
+				<div class="chart-fill" id="chartMain" #chartMain>
+					<canvas baseChart
+						[type]="'line'"
+						[data]="lineData"
+						[options]="lineOptions">
+					</canvas>
+				</div>
 			</div>
 		</div>
 	</div>
 	<div class="col-xs-12 col-sm-6">
-		<div class="frame m-b-md">
+		<div class="frame">
 			<div class="frame-body">
-				<h5>Entrevistas por mes</h5>
-				<ngx-charts-bar-vertical
-					[results]="entrevistasResults"
-					[showXAxisLabel]="true"
-					[showYAxisLabel]="true"
-					[xAxisLabel]="'Mes'"
-					[yAxisLabel]="'Entrevistas'">
-				</ngx-charts-bar-vertical>
+				<h5>
+					Entrevistas por {{ entrevistasXAxisLabel }}
+					<span class="frame-actions segmented">
+						<button class="btn c-btn btn-small btn-white" [class.active]="entrevistasGroupMode==='month'" (click)="setEntrevistasGroupMode('month')">Mes</button>
+						<button class="btn c-btn btn-small btn-white" [class.active]="entrevistasGroupMode==='week'" (click)="setEntrevistasGroupMode('week')">Semana</button>
+						<button class="btn c-btn btn-small btn-white" [class.active]="entrevistasGroupMode==='day'" (click)="setEntrevistasGroupMode('day')">Día</button>
+					</span>
+				</h5>
+				<div class="chart-fill" id="chartBars" #chartBars>
+					<canvas baseChart
+						[type]="'bar'"
+						[data]="barData"
+						[options]="barOptions">
+					</canvas>
+				</div>
 			</div>
 		</div>
 	</div>
 	<div class="col-xs-12 col-sm-6">
-		<div class="frame m-b-md">
+		<div class="frame ">
 			<div class="frame-body">
 				<h5>Unidades por ciudad</h5>
-				<ngx-charts-pie-chart [results]="unidadesByCity" [doughnut]="false">
-				</ngx-charts-pie-chart>
+				<div class="chart-fill" id="chartPie" #chartPie>
+					<canvas baseChart
+						[type]="'doughnut'"
+						[data]="pieData"
+						[options]="pieOptions">
+					</canvas>
+				</div>
 			</div>
 		</div>
 	</div>
