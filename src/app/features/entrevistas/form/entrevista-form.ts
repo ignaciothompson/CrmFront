@@ -6,6 +6,8 @@ import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-boots
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../../core/services/contacto';
+import { EntrevistaService } from '../../../core/services/entrevista';
+import { EventMonitorService } from '../../../core/services/event-monitor.service';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
@@ -17,10 +19,11 @@ import timeGridPlugin from '@fullcalendar/timegrid';
   styleUrl: './entrevista-form.css'
 })
 export class EntrevistaForm {
-  constructor(private router: Router, private contactoService: ContactoService) {}
+  constructor(private router: Router, private contactoService: ContactoService, private entrevistaService: EntrevistaService, private events: EventMonitorService) {}
 
   contactoId: string | null = null;
   contactoItems: Array<{ id: string; label: string }> = [];
+  private contactosAll: any[] = [];
   comentario: string = '';
   unidadNombre: string = '';
   location: string = '';
@@ -39,7 +42,8 @@ export class EntrevistaForm {
 
   ngOnInit(): void {
     this.contactoService.getContactos().subscribe(cs => {
-      this.contactoItems = (cs || []).map(c => ({ id: String(c.id), label: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim() }));
+      this.contactosAll = cs || [];
+      this.contactoItems = this.contactosAll.map(c => ({ id: String(c.id), label: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim() }));
     });
   }
 
@@ -47,12 +51,20 @@ export class EntrevistaForm {
     if (!this.contactoId) { this.router.navigate(['/entrevistas']); return; }
     const fechaStr = this.fecha ? `${this.fecha.year}-${String(this.fecha.month).padStart(2,'0')}-${String(this.fecha.day).padStart(2,'0')}` : '';
     const horaStr = `${String(this.hora.hour).padStart(2,'0')}:${String(this.hora.minute).padStart(2,'0')}`;
-    const payload = {
-      EntrevistaPendiente: true,
-      Entrevista: { Fecha: fechaStr, Hora: horaStr, Comentario: this.comentario },
-      Meet: { Fecha: fechaStr, Hora: horaStr, Comentario: this.comentario, Location: this.location, Unidad: { nombre: this.unidadNombre } }
+    const contact = this.contactosAll.find(c => String(c.id) === String(this.contactoId));
+    const entrevista: any = {
+      contactoId: this.contactoId,
+      pendiente: true,
+      comentario: this.comentario,
+      fecha: fechaStr,
+      hora: horaStr,
+      location: this.location,
+      unidad: this.unidadNombre ? { nombre: this.unidadNombre } : undefined,
+      createdAt: new Date().toISOString()
     };
-    this.contactoService.updateContacto(this.contactoId, payload).then(() => this.router.navigate(['/entrevistas']));
+    if (contact?.Nombre) entrevista.contactoNombre = contact.Nombre;
+    if (contact?.Apellido) entrevista.contactoApellido = contact.Apellido;
+    this.entrevistaService.addEntrevista(entrevista).then(() => this.router.navigate(['/entrevistas']));
   }
 
   private onCalendarSelect(info: any): void {

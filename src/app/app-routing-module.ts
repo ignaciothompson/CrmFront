@@ -25,6 +25,7 @@ const routes: Routes = [
             { path: 'comparativas', data: { title: 'Crear Comparativas' }, loadComponent: () => import('./features/comparativas/comparativas').then(m => m.Comparativas) },
             { path: 'listado-comparativas', data: { title: 'Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-list/comparativas-list').then(m => m.ComparativasListPage) },
 			{ path: 'reportes', data: { title: 'Reportes' }, loadComponent: () => import('./features/reportes/reportes').then(m => m.Reportes) },
+            { path: 'monitor-eventos', data: { title: 'Monitor de Eventos' }, loadComponent: () => import('./features/monitor-eventos/monitor-eventos').then(m => m.MonitorEventosComponent) },
 			{ path: 'listas-negras', data: { title: 'Listas negras' }, loadComponent: () => import('./features/listas-negras/listas-negras').then(m => m.ListasNegras) },
 			{ path: 'entrevistas', data: { title: 'Entrevistas' }, loadComponent: () => import('./features/entrevistas/entrevistas').then(m => m.Entrevistas) },
 			{ path: 'entrevistas/form', data: { title: 'Entrevista' }, loadComponent: () => import('./features/entrevistas/form/entrevista-form').then(m => m.EntrevistaForm) },

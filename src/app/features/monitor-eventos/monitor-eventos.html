@@ -1,0 +1,93 @@
+<div class="subheader">
+	<div class="row">
+		<div class="col-xs-12 col-sm-3">
+			<div class="input-group input-range">
+				<div class="range-item">
+					<label class="c-label" for="ev-start">Desde</label>
+					<input id="ev-start" type="date" class="form-control c-input" [(ngModel)]="startDateStr">
+				</div>
+				<div class="range-item">
+					<label class="c-label" for="ev-end">Hasta</label>
+					<input id="ev-end" type="date" class="form-control c-input" [(ngModel)]="endDateStr">
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-3">
+			<label class="c-label">Categoría</label>
+			<select class="form-control c-input" [(ngModel)]="categoria">
+				<option value="">Todas las categorías</option>
+				<option value="Contactos">Contactos</option>
+				<option value="Unidades">Unidades</option>
+				<option value="Entrevistas">Entrevistas</option>
+				<option value="ListaNegra">Lista negra</option>
+			</select>
+		</div>
+		<div class="col-xs-12 col-sm-3">
+			<label class="c-label">Tipo</label>
+			<select class="form-control c-input" [(ngModel)]="tipo">
+				<option value="">Todos los tipos</option>
+				<option value="Nuevo">Alta</option>
+				<option value="Editado">Edición</option>	
+				<option value="Eliminado">Eliminación</option>
+			</select>
+		</div>
+		<div class="col-xs-12 col-sm-3 text-end m-t-label">
+			<button class="btn c-btn btn-square btn-white m-r-sm" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
+			<button class="btn c-btn btn-primary" (click)="load()">Aplicar</button>
+		</div>
+	</div>
+</div>
+
+<div class="cards-container-3 m-b-sm">
+	<div class="card">
+		<div class="card-icon"><i></i></div>
+		<div class="card-data">
+			<div class="card-title">Total de eventos</div>
+			<div class="card-value">{{ stats.total }}</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-icon"><i></i></div>
+		<div class="card-data">
+			<div class="card-title">Eventos creados</div>
+			<div class="card-value">{{ stats.creados }}</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-icon"><i></i></div>
+		<div class="card-data">
+			<div class="card-title">Eventos editados</div>
+			<div class="card-value">{{ stats.editados }}</div>
+		</div>
+	</div>
+</div>
+
+<div class="frame">
+	<div class="frame-body scroll-table">
+		<table class="table c-table table-striped table-fixed">
+			<thead>
+				<tr>
+					<th>Fecha</th>
+					<th>Categoría</th>
+					<th>Tipo</th>
+					<th>Usuario</th>
+					<th>Detalle</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let ev of items">
+					<td>{{ ev?.fecha | date:'yyyy-MM-dd HH:mm' }}</td>
+					<td>{{ ev?.categoria }}</td>
+					<td>{{ ev?.tipo }}</td>
+					<td>{{ ev?.usuario || '-' }}</td>
+					<td>{{ ev?._detalleStr }}</td>
+				</tr>
+				<tr *ngIf="!items.length">
+					<td colspan="5" class="text-center">Sin resultados</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+

@@ -55,7 +55,7 @@
           </div>
           <div class="frame-body">
             <div class="recent-activity">
-              <div class="activity-card" *ngFor="let a of recent" [ngClass]="a.tone || 'primary'">
+              <div class="activity-card" *ngFor="let a of publicRecent" [ngClass]="a.tone || 'primary'" (click)="a.navigate && a.navigate()">
                 <div class="icon"><i class="{{ a.icon }}"></i></div>
                 <div class="activity-data">
                   <div class="activity-text">{{ a.text }}</div>

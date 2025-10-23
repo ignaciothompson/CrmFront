@@ -4,6 +4,8 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 import { MeetModal } from '../entrevistas/components/meet-modal/meet-modal';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -17,7 +19,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
   styleUrl: './dashboard.css'
 })
 export class Dashboard {
-  constructor(private unidadService: UnidadService, private contactoService: ContactoService, private modal: NgbModal) {}
+  constructor(private unidadService: UnidadService, private contactoService: ContactoService, private modal: NgbModal, private firestore: Firestore, private router: Router) {}
 
   // Cards
   totalUnidades = 0;
@@ -41,14 +43,23 @@ export class Dashboard {
   };
 
   // Recent activity (keep structure)
-  recent: Array<{ icon: string; text: string; time: string; tone?: 'primary'|'success' }> = [];
+  private recent: {
+    icon: string;
+    text: string;
+    time: string;
+    tone?: 'primary' | 'success';
+    navigate?: () => void;
+  }[] = [];
+
+  get publicRecent() {
+    return this.recent;
+  }
 
   ngOnInit(): void {
     this.unidadService.getUnidades().subscribe(us => {
       const list = us || [];
       this.totalUnidades = list.length;
       this.unidadesDisponibles = list.filter(u => !u?.vendida && !u?.sold).length;
-      this.recent.unshift({ icon: 'far fa-home', text: 'Actualización de unidades', time: 'Ahora', tone: 'primary' });
     });
 
     this.contactoService.getContactos().subscribe(cs => {
@@ -64,7 +75,26 @@ export class Dashboard {
           extendedProps: { contacto: c, meet: c?.Meet || c?.Entrevista }
         })).filter(e => !!e.start)
       };
-      this.recent.unshift({ icon: 'far fa-address-card', text: 'Actualización de contactos', time: 'Ahora', tone: 'success' });
+    });
+
+    // Today's activity from eventos
+    const ref = collection(this.firestore, 'eventos');
+    collectionData(ref, { idField: 'id' }).subscribe((rows: any[]) => {
+      const start = new Date(); start.setHours(0,0,0,0);
+      const end = new Date(); end.setHours(23,59,59,999);
+      const today = (rows || []).filter(r => {
+        const dt = this.parseDate(r?.fecha);
+        return dt && dt >= start && dt <= end;
+      }).sort((a,b) => String(b?.fecha).localeCompare(String(a?.fecha)));
+      // Map to recent items with links
+      const mapped = today.map((ev: any) => ({
+        icon: this.iconFor(ev?.categoria),
+        text: this.textFor(ev),
+        time: 'Hoy',
+        tone: (ev?.tipo === 'Nuevo' ? 'success' : 'primary') as 'primary' | 'success',
+        navigate: () => this.navigateTo(ev)
+      }));
+      this.recent = mapped.slice(0, 8);
     });
   }
 
@@ -74,5 +104,54 @@ export class Dashboard {
     const ref = this.modal.open(MeetModal, { size: 'md' });
     ref.componentInstance.contacto = contacto;
     ref.componentInstance.meet = meet || null;
+  }
+
+  private parseDate(v: any): Date | null {
+    if (!v) return null;
+    if (v && typeof v.toDate === 'function') {
+      const d = v.toDate();
+      return d instanceof Date ? d : null;
+    }
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  private iconFor(categoria: string): string {
+    if (categoria === 'Contactos') return 'far fa-address-card';
+    if (categoria === 'Unidades') return 'far fa-home';
+    if (categoria === 'Entrevistas') return 'far fa-comments';
+    return 'far fa-bell';
+  }
+
+  private textFor(ev: any): string {
+    const tipo = ev?.tipo || '';
+    const cat = ev?.categoria || '';
+    const label = this.labelForEvent(ev);
+    return label ? `${tipo} ${cat}: ${label}` : `${tipo} en ${cat}`;
+  }
+
+  private labelForEvent(ev: any): string {
+    const cur = ev?.data?.current || {};
+    if (ev?.categoria === 'Contactos') {
+      const n = `${cur?.Nombre || cur?.nombre || ''} ${cur?.Apellido || cur?.apellido || ''}`.trim();
+      return n;
+    }
+    if (ev?.categoria === 'Unidades') {
+      return cur?.nombre || cur?.Nombre || '';
+    }
+    if (ev?.categoria === 'Entrevistas') {
+      return cur?.contactoNombre || '';
+    }
+    return cur?.id || '';
+  }
+
+  private navigateTo(ev: any): void {
+    const cat = ev?.categoria;
+    const current = ev?.data?.current || {};
+    const id = current?.id || current?.contactoId || current?.unidadId || current?.idRef;
+    if (cat === 'Contactos' && id) { this.router.navigate([`/contactos/form`, id]); return; }
+    if (cat === 'Unidades' && id) { this.router.navigate([`/unidades/form`, id]); return; }
+    if (cat === 'Entrevistas' && (id || ev?.id)) { this.router.navigate([`/entrevistas`]); return; }
+    this.router.navigate(['/monitor-eventos']);
   }
 }

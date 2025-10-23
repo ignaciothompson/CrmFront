@@ -24,11 +24,11 @@
 			</thead>
 			<tbody>
 				<tr *ngFor="let it of items">
-					<td>{{ it?.Nombre }}</td>
-					<td>{{ it?.Apellido }}</td>
-					<td>{{ it?.Entrevista?.Fecha || '-' }}</td>
-					<td>{{ it?.Entrevista?.Hora || '-' }}</td>
-					<td>{{ it?.EntrevistaPendiente ? 'Sí' : 'No' }}</td>
+					<td>{{ it?.contactoNombre || '-' }}</td>
+					<td>{{ it?.contactoApellido || '-' }}</td>
+					<td>{{ it?.fecha || '-' }}</td>
+					<td>{{ it?.hora || '-' }}</td>
+					<td>{{ it?.pendiente ? 'Sí' : 'No' }}</td>
 				</tr>
 				<tr *ngIf="!items.length">
 					<td colspan="5" class="text-center">Sin resultados</td>

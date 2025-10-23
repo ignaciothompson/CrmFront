@@ -1,0 +1,102 @@
+{
+  "contactos": [
+    {
+      "Nombre": "Ignacio",
+      "Apellido": "Thompson",
+      "Celular": "098444646",
+      "Mail": "chonathomp@gmail.com",
+      "Pareja": false,
+      "familia": false,
+      "direccion": { "Barrio": "Carrasco", "Ciudad": "Montevideo" },
+      "preferencia": { "Barrio": "La Barra", "Ciudad": "Maldonado", "Cuartos": 2, "TipoResidencia": "Casa" },
+      "Unidad": { "nombre": "Casa" },
+      "EntrevistaPendiente": true,
+      "Entrevista": { "Comentario": "Comida", "Fecha": "2025-10-21", "Hora": "08:00" },
+      "Meet": { "Comentario": "Comida", "Fecha": "2025-10-21", "Hora": "08:00", "Location": "A" }
+    },
+    {
+      "Nombre": "Ana",
+      "Apellido": "García",
+      "Celular": "099111222",
+      "Mail": "ana@example.com",
+      "Pareja": true,
+      "familia": false,
+      "direccion": { "Barrio": "Pocitos", "Ciudad": "Montevideo" },
+      "preferencia": { "Barrio": "Centro", "Ciudad": "Montevideo", "Cuartos": 1, "TipoResidencia": "Apartamento" },
+      "Unidad": { "nombre": "Apto 302" },
+      "EntrevistaPendiente": false,
+      "Entrevista": { "Comentario": "Seguimiento", "Fecha": "2025-10-20", "Hora": "10:30" },
+      "Meet": { "Comentario": "Zoom", "Fecha": "2025-10-20", "Hora": "10:00", "Location": "Online" }
+    },
+    {
+      "Nombre": "Lucía",
+      "Apellido": "Pérez",
+      "Celular": "091333444",
+      "Mail": "lucia@example.com",
+      "Pareja": false,
+      "familia": true,
+      "direccion": { "Barrio": "Cordón", "Ciudad": "Montevideo" },
+      "preferencia": { "Barrio": "Malvín", "Ciudad": "Montevideo", "Cuartos": 3, "TipoResidencia": "Casa" },
+      "Unidad": { "nombre": "Casa Jardín" },
+      "EntrevistaPendiente": false,
+      "Entrevista": { "Comentario": "Primera visita", "Fecha": "2025-09-10", "Hora": "14:00" },
+      "Meet": { "Comentario": "Agenda", "Fecha": "2025-09-09", "Hora": "16:00", "Location": "Oficina" }
+    },
+    {
+      "Nombre": "Diego",
+      "Apellido": "Rodríguez",
+      "Celular": "094555666",
+      "Mail": "diego@example.com",
+      "Pareja": false,
+      "familia": false,
+      "direccion": { "Barrio": "La Barra", "Ciudad": "Maldonado" },
+      "preferencia": { "Barrio": "La Barra", "Ciudad": "Maldonado", "Cuartos": 2, "TipoResidencia": "Casa" },
+      "Unidad": { "nombre": "Casa Playa" },
+      "EntrevistaPendiente": true,
+      "Entrevista": { "Comentario": "Consulta", "Fecha": "2025-07-05", "Hora": "12:00" },
+      "Meet": { "Comentario": "Llamada", "Fecha": "2025-07-05", "Hora": "11:30", "Location": "Teléfono" }
+    },
+    {
+      "Nombre": "María",
+      "Apellido": "Sosa",
+      "Celular": "093777888",
+      "Mail": "maria@example.com",
+      "Pareja": true,
+      "familia": true,
+      "direccion": { "Barrio": "Las Piedras", "Ciudad": "Canelones" },
+      "preferencia": { "Barrio": "Parque del Plata", "Ciudad": "Canelones", "Cuartos": 2, "TipoResidencia": "Casa" },
+      "Unidad": { "nombre": "Casa Norte" },
+      "EntrevistaPendiente": false,
+      "Entrevista": { "Comentario": "Oferta", "Fecha": "2025-06-15", "Hora": "09:00" },
+      "Meet": { "Comentario": "Google Meet", "Fecha": "2025-06-14", "Hora": "17:00", "Location": "Online" }
+    },
+    {
+      "Nombre": "Tomás",
+      "Apellido": "Vega",
+      "Celular": "092222333",
+      "Mail": "tomas@example.com",
+      "Pareja": false,
+      "familia": false,
+      "direccion": { "Barrio": "Centro", "Ciudad": "Montevideo" },
+      "preferencia": { "Barrio": "Centro", "Ciudad": "Montevideo", "Cuartos": 1, "TipoResidencia": "Apartamento" },
+      "Unidad": { "nombre": "Apto 1203" },
+      "EntrevistaPendiente": false,
+      "Entrevista": { "Comentario": "Consulta", "Fecha": "2025-05-28", "Hora": "15:30" },
+      "Meet": { "Comentario": "Zoom", "Fecha": "2025-05-27", "Hora": "15:00", "Location": "Online" }
+    }
+  ],
+  "unidades": [
+    { "nombre": "Casa 1", "ciudad": "Montevideo", "barrio": "Centro", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-10-01" },
+    { "nombre": "Casa 2", "ciudad": "Canelones", "barrio": "Las Piedras", "disponibilidad": "Vendida", "vendida": true, "createdAt": "2025-10-05" },
+    { "nombre": "Apto 101", "ciudad": "Montevideo", "barrio": "Cordón", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-09-12" },
+    { "nombre": "Casa Playa", "ciudad": "Maldonado", "barrio": "La Barra", "disponibilidad": "Vendida", "vendida": true, "createdAt": "2025-08-20" },
+    { "nombre": "Casa Sierra", "ciudad": "Maldonado", "barrio": "Piriápolis", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-07-10" },
+    { "nombre": "Casa Norte", "ciudad": "Canelones", "barrio": "Atlántida", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-06-02" },
+    { "nombre": "Apto 302", "ciudad": "Montevideo", "barrio": "Pocitos", "disponibilidad": "Vendida", "vendida": true, "createdAt": "2025-05-15" },
+    { "nombre": "Apto 401", "ciudad": "Canelones", "barrio": "La Floresta", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-10-12" },
+    { "nombre": "Casa Prado", "ciudad": "Montevideo", "barrio": "Prado", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-09-25" },
+    { "nombre": "Casa Este", "ciudad": "Maldonado", "barrio": "San Carlos", "disponibilidad": "Disponible: publicada", "vendida": false, "createdAt": "2025-06-22" },
+    { "nombre": "Apto Centro", "ciudad": "Montevideo", "barrio": "Centro", "disponibilidad": "Vendida", "vendida": true, "createdAt": "2025-07-30" }
+  ]
+}
+

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../core/services/contacto';
+import { EntrevistaService } from '../../core/services/entrevista';
 
 @Component({
   selector: 'app-entrevistas',
@@ -13,25 +14,26 @@ import { ContactoService } from '../../core/services/contacto';
   styleUrl: './entrevistas.css'
 })
 export class Entrevistas {
-  constructor(private contactoService: ContactoService) {}
+  constructor(private contactoService: ContactoService, private entrevistaService: EntrevistaService) {}
   items: any[] = [];
   all: any[] = [];
   selectedId: string | null = null;
   searchItems: Array<{ id: string; label: string }> = [];
 
   ngOnInit(): void {
-    this.contactoService.getContactos().subscribe(cs => {
-      this.all = (cs || []);
-      this.items = this.all.filter(c => c?.EntrevistaPendiente || (c?.Entrevista?.Fecha && c?.Entrevista?.Hora));
-      this.searchItems = this.items.map(c => ({ id: String(c.id), label: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim() }));
+    // Load entrevistas from collection instead of nested in contacto
+    this.entrevistaService.getEntrevistas().subscribe(es => {
+      this.all = es || [];
+      this.items = this.all;
+      this.searchItems = this.items.map(e => ({ id: String(e.id), label: String(e?.contactoNombre || e?.contactoId || '') }));
     });
   }
 
   onSearchChange(): void {
     if (this.selectedId) {
-      this.items = this.all.filter(c => (c?.EntrevistaPendiente || (c?.Entrevista?.Fecha && c?.Entrevista?.Hora)) && String(c.id) === String(this.selectedId));
+      this.items = this.all.filter(e => String(e.id) === String(this.selectedId));
     } else {
-      this.items = this.all.filter(c => c?.EntrevistaPendiente || (c?.Entrevista?.Fecha && c?.Entrevista?.Hora));
+      this.items = this.all;
     }
   }
 }
