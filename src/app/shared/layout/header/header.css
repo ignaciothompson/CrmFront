@@ -8,3 +8,9 @@
 	font-weight: 600;
 	color: var(--text-highlight-color);
 }
+
+.app-header .btn-light { border-radius: 999px; }
+
+.app-header .btn-light::after {
+	display: none;
+}
