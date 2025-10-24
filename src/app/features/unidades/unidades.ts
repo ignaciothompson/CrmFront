@@ -67,4 +67,11 @@ export class Unidades implements OnDestroy {
   goEditar(id: number): void {
     this.router.navigate(['/unidades/form', id]);
   }
+
+  async eliminar(id: string): Promise<void> {
+    if (!id) return;
+    const ok = confirm('¿Eliminar esta unidad?');
+    if (!ok) return;
+    await this.unidadService.deleteUnidad(String(id));
+  }
 }

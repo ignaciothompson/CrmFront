@@ -60,6 +60,13 @@ export class Contactos implements OnDestroy {
   goNuevo(): void { this.router.navigate(['/contactos/form']); }
   goEditar(id: string): void { this.router.navigate(['/contactos/form', id]); }
 
+  async eliminar(id: string): Promise<void> {
+    if (!id) return;
+    const ok = confirm('¿Eliminar este contacto?');
+    if (!ok) return;
+    await this.contactoService.deleteContacto(String(id));
+  }
+
   private recompute(): void {
     if (this.localidad) {
       const byCity = this.all.filter(c => (c?.direccion?.Ciudad || c.localidad || c.city) === this.localidad);

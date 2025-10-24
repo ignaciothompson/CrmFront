@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
+import { EntrevistaService } from '../../core/services/entrevista';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
@@ -19,7 +20,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
   styleUrl: './dashboard.css'
 })
 export class Dashboard {
-  constructor(private unidadService: UnidadService, private contactoService: ContactoService, private modal: NgbModal, private firestore: Firestore, private router: Router) {}
+  constructor(private unidadService: UnidadService, private contactoService: ContactoService, private entrevistaService: EntrevistaService, private modal: NgbModal, private firestore: Firestore, private router: Router) {}
 
   // Cards
   totalUnidades = 0;
@@ -47,7 +48,7 @@ export class Dashboard {
     icon: string;
     text: string;
     time: string;
-    tone?: 'primary' | 'success';
+    tone?: 'primary' | 'success' | 'danger';
     navigate?: () => void;
   }[] = [];
 
@@ -65,16 +66,20 @@ export class Dashboard {
     this.contactoService.getContactos().subscribe(cs => {
       const list = cs || [];
       this.totalContactos = list.length;
-      const entrevistas = list.filter(c => c?.EntrevistaPendiente || (c?.Entrevista?.Fecha && c?.Entrevista?.Hora));
-      this.entrevistasPendientes = entrevistas.length;
-      this.calendarOptions = {
-        ...this.calendarOptions,
-        events: entrevistas.map(c => ({
-          title: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim(),
-          start: c?.Entrevista?.Fecha ? `${c.Entrevista.Fecha}T${(c?.Entrevista?.Hora || '09:00')}` : undefined,
-          extendedProps: { contacto: c, meet: c?.Meet || c?.Entrevista }
-        })).filter(e => !!e.start)
-      };
+    });
+
+    // Load entrevistas from standalone collection for calendar
+    this.entrevistaService.getEntrevistas().subscribe(es => {
+      const entrevistas = es || [];
+      this.entrevistasPendientes = entrevistas.filter((e: any) => !!e?.pendiente).length;
+      const events = entrevistas
+        .map((e: any) => ({
+          title: `${e?.contactoNombre || 'Entrevista'}`,
+          start: e?.fecha ? `${e.fecha}T${(e?.hora || '09:00')}` : undefined,
+          extendedProps: { entrevista: e }
+        }))
+        .filter((ev: any) => !!ev.start);
+      this.calendarOptions = { ...this.calendarOptions, events };
     });
 
     // Today's activity from eventos
@@ -91,7 +96,7 @@ export class Dashboard {
         icon: this.iconFor(ev?.categoria),
         text: this.textFor(ev),
         time: 'Hoy',
-        tone: (ev?.tipo === 'Nuevo' ? 'success' : 'primary') as 'primary' | 'success',
+        tone: this.mapTone(ev?.tipo),
         navigate: () => this.navigateTo(ev)
       }));
       this.recent = mapped.slice(0, 8);
@@ -153,5 +158,12 @@ export class Dashboard {
     if (cat === 'Unidades' && id) { this.router.navigate([`/unidades/form`, id]); return; }
     if (cat === 'Entrevistas' && (id || ev?.id)) { this.router.navigate([`/entrevistas`]); return; }
     this.router.navigate(['/monitor-eventos']);
+  }
+
+  private mapTone(tipo: any): 'primary' | 'success' | 'danger' | undefined {
+    if (tipo === 'Nuevo') return 'success';
+    if (tipo === 'Editado') return 'primary';
+    if (tipo === 'Eliminado') return 'danger';
+    return undefined;
   }
 }

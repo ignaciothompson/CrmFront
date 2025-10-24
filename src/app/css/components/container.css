@@ -9,6 +9,24 @@
   padding: 15px;
 }
 
+.c-skin .subheader .row > [class^="col-"],
+.c-skin .subheader .row > [class*=" col-"] {
+  padding-left: 7.5px;
+  padding-right: 7.5px;
+}
+
+/* Remove left padding on first column, right padding on last */
+.c-skin .subheader .row > [class^="col-"]:first-child,
+.c-skin .subheader .row > [class*=" col-"]:first-child {
+  padding-left: 15px;
+}
+
+.c-skin .subheader .row > [class^="col-"]:last-child,
+.c-skin .subheader .row > [class*=" col-"]:last-child {
+  padding-right: 15px;
+}
+
+
 /* Frames */
 .c-skin .frame {
   background: #fff;

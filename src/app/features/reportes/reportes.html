@@ -4,11 +4,11 @@
 			<div class="input-group input-range">
 				<div class="range-item">
 					<label class="c-label" for="reportes-start-date">Desde</label>
-					<input id="reportes-start-date" type="date" class="form-control c-input" [(ngModel)]="startDateStr" (ngModelChange)="onStartDateChange($event)">
+					<input id="reportes-start-date" type="date" class="form-control c-input" [(ngModel)]="startDateStr">
 				</div>
 				<div class="range-item">
 					<label class="c-label" for="reportes-end-date">Hasta</label>
-					<input id="reportes-end-date" type="date" class="form-control c-input" [(ngModel)]="endDateStr" (ngModelChange)="onEndDateChange($event)">
+					<input id="reportes-end-date" type="date" class="form-control c-input" [(ngModel)]="endDateStr">
 				</div>
 			</div>
 		</div>
@@ -64,7 +64,7 @@
 	<div class="col-xs-12 col-sm-6">
 		<div class="frame ">
 			<div class="frame-body">
-				<h5>Unidades por ciudad</h5>
+				<h5 style="height: 32px;">Unidades por ciudad</h5>
 				<div class="chart-fill" id="chartPie" #chartPie>
 					<canvas baseChart
 						[type]="'doughnut'"

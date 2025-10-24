@@ -9,6 +9,7 @@ import { ContactoService } from '../../../core/services/contacto';
 import { EntrevistaService } from '../../../core/services/entrevista';
 import { EventMonitorService } from '../../../core/services/event-monitor.service';
 import interactionPlugin from '@fullcalendar/interaction';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
 @Component({
@@ -27,17 +28,28 @@ export class EntrevistaForm {
   comentario: string = '';
   unidadNombre: string = '';
   location: string = '';
-  fecha: { year: number; month: number; day: number } | null = null;
-  hora: { hour: number; minute: number } = { hour: 9, minute: 0 };
+  // Native inputs
+  fechaInput: string | null = null; // YYYY-MM-DD
+  horaHour: number = 9;
+  horaMinute: number = 0;
+  private previewTitle = 'Nueva entrevista';
   calendarOptions: any = {
-    plugins: [interactionPlugin, timeGridPlugin],
-    initialView: 'timeGridWeek',
+    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin],
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'dayGridMonth,timeGridWeek,timeGridDay',
+      center: 'title',
+      right: 'today prev,next'
+    },
+    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
+    height: '100%',
     selectable: true,
     selectMirror: true,
     allDaySlot: false,
     slotMinTime: '08:00:00',
     slotMaxTime: '20:00:00',
-    select: (info: any) => this.onCalendarSelect(info)
+    select: (info: any) => this.onCalendarSelect(info),
+    dateClick: (arg: any) => this.onDateClick(arg)
   };
 
   ngOnInit(): void {
@@ -49,8 +61,8 @@ export class EntrevistaForm {
 
   save(): void {
     if (!this.contactoId) { this.router.navigate(['/entrevistas']); return; }
-    const fechaStr = this.fecha ? `${this.fecha.year}-${String(this.fecha.month).padStart(2,'0')}-${String(this.fecha.day).padStart(2,'0')}` : '';
-    const horaStr = `${String(this.hora.hour).padStart(2,'0')}:${String(this.hora.minute).padStart(2,'0')}`;
+    const fechaStr = this.fechaInput || '';
+    const horaStr = `${String(this.horaHour).padStart(2,'0')}:${String(this.horaMinute).padStart(2,'0')}`;
     const contact = this.contactosAll.find(c => String(c.id) === String(this.contactoId));
     const entrevista: any = {
       contactoId: this.contactoId,
@@ -69,8 +81,45 @@ export class EntrevistaForm {
 
   private onCalendarSelect(info: any): void {
     const d = info.start; // Date
-    this.fecha = { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
-    this.hora = { hour: d.getHours(), minute: d.getMinutes() };
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    this.fechaInput = `${yyyy}-${mm}-${dd}`;
+    this.horaHour = d.getHours();
+    this.horaMinute = d.getMinutes();
+    this.updatePreviewEvent();
+  }
+
+  private onDateClick(arg: any): void {
+    const d = arg.date as Date;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    this.fechaInput = `${yyyy}-${mm}-${dd}`;
+    // If the click includes a time (timeGrid views), use it; otherwise default to 09:00
+    const h = d.getHours();
+    const m = d.getMinutes();
+    if (Number.isFinite(h) && Number.isFinite(m) && (h !== 0 || m !== 0)) {
+      this.horaHour = h;
+      this.horaMinute = m;
+    } else {
+      this.horaHour = 9;
+      this.horaMinute = 0;
+    }
+    this.updatePreviewEvent();
+  }
+
+  onFechaChange(): void { this.updatePreviewEvent(); }
+  onHoraChange(): void { this.updatePreviewEvent(); }
+
+  private updatePreviewEvent(): void {
+    if (!this.fechaInput) {
+      this.calendarOptions = { ...this.calendarOptions, events: [] };
+      return;
+    }
+    const start = `${this.fechaInput}T${String(this.horaHour).padStart(2,'0')}:${String(this.horaMinute).padStart(2,'0')}`;
+    const events = [{ id: 'preview', title: this.previewTitle, start }];
+    this.calendarOptions = { ...this.calendarOptions, events };
   }
 }
 

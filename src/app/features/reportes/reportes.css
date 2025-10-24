@@ -1,9 +1,5 @@
 .frame {
-  height: calc(100vh - 555px);
-}
-
-canvas{
-  height: calc(100vh - 620px) !important;
+  height: auto;
 }
 
 
@@ -35,8 +31,22 @@ canvas{
   align-items: stretch;
 }
 
-.chart-fill ngx-charts {
-  width: 100%;
+.chart-fill canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Default chart heights (desktop) */
+.chart-fill { height: 300px; }
+
+/* Tablets */
+@media (max-width: 1366px) {
+  .chart-fill { height: 250px; }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .chart-fill { height: 220px; }
 }
 
 .frame-actions {

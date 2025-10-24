@@ -8,14 +8,13 @@
                        [items]="nameItems"
                        idKey="id"
                        labelKey="label"
-                       placeholder="Escriba para filtrar..."
-                       (ngModelChange)="onNameChange()">
+                       placeholder="Escriba para filtrar...">
             </typeahead>
         </div>
         <!-- Ciudad -->
         <div class="col-xs-12 col-sm-6 col-md-2">
             <label for="localidad" class="c-label">Ciudad</label>
-            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad" (ngModelChange)="onCiudadChange()">
+            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad">
                 <option value="">Todas</option>
                 <option value="norte">Montevideo</option>
                 <option value="sur">Canelones</option>
@@ -25,7 +24,7 @@
         <!-- Barrio -->
         <div class="col-xs-12 col-sm-6 col-md-2">
             <label for="barrio" class="c-label">Barrio</label>
-            <select id="barrio" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio" (ngModelChange)="onBarrioChange()">
+            <select id="barrio" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio">
                 <option value="">Todos</option>
                 <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
             </select>
@@ -33,7 +32,7 @@
         <!-- Tipo de residencia -->
         <div class="col-xs-12 col-sm-6 col-md-2">
             <label for="tipoResid" class="c-label">Tipo de residencia</label>
-            <select id="tipoResid" class="form-control c-input" [(ngModel)]="tipoResidencia" (ngModelChange)="onTipoResidenciaChange()">
+            <select id="tipoResid" class="form-control c-input" [(ngModel)]="tipoResidencia">
                 <option value="">Todas</option>
                 <option>Apartamento</option>
                 <option>Casa</option>
@@ -41,7 +40,7 @@
             </select>
         </div>
         <!-- Cuartos -->
-        <div class="col-xs-12 col-sm-6 col-md-1">
+        <div class="col-xs-12 col-sm-6 col-md-2">
             <label for="cuartos" class="c-label">Cuartos</label>
             <select id="cuartos" class="form-control c-input" [(ngModel)]="cuartos" (ngModelChange)="onCuartosChange()">
                 <option [ngValue]="null">Todos</option>
@@ -82,6 +81,7 @@
                     <td>{{ c?.Mail || c?.mail }}</td>
                     <td class="text-end">
                         <a href="javascript:;" (click)="goEditar(c.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="javascript:;" (click)="eliminar(c.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
                     </td>
                 </tr>
                 <tr *ngIf="!filtered.length">

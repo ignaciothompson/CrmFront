@@ -9,7 +9,7 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2">
             <label for="localidad" class="c-label">Ciudad</label>
-            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad" (ngModelChange)="onCiudadChange()">
+            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad">
                 <option value="">Todas</option>
                 <option value="norte">Montevideo</option>
                 <option value="sur">Canelones</option>
@@ -18,7 +18,7 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2">
             <label for="proyecto" class="c-label">Barrio</label>
-            <select id="proyecto" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio" (ngModelChange)="onBarrioChange()">
+            <select id="proyecto" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio">
                 <option value="">Todos</option>
                 <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
             </select>
@@ -72,7 +72,7 @@
                     <td class="text-end">
                         <a href="javascript:;" (click)="goEditar(it.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
                         <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="#" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                        <a href="javascript:;" (click)="eliminar(it.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
                     </td>
                 </tr>
                 <tr *ngIf="!filteredUnidades.length">

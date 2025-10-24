@@ -1,42 +1,46 @@
 <div class="frame">
-  <div class="frame-title">
-    <h4>Nueva Entrevista</h4>
-  </div>
-  <div class="frame-body">
-    <div class="row">
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label">Contacto</label>
-        <typeahead [(ngModel)]="contactoId" name="contactoId" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Buscar contacto..."></typeahead>
-
-        <label class="c-label">Comentario / Nota</label>
-        <textarea class="form-control c-input" rows="6" [(ngModel)]="comentario" name="comentario"></textarea>
-
-        <label class="c-label">Unidad</label>
-        <input class="form-control c-input" [(ngModel)]="unidadNombre" name="unidadNombre" placeholder="Nombre de unidad" />
-
-        <label class="c-label">Ubicación</label>
-        <input class="form-control c-input" [(ngModel)]="location" name="location" placeholder="Lugar del meet" />
-
-        <div class="row">
-          <div class="col-xs-12 col-sm-6">
-            <label class="c-label">Fecha</label>
-            <input class="form-control c-input" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" [ngModel]="fecha" name="fecha">
-          </div>
-          <div class="col-xs-12 col-sm-6">
-            <label class="c-label">Hora</label>
-            <ngb-timepicker [(ngModel)]="hora" name="hora" [spinners]="true"></ngb-timepicker>
-          </div>
-        </div>
-      </div>
-      <div class="col-xs-12 col-sm-8">
-        <full-calendar [options]="calendarOptions"></full-calendar>
-      </div>
-    </div>
-  </div>
-  <div class="frame-footer">
-    <button routerLink="/entrevistas" class="btn c-btn btn-default">Cancelar</button>
-    <button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
-  </div>
+	<div class="frame-title">
+		<h4>Nueva Entrevista</h4>
+	</div>
+	<div class="frame-body">
+		<div class="row m-b-sm">
+			<div class="col-xs-12 col-sm-3">
+				<label class="c-label">Contacto</label>
+				<typeahead [(ngModel)]="contactoId" name="contactoId" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Buscar contacto..."></typeahead>
+			</div>
+			<div class="col-xs-12 col-sm-3">
+				<label class="c-label">Unidad</label>
+				<input class="form-control c-input" [(ngModel)]="unidadNombre" name="unidadNombre" placeholder="Nombre de unidad" />
+			</div>
+			<div class="col-xs-12 col-sm-6">
+				<label class="c-label">Ubicación</label>
+				<input class="form-control c-input" [(ngModel)]="location" name="location" placeholder="Lugar del meet" />
+			</div>
+		</div>
+		<div class="row m-b-lg">
+			<div class="col-xs-12 col-sm-3">
+				<label class="c-label">Fecha</label>
+                <input type="date" class="form-control c-input" [(ngModel)]="fechaInput" name="fecha" (ngModelChange)="onFechaChange()">
+			</div>
+			<div class="col-xs-12 col-sm-3">
+				<label class="c-label">Hora</label>
+				<div class="input-group input-range">
+                    <input type="number" min="0" max="23" class="form-control c-input" [(ngModel)]="horaHour" name="horaHour" placeholder="HH" (ngModelChange)="onHoraChange()">
+                    <input type="number" min="0" max="59" class="form-control c-input" [(ngModel)]="horaMinute" name="horaMinute" placeholder="mm" (ngModelChange)="onHoraChange()">
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6">
+				<label class="c-label">Comentario / Nota</label>
+				<textarea class="form-control c-input" rows="4" [(ngModel)]="comentario" name="comentario"></textarea>
+			</div>
+		</div>
+		<div class="col-xs-12 m-b-md" style="height: calc(100vh - 360px);">
+			<full-calendar [options]="calendarOptions"></full-calendar>
+		</div>
+	</div>
+	<div class="frame-footer">
+		<button routerLink="/entrevistas" class="btn c-btn btn-default">Cancelar</button>
+		<button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
+	</div>
 </div>
-
 
