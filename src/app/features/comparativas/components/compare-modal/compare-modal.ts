@@ -29,6 +29,11 @@ export class CompareModal {
     });
   }
 
+  removeUnidad(u: any): void {
+    const id = String(u?.id);
+    this.unidades = (this.unidades || []).filter(x => String(x?.id) !== id);
+  }
+
   confirm(): void {
     const contacto = this.contactos.find(c => String(c.id) === String(this.selectedContactoId));
     this.activeModal.close({ contacto });

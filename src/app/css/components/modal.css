@@ -1,0 +1,21 @@
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header p {
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-header button {
+    cursor: pointer;
+    color: var(--text-color);
+    margin-left: var(--padding-sm);
+    background: transparent;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+    line-height: 1;
+}

@@ -1,28 +1,49 @@
-<div class="card">
-  <div class="card-title">Comparativas</div>
-  <div class="table-responsive">
-    <table class="table">
+<div class="subheader">
+  <div class="row">
+    <!-- Contacto -->
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <label class="c-label">Contacto</label>
+      <typeahead [(ngModel)]="selectedContactoId"
+        name="comparativasContactoSearch"
+        [items]="contactoItems"
+        idKey="id"
+        labelKey="label"
+        placeholder="Escriba para filtrar...">
+      </typeahead>
+    </div>
+  </div>
+  <button class="btn c-btn btn-white btn-square" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
+  <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
+</div>
+
+<div class="frame">
+  <div class="frame-title">
+    <h4>Comparativas</h4>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
       <thead>
         <tr>
           <th>Cliente</th>
+          <th>Teléfono</th>
           <th>Creada</th>
           <th>Unidades</th>
-          <th class="text-right">Acciones</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of comparativas">
-          <td>
-            {{ c?.contacto?.nombre || '-' }}
-            <div class="muted" *ngIf="c?.contacto?.telefono">{{ c?.contacto?.telefono }}</div>
-          </td>
-          <td>{{ formatDate(c?.createdAt) }}</td>
-          <td>{{ unitsSummary(c) }}</td>
-          <td class="text-right">
-            <button class="btn btn-link" title="Compartir" (click)="copyLink(c)">Compartir</button>
-            <button class="btn btn-link text-danger" title="Eliminar" (click)="delete(c)">Eliminar</button>
-          </td>
-        </tr>
+        @for (c of filtered; track c) {
+          <tr>
+            <td>{{ c?.contacto?.nombre || '-' }}</td>
+            <td>{{ c?.contacto?.telefono || '-' }}</td>
+            <td>{{ formatDate(c?.createdAt) }}</td>
+            <td>{{ unitsSummary(c) }}</td>
+            <td class="text-end">
+              <button class="btn-table" title="Compartir" (click)="copyLink(c)"><i class="fas fa-external-link"></i></button>
+              <button class="btn-table eliminar" title="Eliminar" (click)="delete(c)"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
   </div>

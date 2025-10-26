@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -15,7 +15,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 @Component({
   selector: 'app-entrevista-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, NgbDatepickerModule, NgbTimepickerModule, FullCalendarModule, TypeaheadComponent],
+  imports: [FormsModule, RouterModule, NgbDatepickerModule, NgbTimepickerModule, FullCalendarModule, TypeaheadComponent],
   templateUrl: './entrevista-form.html',
   styleUrl: './entrevista-form.css'
 })

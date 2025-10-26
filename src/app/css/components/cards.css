@@ -10,7 +10,7 @@
   --card-gap: 15px;
   display: flex;
   flex-wrap: wrap; /* wrap on smaller screens */
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--card-gap);
 }
 
@@ -91,12 +91,3 @@
   }
 }
 
-/* Below desktop: allow wrapping and keep cards fairly wide */
-.c-skin .cards-container-1 > .card,
-.c-skin .cards-container-2 > .card,
-.c-skin .cards-container-3 > .card,
-.c-skin .cards-container-4 > .card,
-.c-skin .cards-container-5 > .card {
-  flex: 1 1 260px;
-  max-width: 100%;
-}

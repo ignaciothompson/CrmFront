@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Auth } from '@angular/fire/auth';
 import { signOut } from 'firebase/auth';
@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, NgbDropdownModule],
+  imports: [NgbDropdownModule],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })

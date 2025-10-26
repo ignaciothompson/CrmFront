@@ -4,11 +4,11 @@
 @import './components/buttons.css';
 @import './components/forms.css';
 @import './components/tables.css';
-@import './components/modals.css';
 @import './components/alerts.css';
 @import './components/dropdowns.css';
 @import './components/container.css';
 @import './components/labels.css';
 @import './components/calendar.css';
+@import './components/modal.css';
 
 

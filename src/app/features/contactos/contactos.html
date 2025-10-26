@@ -1,93 +1,103 @@
 <div class="subheader">
-    <div class="row">
-        <!-- Nombre/Apellido -->
-        <div class="col-xs-12 col-sm-6 col-md-3">
-            <label class="c-label">Nombre/Apellido</label>
-            <typeahead [(ngModel)]="nameSelectedId"
-                       name="nameSelectedId"
-                       [items]="nameItems"
-                       idKey="id"
-                       labelKey="label"
-                       placeholder="Escriba para filtrar...">
-            </typeahead>
-        </div>
-        <!-- Ciudad -->
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="localidad" class="c-label">Ciudad</label>
-            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad">
-                <option value="">Todas</option>
-                <option value="norte">Montevideo</option>
-                <option value="sur">Canelones</option>
-                <option value="este">Maldonado</option>
-            </select>
-        </div>
-        <!-- Barrio -->
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="barrio" class="c-label">Barrio</label>
-            <select id="barrio" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio">
-                <option value="">Todos</option>
-                <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
-            </select>
-        </div>
-        <!-- Tipo de residencia -->
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="tipoResid" class="c-label">Tipo de residencia</label>
-            <select id="tipoResid" class="form-control c-input" [(ngModel)]="tipoResidencia">
-                <option value="">Todas</option>
-                <option>Apartamento</option>
-                <option>Casa</option>
-                <option>Duplex</option>
-            </select>
-        </div>
-        <!-- Cuartos -->
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="cuartos" class="c-label">Cuartos</label>
-            <select id="cuartos" class="form-control c-input" [(ngModel)]="cuartos" (ngModelChange)="onCuartosChange()">
-                <option [ngValue]="null">Todos</option>
-                <option [ngValue]="1">1</option>
-                <option [ngValue]="2">2</option>
-                <option [ngValue]="3">3</option>
-                <option [ngValue]="4">4+</option>
-            </select>
-        </div>
+  <div class="row">
+    <!-- Nombre/Apellido -->
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <label class="c-label">Nombre/Apellido</label>
+      <typeahead [(ngModel)]="nameSelectedId"
+        name="nameSelectedId"
+        [items]="nameItems"
+        idKey="id"
+        labelKey="label"
+        placeholder="Escriba para filtrar...">
+      </typeahead>
     </div>
-    <button class="btn c-btn btn-primary" (click)="goNuevo()">Nuevo</button>
+    <!-- Ciudad -->
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="localidad" class="c-label">Ciudad</label>
+      <select id="localidad" class="form-control c-input" [(ngModel)]="localidad">
+        <option value="">Todas</option>
+        <option value="norte">Montevideo</option>
+        <option value="sur">Canelones</option>
+        <option value="este">Maldonado</option>
+      </select>
+    </div>
+    <!-- Barrio -->
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="barrio" class="c-label">Barrio</label>
+      <select id="barrio" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio">
+        <option value="">Todos</option>
+        @for (b of barrios; track b) {
+          <option [value]="b">{{ b }}</option>
+        }
+      </select>
+    </div>
+    <!-- Tipo de residencia -->
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="tipoResid" class="c-label">Tipo de residencia</label>
+      <select id="tipoResid" class="form-control c-input" [(ngModel)]="tipoResidencia">
+        <option value="">Todas</option>
+        <option>Apartamento</option>
+        <option>Casa</option>
+        <option>Duplex</option>
+      </select>
+    </div>
+    <!-- Cuartos -->
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="cuartos" class="c-label">Cuartos</label>
+      <select id="cuartos" class="form-control c-input" [(ngModel)]="cuartos">
+        <option [ngValue]="null">Todos</option>
+        <option [ngValue]="1">1</option>
+        <option [ngValue]="2">2</option>
+        <option [ngValue]="3">3</option>
+        <option [ngValue]="4">4+</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn c-btn btn-white btn-square" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
+  <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
 </div>
 
 <div class="frame">
-    <div class="frame-title">
-        <h4>Contactos</h4>
+  <div class="frame-title">
+    <h4>Contactos</h4>
+    <div class="frame-actions">
+      <button class="btn c-btn btn-primary" (click)="goNuevo()">Nuevo</button>
     </div>
-    <div class="frame-body scroll-table">
-        <table class="table c-table table-fixed table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Ciudad</th>
-                    <th>Barrio</th>
-                    <th>Celular</th>
-                    <th>Mail</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let c of filtered">
-                    <td>{{ c?.Nombre || c?.nombre }}</td>
-                    <td>{{ c?.Apellido || c?.apellido }}</td>
-                    <td>{{ labelForCity(c?.direccion?.Ciudad || c?.city) }}</td>
-                    <td>{{ c?.direccion?.Barrio || c?.barrio }}</td>
-                    <td>{{ c?.Celular || c?.celular }}</td>
-                    <td>{{ c?.Mail || c?.mail }}</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(c.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" (click)="eliminar(c.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
-                </tr>
-                <tr *ngIf="!filtered.length">
-                    <td colspan="7" class="text-center">Sin resultados</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Ciudad</th>
+          <th>Barrio</th>
+          <th>Celular</th>
+          <th>Mail</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of filtered; track c) {
+          <tr>
+            <td>{{ c?.Nombre || c?.nombre }}</td>
+            <td>{{ c?.Apellido || c?.apellido }}</td>
+            <td>{{ labelForCity(c?.direccion?.Ciudad || c?.city) }}</td>
+            <td>{{ c?.direccion?.Barrio || c?.barrio }}</td>
+            <td>{{ c?.Celular || c?.celular }}</td>
+            <td>{{ c?.Mail || c?.mail }}</td>
+            <td class="text-end">
+              <a href="javascript:;" (click)="goEditar(c.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+              <a href="javascript:;" (click)="eliminar(c.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+        }
+        @if (!filtered.length) {
+          <tr>
+            <td colspan="7" class="text-center">Sin resultados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 </div>

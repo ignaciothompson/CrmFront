@@ -1,16 +1,42 @@
 <div class="modal-header">
-  <h5 class="modal-title">Confirmar comparativa</h5>
-  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
-  </div>
+  <p>Confirmar comparativa</p>
+  <button type="button" aria-label="Close" (click)="activeModal.dismiss()"><i class="fas fa-times"></i></button>
+</div>
 <div class="modal-body">
   <div class="row">
     <div class="col-xs-12">
       <p class="m-b-sm"><b>Unidades seleccionadas ({{ unidades?.length || 0 }}):</b></p>
-      <ul class="list-unstyled">
-        <li *ngFor="let u of unidades">
-          {{ u?.nombre || 'Unidad' }} — {{ u?.barrio || '-' }}, {{ u?.ciudad || u?.city || u?.localidad }} — {{ u?.precioUSD || u?.precio | currency:'USD' }}
-        </li>
-      </ul>
+      <div class="table-responsive">
+        <table class="table c-table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Ubicación</th>
+              <th>Precio</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of unidades; track u) {
+              <tr>
+                <td>{{ u?.nombre || 'Unidad' }}</td>
+                <td>{{ u?.barrio || '-' }}, {{ u?.ciudad || u?.city || u?.localidad }}</td>
+                <td>{{ u?.precioUSD || u?.precio | currency:'USD' }}</td>
+                <td class="text-end">
+                  <button class="btn-table eliminar" (click)="$event.stopPropagation(); removeUnidad(u)" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+            @if (!unidades?.length) {
+              <tr>
+                <td colspan="4" class="text-center">Sin unidades seleccionadas</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -22,8 +48,8 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">Cancelar</button>
-  <button type="button" class="btn btn-primary" [disabled]="!unidades || unidades.length < 2" (click)="confirm()">Confirmar</button>
+  <button type="button" class="btn c-btn btn-small btn-default" (click)="activeModal.dismiss()">Cancelar</button>
+  <button type="button" class="btn c-btn btn-small btn-primary" [disabled]="!unidades || unidades.length < 2" (click)="confirm()">Confirmar</button>
 </div>
 
 

@@ -44,6 +44,16 @@ export class Unidades implements OnDestroy {
     return this.cityLabelMap[value] || value || '';
   }
 
+  resetFilters(): void {
+    this.localidad = '';
+    this.selectedBarrio = '';
+    this.recomputeFilters();
+  }
+
+  applyFilters(): void {
+    this.recomputeFilters();
+  }
+
   private recomputeFilters(): void {
     if (this.localidad) {
       const byCity = this.allUnidades.filter(u => (u.city || u.localidad) === this.localidad);

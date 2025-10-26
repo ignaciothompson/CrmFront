@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-contactos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TypeaheadComponent],
+  imports: [FormsModule, RouterModule, TypeaheadComponent],
   templateUrl: './contactos.html',
   styleUrl: './contactos.css'
 })
@@ -51,10 +51,6 @@ export class Contactos implements OnDestroy {
     this.recompute();
   }
 
-  onNameChange(): void { this.recompute(); }
-  onTipoResidenciaChange(): void { this.recompute(); }
-  onCuartosChange(): void { this.recompute(); }
-
   labelForCity(value: string): string { return this.cityLabelMap[value] || value || ''; }
 
   goNuevo(): void { this.router.navigate(['/contactos/form']); }
@@ -65,6 +61,16 @@ export class Contactos implements OnDestroy {
     const ok = confirm('¿Eliminar este contacto?');
     if (!ok) return;
     await this.contactoService.deleteContacto(String(id));
+  }
+
+  resetFilters(): void {
+    this.localidad = '';
+    this.selectedBarrio = '';
+    this.recompute();
+  }
+
+  applyFilters(): void {
+    this.recompute();
   }
 
   private recompute(): void {

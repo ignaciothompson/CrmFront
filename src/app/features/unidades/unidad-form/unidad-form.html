@@ -1,97 +1,103 @@
 <div class="frame">
-    <div class="frame-title">
-        <h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
-    </div>
-    <div class="frame-body">
+  <div class="frame-title">
+    <h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
+  </div>
+  <div class="frame-body">
+    <div class="row">
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="nombre">Nombre del Proyecto</label>
+        <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" placeholder="Ej: Residencial Solaria" />
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="tipo">Tipo de Proyecto</label>
+        <select id="tipo" class="form-control c-input" [(ngModel)]="model.tipo" name="tipo">
+          <option>Residencial</option>
+          <option>Comercial</option>
+          <option>Mixto</option>
+        </select>
+      </div>
+
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="descripcion">Descripción</label>
+        <textarea id="descripcion" class="form-control c-input" [(ngModel)]="model.descripcion" name="descripcion" placeholder="Describa brevemente el proyecto..."></textarea>
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="estado">Estado</label>
+        <select id="estado" class="form-control c-input" [(ngModel)]="model.estado" name="estado">
+          <option>En planificación</option>
+          <option>En construcción</option>
+          <option>Entregado</option>
+        </select>
+      </div>
+
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="proyecto">Proyecto</label>
+        <typeahead id="proyecto" [(ngModel)]="model.proyectoId" name="proyectoId" [items]="proyectoItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="onProyectoChange()"></typeahead>
+      </div>
+
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="unidades">Total Unidades</label>
+        <input id="unidades" class="form-control c-input" [(ngModel)]="model.unidades" name="unidades" placeholder="Ej: 150" />
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="entrega">Fecha de Entrega (Est.)</label>
+        <input type="date" id="entrega" class="form-control c-input" [(ngModel)]="model.entrega" name="entrega" placeholder="mm/dd/yyyy" />
+      </div>
+
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="ubicacion">Ubicación</label>
+        <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Ej: Av. Principal 123, Ciudad" />
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="inicio">Fecha de Inicio</label>
+        <input type="date" id="inicio" class="form-control c-input" [(ngModel)]="model.inicio" name="inicio" placeholder="mm/dd/yyyy" />
+      </div>
+
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="responsable">Responsable</label>
+        <select id="responsable" class="form-control c-input">
+          <option>Juan Pérez</option>
+          <option>María García</option>
+          <option>Carlos López</option>
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="city">Ciudad</label>
+        <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
+          <option value="">Seleccione</option>
+          @for (c of ciudades; track c) {
+            <option [value]="c.value">{{ c.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="barrio">Barrio</label>
+        <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
+          <option value="">Seleccione</option>
+          @for (b of barrios; track b) {
+            <option [value]="b">{{ b }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-xs-12">
+        <label class="c-label">Extras</label>
         <div class="row">
+          @for (e of extrasCatalog; track e; let i = $index) {
             <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="nombre">Nombre del Proyecto</label>
-                <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" placeholder="Ej: Residencial Solaria" />
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" [checked]="(model.extras || []).includes(e.label)" (change)="onExtraChange(e.label, $event.target.checked)">
+                  {{ e.label }}
+                </label>
+              </div>
             </div>
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="tipo">Tipo de Proyecto</label>
-                <select id="tipo" class="form-control c-input" [(ngModel)]="model.tipo" name="tipo">
-                    <option>Residencial</option>
-                    <option>Comercial</option>
-                    <option>Mixto</option>
-                </select>
-            </div>
-
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="descripcion">Descripción</label>
-                <textarea id="descripcion" class="form-control c-input" [(ngModel)]="model.descripcion" name="descripcion" placeholder="Describa brevemente el proyecto..."></textarea>
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="estado">Estado</label>
-                <select id="estado" class="form-control c-input" [(ngModel)]="model.estado" name="estado">
-                    <option>En planificación</option>
-                    <option>En construcción</option>
-                    <option>Entregado</option>
-                </select>
-            </div>
-
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="proyecto">Proyecto</label>
-                <typeahead id="proyecto" [(ngModel)]="model.proyectoId" name="proyectoId" [items]="proyectoItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="onProyectoChange()"></typeahead>
-            </div>
-
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="unidades">Total Unidades</label>
-                <input id="unidades" class="form-control c-input" [(ngModel)]="model.unidades" name="unidades" placeholder="Ej: 150" />
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="entrega">Fecha de Entrega (Est.)</label>
-                <input type="date" id="entrega" class="form-control c-input" [(ngModel)]="model.entrega" name="entrega" placeholder="mm/dd/yyyy" />
-            </div>
-
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="ubicacion">Ubicación</label>
-                <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Ej: Av. Principal 123, Ciudad" />
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="inicio">Fecha de Inicio</label>
-                <input type="date" id="inicio" class="form-control c-input" [(ngModel)]="model.inicio" name="inicio" placeholder="mm/dd/yyyy" />
-            </div>
-
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="responsable">Responsable</label>
-                <select id="responsable" class="form-control c-input">
-                    <option>Juan Pérez</option>
-                    <option>María García</option>
-                    <option>Carlos López</option>
-                </select>
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="city">Ciudad</label>
-                <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
-                    <option value="">Seleccione</option>
-                    <option *ngFor="let c of ciudades" [value]="c.value">{{ c.label }}</option>
-                </select>
-            </div>
-            <div class="col-xs-12 col-sm-4">
-                <label class="c-label" for="barrio">Barrio</label>
-                <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
-                    <option value="">Seleccione</option>
-                    <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
-                </select>
-            </div>
-            <div class="col-xs-12">
-                <label class="c-label">Extras</label>
-                <div class="row">
-                    <div class="col-xs-12 col-sm-4" *ngFor="let e of extrasCatalog; let i = index">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" [checked]="(model.extras || []).includes(e.label)" (change)="onExtraChange(e.label, $event.target.checked)">
-                                {{ e.label }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          }
         </div>
+      </div>
     </div>
-    <div class="frame-footer">
-        <button routerLink="/unidades" class="btn c-btn btn-default">Cancelar</button>
-        <button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
-    </div>
+  </div>
+  <div class="frame-footer">
+    <button routerLink="/unidades" class="btn c-btn btn-default">Cancelar</button>
+    <button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
+  </div>
 </div>

@@ -2,13 +2,15 @@
   <div class="header-image"></div>
   <div class="header-overlay">
     <h2>Comparativa</h2>
-    <div class="contacto" *ngIf="comparativa?.contacto">
-      <span><b>Cliente:</b> {{ comparativa?.contacto?.nombre }}</span>
-      <span class="m-l-sm"><b>Tel:</b> {{ comparativa?.contacto?.telefono }}</span>
-      <span class="m-l-sm"><b>Mail:</b> {{ comparativa?.contacto?.mail }}</span>
-    </div>
+    @if (comparativa?.contacto) {
+      <div class="contacto">
+        <span><b>Cliente:</b> {{ comparativa?.contacto?.nombre }}</span>
+        <span class="m-l-sm"><b>Tel:</b> {{ comparativa?.contacto?.telefono }}</span>
+        <span class="m-l-sm"><b>Mail:</b> {{ comparativa?.contacto?.mail }}</span>
+      </div>
+    }
   </div>
-  </div>
+</div>
 
 <div class="row m-t">
   <div class="col-xs-12 col-md-8">
@@ -29,16 +31,18 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let u of comparativa?.unidades">
-              <td>{{ u?.nombre }}</td>
-              <td>{{ u?.ciudad }}</td>
-              <td>{{ u?.barrio }}</td>
-              <td>{{ u?.dormitorios }}</td>
-              <td>{{ u?.banos }}</td>
-              <td>{{ u?.tamanoM2 }} m²</td>
-              <td>{{ u?.precioUSD | currency:'USD' }}</td>
-              <td>{{ u?.expensasUSD | currency:'USD' }}</td>
-            </tr>
+            @for (u of comparativa?.unidades; track u) {
+              <tr>
+                <td>{{ u?.nombre }}</td>
+                <td>{{ u?.ciudad }}</td>
+                <td>{{ u?.barrio }}</td>
+                <td>{{ u?.dormitorios }}</td>
+                <td>{{ u?.banos }}</td>
+                <td>{{ u?.tamanoM2 }} m²</td>
+                <td>{{ u?.precioUSD | currency:'USD' }}</td>
+                <td>{{ u?.expensasUSD | currency:'USD' }}</td>
+              </tr>
+            }
           </tbody>
         </table>
       </div>
@@ -47,13 +51,19 @@
     <div class="card">
       <div class="card-title">Extras</div>
       <div class="extras-grid">
-        <div class="extra-row" *ngFor="let u of comparativa?.unidades">
-          <div class="extra-title">{{ u?.nombre }}</div>
-          <div class="extra-tags">
-            <span class="tag" *ngFor="let e of (u?.extras || [])">{{ e }}</span>
-            <span class="muted" *ngIf="!(u?.extras?.length)">-</span>
+        @for (u of comparativa?.unidades; track u) {
+          <div class="extra-row">
+            <div class="extra-title">{{ u?.nombre }}</div>
+            <div class="extra-tags">
+              @for (e of (u?.extras || []); track e) {
+                <span class="tag">{{ e }}</span>
+              }
+              @if (!(u?.extras?.length)) {
+                <span class="muted">-</span>
+              }
+            </div>
           </div>
-        </div>
+        }
       </div>
     </div>
   </div>
@@ -61,14 +71,17 @@
   <div class="col-xs-12 col-md-4">
     <div class="card">
       <div class="card-title">Mapa</div>
-      <div *ngIf="mapCenter; else noMap">
-        <google-map height="320px" width="100%" [center]="mapCenter" [zoom]="mapZoom">
-          <map-marker *ngFor="let m of markers" [position]="m.position" [label]="m.label || ''"></map-marker>
-        </google-map>
-      </div>
-      <ng-template #noMap>
+      @if (mapCenter) {
+        <div>
+          <google-map height="320px" width="100%" [center]="mapCenter" [zoom]="mapZoom">
+            @for (m of markers; track m) {
+              <map-marker [position]="m.position" [label]="m.label || ''"></map-marker>
+            }
+          </google-map>
+        </div>
+      } @else {
         <div class="muted">No hay coordenadas para estas unidades.</div>
-      </ng-template>
+      }
     </div>
   </div>
 </div>

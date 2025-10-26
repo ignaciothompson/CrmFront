@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -9,7 +9,7 @@ import { BlacklistModal } from './blacklist-modal/blacklist-modal';
 @Component({
   selector: 'app-listas-negras',
   standalone: true,
-  imports: [CommonModule, FormsModule, TypeaheadComponent],
+  imports: [FormsModule, TypeaheadComponent],
   templateUrl: './listas-negras.html',
   styleUrl: './listas-negras.css'
 })
@@ -45,7 +45,12 @@ export class ListasNegras {
     }).catch(() => {});
   }
 
-  onSearchChange(): void {
+  resetFilters(): void {
+    this.selectedId = null;
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
     if (this.selectedId) {
       this.items = this.all.filter(c => !!c?.ListaNegra && String(c.id) === String(this.selectedId));
     } else {

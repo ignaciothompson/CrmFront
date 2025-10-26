@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
@@ -10,7 +10,7 @@ import demo from './demoData.json';
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [FormsModule, BaseChartDirective],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css'
 })

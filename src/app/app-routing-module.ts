@@ -22,7 +22,7 @@ const routes: Routes = [
 			{ path: 'unidades', data: { title: 'Listado de Proyectos' }, loadComponent: () => import('./features/unidades/unidades').then(m => m.Unidades) },
 			{ path: 'unidades/form', data: { title: 'Proyecto' }, loadComponent: () => import('./features/unidades/unidad-form/unidad-form').then(m => m.UnidadForm) },
 			{ path: 'unidades/form/:id', data: { title: 'Proyecto' }, loadComponent: () => import('./features/unidades/unidad-form/unidad-form').then(m => m.UnidadForm) },
-            { path: 'comparativas', data: { title: 'Crear Comparativas' }, loadComponent: () => import('./features/comparativas/comparativas').then(m => m.Comparativas) },
+            { path: 'comparativas', data: { title: 'Crear Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-create/comparativas').then(m => m.Comparativas) },
             { path: 'listado-comparativas', data: { title: 'Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-list/comparativas-list').then(m => m.ComparativasListPage) },
 			{ path: 'reportes', data: { title: 'Reportes' }, loadComponent: () => import('./features/reportes/reportes').then(m => m.Reportes) },
             { path: 'monitor-eventos', data: { title: 'Monitor de Eventos' }, loadComponent: () => import('./features/monitor-eventos/monitor-eventos').then(m => m.MonitorEventosComponent) },

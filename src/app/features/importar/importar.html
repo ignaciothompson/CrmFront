@@ -21,25 +21,35 @@
     <div class="m-t">
       <button class="btn c-btn btn-primary" [disabled]="!excelData.length || isSaving" (click)="importar()">Importar</button>
       <button class="btn c-btn btn-default m-l-sm" [disabled]="isSaving" (click)="seedDemo(target)">Generar demo en {{ target }}</button>
-      <span class="m-l" *ngIf="resultMsg">{{ resultMsg }}</span>
+      @if (resultMsg) {
+        <span class="m-l">{{ resultMsg }}</span>
+      }
     </div>
 
-    <div class="m-t" *ngIf="preview.length">
-      <h5>Previsualización (primeras {{ preview.length }} filas)</h5>
-      <pre>{{ preview | json }}</pre>
-    </div>
+    @if (preview.length) {
+      <div class="m-t">
+        <h5>Previsualización (primeras {{ preview.length }} filas)</h5>
+        <pre>{{ preview | json }}</pre>
+      </div>
+    }
 
     <div class="m-t">
       <h5>Plantilla de columnas sugeridas</h5>
-      <div *ngIf="target==='proyectos'">
-        <code>nombre, tipoProyecto, ciudad, barrio, tipo</code>
-      </div>
-      <div *ngIf="target==='unidades'">
-        <code>proyectoId, ciudad, barrio, nombre, tipo, orientacion, distribucion, dormitorios, banos, pisoCategoria, tamanoM2, precioUSD, expensasUSD, extras (coma separada), visibilidad, publicacionInterna, disponibilidad, ocupacion, imagenUrl</code>
-      </div>
-      <div *ngIf="target==='contactos'">
-        <code>nombre, apellido, edad, telefono, mail, pareja, familia, pref_ciudad, pref_barrio, pref_tipo, pref_cuartos, pref_precio_min, pref_precio_max, entrevistaPendiente, ent_proyectoId, ent_unidadId, ent_comentario, ent_fecha, ent_hora, ent_lugar</code>
-      </div>
+      @if (target==='proyectos') {
+        <div>
+          <code>nombre, tipoProyecto, ciudad, barrio, tipo</code>
+        </div>
+      }
+      @if (target==='unidades') {
+        <div>
+          <code>proyectoId, ciudad, barrio, nombre, tipo, orientacion, distribucion, dormitorios, banos, pisoCategoria, tamanoM2, precioUSD, expensasUSD, extras (coma separada), visibilidad, publicacionInterna, disponibilidad, ocupacion, imagenUrl</code>
+        </div>
+      }
+      @if (target==='contactos') {
+        <div>
+          <code>nombre, apellido, edad, telefono, mail, pareja, familia, pref_ciudad, pref_barrio, pref_tipo, pref_cuartos, pref_precio_min, pref_precio_max, entrevistaPendiente, ent_proyectoId, ent_unidadId, ent_comentario, ent_fecha, ent_hora, ent_lugar</code>
+        </div>
+      }
     </div>
   </div>
 </div>

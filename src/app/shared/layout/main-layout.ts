@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { Header } from './header/header';
 import { Sidebar } from './sidebar/sidebar';
@@ -9,7 +9,7 @@ import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, Header, Sidebar],
+  imports: [RouterModule, Header, Sidebar],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })

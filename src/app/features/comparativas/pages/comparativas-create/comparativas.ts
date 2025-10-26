@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
+import { TypeaheadComponent } from '../../../../shared/components/typeahead/typeahead';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ComparativaService } from '../../core/services/comparativa';
+import { ComparativaService } from '../../../../core/services/comparativa';
 import { Router } from '@angular/router';
-import { UnidadService } from '../../core/services/unidad';
-import { ProyectoService } from '../../core/services/proyecto';
-import { EXTRAS_CATALOG } from '../../core/extras-catalog';
+import { UnidadService } from '../../../../core/services/unidad';
+import { ProyectoService } from '../../../../core/services/proyecto';
+import { EXTRAS_CATALOG } from '../../../../core/extras-catalog';
 
 @Component({
   selector: 'app-comparativas',
@@ -24,6 +24,24 @@ export class Comparativas {
     private comparativaService: ComparativaService,
     private router: Router
   ) {}
+
+  // UI helpers
+  defaultImg: string = 'assets/img/placeholder.jpg';
+  openBlocks: Record<string, boolean> = {
+    'f-name': false,
+    'f-proyecto': false,
+    'f-location': false,
+    'f-barrio': false,
+    'f-tipo': false,
+    'f-vis': false,
+    'f-disp': false,
+    'f-rooms': false,
+    'f-size': false,
+    'f-price': false,
+    'f-exp': false,
+    'f-extras': false,
+    'f-venta': false
+  };
 
   // Filters state
   nameSelectedId: string | null = null;
@@ -92,6 +110,17 @@ export class Comparativas {
     this.proyectoService.getProyectos().subscribe(ps => {
       this.projectItems = (ps || []).map(p => ({ id: String(p.id), label: String(p.nombre) }));
     });
+  }
+
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src.indexOf(this.defaultImg) === -1) {
+      img.src = this.defaultImg;
+    }
+  }
+
+  toggleOpen(id: string): void {
+    this.openBlocks[id] = !this.openBlocks[id];
   }
 
   applyFilters(): void {
@@ -253,7 +282,7 @@ export class Comparativas {
     if (selectedUnits.length < 2) return;
 
     // Lazy import modal component to avoid circular refs
-    import('./components/compare-modal/compare-modal').then(m => {
+    import('../../components/compare-modal/compare-modal').then(m => {
       const modalRef = this.modalService.open(m.CompareModal, { size: 'lg', backdrop: 'static' });
       (modalRef.componentInstance as any).unidades = selectedUnits;
 

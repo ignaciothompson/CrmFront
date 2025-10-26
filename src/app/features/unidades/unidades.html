@@ -1,87 +1,94 @@
 <div class="subheader">
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <label for="desde" class="c-label">Desde</label>
-            <div class="input-group input-range">
-                <input type="date" class="form-control c-input">
-                <input type="date" class="form-control c-input">
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="localidad" class="c-label">Ciudad</label>
-            <select id="localidad" class="form-control c-input" [(ngModel)]="localidad">
-                <option value="">Todas</option>
-                <option value="norte">Montevideo</option>
-                <option value="sur">Canelones</option>
-                <option value="este">Maldonado</option>
-            </select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="proyecto" class="c-label">Barrio</label>
-            <select id="proyecto" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio">
-                <option value="">Todos</option>
-                <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
-            </select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="tamano" class="c-label">Tamaño</label>
-            <select id="tamano" class="form-control c-input">
-                <option value="">Todos</option>
-                <option value="pequeno">Pequeño</option>
-                <option value="mediano">Mediano</option>
-                <option value="grande">Grande</option>
-            </select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-2">
-            <label for="precio-min" class="c-label">Precio</label>
-            <div class="input-group input-range">
-                <input type="number" id="precio-min" class="form-control c-input" placeholder="Min">
-                <input type="number" id="precio-max" class="form-control c-input" placeholder="Max">
-            </div>
-        </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <label for="desde" class="c-label">Desde</label>
+      <div class="input-group input-range">
+        <input type="date" class="form-control c-input">
+        <input type="date" class="form-control c-input">
+      </div>
     </div>
-    <button class="btn c-btn btn-primary">Filtrar</button>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="localidad" class="c-label">Ciudad</label>
+      <select id="localidad" class="form-control c-input" [(ngModel)]="localidad">
+        <option value="">Todas</option>
+        <option value="norte">Montevideo</option>
+        <option value="sur">Canelones</option>
+        <option value="este">Maldonado</option>
+      </select>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="proyecto" class="c-label">Barrio</label>
+      <select id="proyecto" class="form-control c-input" [disabled]="localidad == ''" [(ngModel)]="selectedBarrio">
+        <option value="">Todos</option>
+        @for (b of barrios; track b) {
+          <option [value]="b">{{ b }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="tamano" class="c-label">Tamaño</label>
+      <select id="tamano" class="form-control c-input">
+        <option value="">Todos</option>
+        <option value="pequeno">Pequeño</option>
+        <option value="mediano">Mediano</option>
+        <option value="grande">Grande</option>
+      </select>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="precio-min" class="c-label">Precio</label>
+      <div class="input-group input-range">
+        <input type="number" id="precio-min" class="form-control c-input" placeholder="Min">
+        <input type="number" id="precio-max" class="form-control c-input" placeholder="Max">
+      </div>
+    </div>
+  </div>
+  <button class="btn c-btn btn-white btn-square" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
+  <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
 </div>
 
 <div class="frame">
-    <div class="frame-title">
-        <h4>Unidades (25)</h4>
-        <div class="frame-actions">
-            <button (click)="goNuevo()" class="btn c-btn btn-primary pull-end">Nuevo</button>
-        </div>
+  <div class="frame-title">
+    <h4>Unidades (25)</h4>
+    <div class="frame-actions">
+      <button (click)="goNuevo()" class="btn c-btn btn-primary pull-end">Nuevo</button>
     </div>
-    <div class="frame-body scroll-table">
-        <table class="table c-table table-fixed table-striped">
-            <thead>
-                <tr>
-                    <th>Proyecto</th>
-                    <th>Localidad</th>
-                    <th>Tamaño</th>
-                    <th>Precio</th>
-                    <th>Fecha entrega</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let it of filteredUnidades">
-                    <td>{{ it.nombre || it.name }}</td>
-                    <td>{{ labelForCity(it.city || it.localidad) }}</td>
-                    <td>{{ it.tamano || it.size }}</td>
-                    <td>{{ it.precio | currency:'USD':'symbol':'1.0-0' }}</td>
-                    <td>{{ it.entrega || it.fechaEntrega }}</td>
-                    <td class="text-end">
-                        <a href="javascript:;" (click)="goEditar(it.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                        <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                        <a href="javascript:;" (click)="eliminar(it.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-                    </td>
-                </tr>
-                <tr *ngIf="!filteredUnidades.length">
-                    <td colspan="6" class="text-center">Sin resultados</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="frame-footer">
-        
-    </div>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th>Localidad</th>
+          <th>Tamaño</th>
+          <th>Precio</th>
+          <th>Fecha entrega</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (it of filteredUnidades; track it) {
+          <tr>
+            <td>{{ it.nombre || it.name }}</td>
+            <td>{{ labelForCity(it.city || it.localidad) }}</td>
+            <td>{{ it.tamano || it.size }}</td>
+            <td>{{ it.precio | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td>{{ it.entrega || it.fechaEntrega }}</td>
+            <td class="text-end">
+              <a href="javascript:;" (click)="goEditar(it.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+              <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
+              <a href="javascript:;" (click)="eliminar(it.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+        }
+        @if (!filteredUnidades.length) {
+          <tr>
+            <td colspan="6" class="text-center">Sin resultados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="frame-footer">
+
+  </div>
 </div>

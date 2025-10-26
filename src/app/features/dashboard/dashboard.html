@@ -1,70 +1,72 @@
 <div class="cards-container-4">
-    <div class="card info">
-        <div class="card-icon">
-            <i class="fa fa-building"></i>
-        </div>
-        <div class="card-data">
-            <div class="card-title">Unidades Totales</div>
-            <div class="card-value">{{ totalUnidades }}</div>
-        </div>
+  <div class="card info">
+    <div class="card-icon">
+      <i class="fa fa-building"></i>
     </div>
-    <div class="card info">
-        <div class="card-icon">
-            <i class="fa fa-users"></i>
-        </div>
-        <div class="card-data">
-            <div class="card-title">Contactos</div>
-            <div class="card-value">{{ totalContactos }}</div>
-        </div>
+    <div class="card-data">
+      <div class="card-title">Unidades Totales</div>
+      <div class="card-value">{{ totalUnidades }}</div>
     </div>
-    <div class="card success">
-        <div class="card-icon">
-            <i class="fa fa-house-circle-check"></i>
-        </div>
-        <div class="card-data">
-            <div class="card-title">Unidades Disponibles</div>
-            <div class="card-value">{{ unidadesDisponibles }}</div>
-        </div>
+  </div>
+  <div class="card info">
+    <div class="card-icon">
+      <i class="fa fa-users"></i>
     </div>
-    <div class="card info">
-        <div class="card-icon">
-            <i class="fa fa-microphone"></i>
-        </div>
-        <div class="card-data">
-            <div class="card-title">Meets pendientes</div>
-            <div class="card-value">{{ entrevistasPendientes }}</div>
-        </div>
+    <div class="card-data">
+      <div class="card-title">Contactos</div>
+      <div class="card-value">{{ totalContactos }}</div>
     </div>
+  </div>
+  <div class="card success">
+    <div class="card-icon">
+      <i class="fa fa-house-circle-check"></i>
+    </div>
+    <div class="card-data">
+      <div class="card-title">Unidades Disponibles</div>
+      <div class="card-value">{{ unidadesDisponibles }}</div>
+    </div>
+  </div>
+  <div class="card info">
+    <div class="card-icon">
+      <i class="fa fa-microphone"></i>
+    </div>
+    <div class="card-data">
+      <div class="card-title">Meets pendientes</div>
+      <div class="card-value">{{ entrevistasPendientes }}</div>
+    </div>
+  </div>
 </div>
 
 <div class="row m-t-md">
-    <div class="col-xs-12 col-sm-8">
-        <div class="frame">
-            <div class="frame-title">
-                <h4>Calendario de entrevistas</h4>
-            </div>
-            <div class="frame-body" style="height: calc(100vh - 280px);">
-                <full-calendar [options]="calendarOptions"></full-calendar>
-            </div>
-        </div>  
+  <div class="col-xs-12 col-sm-8">
+    <div class="frame">
+      <div class="frame-title">
+        <h4>Calendario de entrevistas</h4>
+      </div>
+      <div class="frame-body" style="height: calc(100vh - 280px);">
+        <full-calendar [options]="calendarOptions"></full-calendar>
+      </div>
     </div>
-    <div class="col-xs-12 col-sm-4">
-        <div class="frame">
-          <div class="frame-title">
-            <h4>Actividad reciente</h4>
-          </div>
-          <div class="frame-body" style="max-height: calc(100vh - 280px); overflow-y: auto;">
-            <div class="recent-activity">
-              <div class="activity-card" *ngFor="let a of publicRecent" [ngClass]="a.tone || 'primary'" (click)="a.navigate && a.navigate()">
-                <div class="icon"><i class="{{ a.icon }}"></i></div>
-                <div class="activity-data">
-                  <div class="activity-text">{{ a.text }}</div>
-                  <div class="activity-time">{{ a.time }}</div>
-                </div>
-                <div class="activity-link"><i class="fa fa-external-link"></i></div>
+  </div>
+  <div class="col-xs-12 col-sm-4">
+    <div class="frame">
+      <div class="frame-title">
+        <h4>Actividad reciente</h4>
+      </div>
+      <div class="frame-body" style="max-height: calc(100vh - 280px); overflow-y: auto;">
+        <div class="recent-activity">
+          @for (a of publicRecent; track a) {
+            <div class="activity-card" [ngClass]="a.tone || 'primary'" (click)="a.navigate && a.navigate()">
+              <div class="icon"><i class="{{ a.icon }}"></i></div>
+              <div class="activity-data">
+                <div class="activity-text">{{ a.text }}</div>
+                <div class="activity-time">{{ a.time }}</div>
               </div>
+              <div class="activity-link"><i class="fa fa-external-link"></i></div>
             </div>
-          </div>
+          }
         </div>
+      </div>
     </div>
+  </div>
 </div>
