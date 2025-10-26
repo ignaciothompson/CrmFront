@@ -3,6 +3,10 @@
     <h5 class="m-0 sidebar-title">GestorApp</h5>
   </div>
   <ul class="nav flex-column flex-grow-1 px-2">
+    <li class="nav-item">
+      <a class="nav-link" href="javascript:;" (click)="openNuevaVenta()"><i class="fa fa-plus m-r-xs"></i><span>Nueva Venta</span></a>
+    </li>
+    <li class="nav-item"><a class="nav-link" [routerLink]="['/ventas']"><i class="fa fa-receipt m-r-xs"></i><span>Ventas</span></a></li>
     <li class="nav-item"><a class="nav-link" [routerLink]="['/unidades']"><i class="fa fa-building m-r-xs"></i><span>Proyectos</span></a></li>
     <li class="nav-item"><a class="nav-link" [routerLink]="['/contactos']"><i class="fa fa-users m-r-xs"></i><span>Contactos</span></a></li>
     <li class="nav-item"><a class="nav-link" [routerLink]="['/comparativas']"><i class="fa-solid fa-plus m-r-xs"></i><span>Crear Comparativas</span></a></li>

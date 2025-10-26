@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <p>Nueva venta</p>
+  <button type="button" aria-label="Close" (click)="activeModal.dismiss()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-xs-12 col-sm-4 m-b">
+      <label class="form-label"><b>Tipo</b></label>
+      <select class="form-control c-input" [(ngModel)]="selectedType">
+        <option value="venta">Venta</option>
+        <option value="renta">Renta</option>
+      </select>
+    </div>
+    <div class="col-xs-12 col-sm-4 m-b">
+      <label class="form-label"><b>Contacto</b></label>
+      <typeahead [(ngModel)]="selectedContactoId" name="selectedContactoId" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Buscar contacto..."></typeahead>
+    </div>
+    <div class="col-xs-12 col-sm-4 m-b">
+      <label class="form-label"><b>Unidad</b></label>
+      <typeahead [(ngModel)]="selectedUnidadId" name="selectedUnidadId" [items]="unidadItems" idKey="id" labelKey="label" placeholder="Buscar unidad..."></typeahead>
+    </div>
+  </div>
+
+  <div class="row m-t">
+    <div class="col-xs-12">
+      <p class="m-b-xs"><b>Recientes</b></p>
+      <div class="table-responsive">
+        <table class="table c-table table-striped">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Contacto</th>
+              <th>Unidad</th>
+              <th>Tipo</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of ventas; track r) {
+              <tr>
+                <td>{{ r.date | date:'short' }}</td>
+                <td>{{ r?.contacto?.nombre || '-' }}</td>
+                <td>{{ r?.unidad?.nombre || '-' }}</td>
+                <td>{{ r?.type | titlecase }}</td>
+                <td class="text-end">
+                  <button class="btn-table" title="Editar" (click)="editRow(r)"><i class="fas fa-pen"></i></button>
+                </td>
+              </tr>
+            }
+            @if (!ventas.length) {
+              <tr><td colspan="5" class="text-center">Sin registros</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn c-btn btn-small btn-default" (click)="activeModal.dismiss()">Cancelar</button>
+  <button type="button" class="btn c-btn btn-small btn-primary" [disabled]="!selectedUnidadId" (click)="confirmar()">Confirmar</button>
+</div>

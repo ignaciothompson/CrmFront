@@ -1,0 +1,63 @@
+<div class="subheader">
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label class="c-label">Desde</label>
+      <input type="date" class="form-control c-input" [(ngModel)]="dateFrom" />
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label class="c-label">Hasta</label>
+      <input type="date" class="form-control c-input" [(ngModel)]="dateTo" />
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <label class="c-label">Contacto</label>
+      <typeahead [(ngModel)]="selectedContactoId" name="ventasContacto" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Filtrar contacto..."></typeahead>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <label class="c-label">Unidad</label>
+      <typeahead [(ngModel)]="selectedUnidadId" name="ventasUnidad" [items]="unidadItems" idKey="id" labelKey="label" placeholder="Filtrar unidad..."></typeahead>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label class="c-label">Tipo</label>
+      <select class="form-control c-input" [(ngModel)]="selectedType">
+        <option value="">Todos</option>
+        <option value="venta">Venta</option>
+        <option value="renta">Renta</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn c-btn btn-white btn-square" (click)="dateFrom = null; dateTo = null; selectedContactoId = null; selectedUnidadId = null; selectedType = ''; applyFilters()"><i class="fa fa-refresh"></i></button>
+  <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
+</div>
+
+<div class="frame">
+  <div class="frame-title">
+    <h4>Ventas</h4>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Contacto</th>
+          <th>Unidad</th>
+          <th>Localidad</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of filtered; track r) {
+          <tr>
+            <td>{{ r.date | date:'short' }}</td>
+            <td>{{ r?.contacto?.nombre || '-' }}</td>
+            <td>{{ r?.unidad?.nombre || '-' }}</td>
+            <td>{{ r?.unidad?.localidad || '-' }}</td>
+            <td>{{ r?.type | titlecase }}</td>
+          </tr>
+        }
+        @if (!filtered.length) {
+          <tr><td colspan="5" class="text-center">Sin resultados</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
