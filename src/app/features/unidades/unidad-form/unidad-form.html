@@ -1,103 +1,366 @@
 <div class="frame">
-  <div class="frame-title">
-    <h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
-  </div>
-  <div class="frame-body">
-    <div class="row">
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="nombre">Nombre del Proyecto</label>
-        <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" placeholder="Ej: Residencial Solaria" />
-      </div>
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="tipo">Tipo de Proyecto</label>
-        <select id="tipo" class="form-control c-input" [(ngModel)]="model.tipo" name="tipo">
-          <option>Residencial</option>
-          <option>Comercial</option>
-          <option>Mixto</option>
-        </select>
-      </div>
-
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="descripcion">Descripción</label>
-        <textarea id="descripcion" class="form-control c-input" [(ngModel)]="model.descripcion" name="descripcion" placeholder="Describa brevemente el proyecto..."></textarea>
-      </div>
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="estado">Estado</label>
-        <select id="estado" class="form-control c-input" [(ngModel)]="model.estado" name="estado">
-          <option>En planificación</option>
-          <option>En construcción</option>
-          <option>Entregado</option>
-        </select>
-      </div>
-
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="proyecto">Proyecto</label>
-        <typeahead id="proyecto" [(ngModel)]="model.proyectoId" name="proyectoId" [items]="proyectoItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="onProyectoChange()"></typeahead>
-      </div>
-
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="unidades">Total Unidades</label>
-        <input id="unidades" class="form-control c-input" [(ngModel)]="model.unidades" name="unidades" placeholder="Ej: 150" />
-      </div>
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="entrega">Fecha de Entrega (Est.)</label>
-        <input type="date" id="entrega" class="form-control c-input" [(ngModel)]="model.entrega" name="entrega" placeholder="mm/dd/yyyy" />
-      </div>
-
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="ubicacion">Ubicación</label>
-        <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Ej: Av. Principal 123, Ciudad" />
-      </div>
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="inicio">Fecha de Inicio</label>
-        <input type="date" id="inicio" class="form-control c-input" [(ngModel)]="model.inicio" name="inicio" placeholder="mm/dd/yyyy" />
-      </div>
-
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="responsable">Responsable</label>
-        <select id="responsable" class="form-control c-input">
-          <option>Juan Pérez</option>
-          <option>María García</option>
-          <option>Carlos López</option>
-        </select>
-      </div>
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="city">Ciudad</label>
-        <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
-          <option value="">Seleccione</option>
-          @for (c of ciudades; track c) {
-            <option [value]="c.value">{{ c.label }}</option>
-          }
-        </select>
-      </div>
-      <div class="col-xs-12 col-sm-4">
-        <label class="c-label" for="barrio">Barrio</label>
-        <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
-          <option value="">Seleccione</option>
-          @for (b of barrios; track b) {
-            <option [value]="b">{{ b }}</option>
-          }
-        </select>
-      </div>
-      <div class="col-xs-12">
-        <label class="c-label">Extras</label>
-        <div class="row">
-          @for (e of extrasCatalog; track e; let i = $index) {
+	<div class="frame-title">
+		<h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
+	</div>
+	<div class="frame-body">
+		<div class="row">
+			<!-- Paso 1: Alcance -->
             <div class="col-xs-12 col-sm-4">
-              <div class="checkbox">
-                <label>
-                  <input type="checkbox" [checked]="(model.extras || []).includes(e.label)" (change)="onExtraChange(e.label, $event.target.checked)">
-                  {{ e.label }}
-                </label>
-              </div>
+				<label class="c-label" for="alcanceSelect">Tipo de Unidad</label>
+                <select id="alcanceSelect" class="form-control c-input" [(ngModel)]="alcance" name="alcance" [disabled]="projectLocked">
+					<option value="proyecto">Es parte de un Proyecto</option>
+					<option value="unica">Es una Unidad Única</option>
+				</select>
+			</div>
+			@if (alcance === 'proyecto') {
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="proyectoModo">Proyecto</label>
+                    <select id="proyectoModo" class="form-control c-input" [(ngModel)]="proyectoModo" name="proyectoModo" [disabled]="projectLocked">
+						<option value="existente">Existente</option>
+						<option value="nuevo">Nuevo</option>
+					</select>
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					@if (proyectoModo === 'existente') {
+						<label class="c-label" for="proyecto">Seleccionar Proyecto</label>
+                        <typeahead id="proyecto" [(ngModel)]="model.proyectoId" name="proyectoId" [items]="proyectoItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="onProyectoChange()" [disabled]="projectLocked"></typeahead>
+					}
+				</div>
+			}
+		</div>
+
+        <!-- Nuevo Proyecto -->
+        @if (alcance === 'proyecto' && proyectoModo === 'nuevo') {
+			<div class="separator"><span>Nuevo Proyecto</span><hr></div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="npNombre">Nombre</label>
+                    <input id="npNombre" class="form-control c-input" [(ngModel)]="nuevoProyecto.nombre" name="npNombre" placeholder="Nombre del proyecto" [disabled]="projectLocked" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="npDev">Desarrollador</label>
+                    <input id="npDev" class="form-control c-input" [(ngModel)]="nuevoProyecto.desarrollador" name="npDesarrollador" placeholder="Empresa / Desarrollador" [disabled]="projectLocked" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="npLoc">Localidad</label>
+                    <input id="npLoc" class="form-control c-input" [(ngModel)]="nuevoProyecto.localidad" name="npLocalidad" placeholder="Ciudad / Localidad" [disabled]="projectLocked" />
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="npBarrio">Barrio</label>
+                    <input id="npBarrio" class="form-control c-input" [(ngModel)]="nuevoProyecto.barrio" name="npBarrio" placeholder="Barrio / Zona" [disabled]="projectLocked" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="npDir">Dirección</label>
+                    <input id="npDir" class="form-control c-input" [(ngModel)]="nuevoProyecto.direccion" name="npDireccion" placeholder="Dirección" [disabled]="projectLocked" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="npEnt">Fecha Entrega</label>
+                    <input type="date" id="npEnt" class="form-control c-input" [(ngModel)]="nuevoProyecto.entrega" name="npEntrega" [disabled]="projectLocked" />
+				</div>
+			</div>
+		}
+
+		<div class="separator"><span>Datos Comunes</span><hr></div>
+		<div class="row">
+			<!-- Paso 2: Tipo de Unidad -->
+			<div class="col-xs-12 col-sm-4">
+				<label class="c-label" for="tipoUnidad">Tipo</label>
+                <select id="tipoUnidad" class="form-control c-input" [(ngModel)]="model.tipoUnidad" name="tipoUnidad" [disabled]="editingProyecto && !id">
+					<option value="">Seleccione</option>
+					<option value="Apartamento">Apartamento</option>
+					<option value="Casa">Casa</option>
+					<option value="Chacra">Chacra</option>
+					<option value="Campo">Campo</option>
+				</select>
+			</div>
+
+			<!-- Datos Comunes -->
+			<div class="col-xs-12 col-sm-4">
+				<label class="c-label" for="nombre">Nombre / Referencia</label>
+                <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" placeholder="Ej: Unidad 101" [disabled]="editingProyecto && !id" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-4">
+				<label class="c-label" for="estadoComercial">Estado</label>
+                <select id="estadoComercial" class="form-control c-input" [(ngModel)]="model.estadoComercial" name="estadoComercial" [disabled]="editingProyecto && !id">
+					@for (s of estadoComercialOptions; track s) {
+						<option [value]="s">{{ s }}</option>
+					}
+				</select>
+			</div>
+			<div class="col-xs-12 col-sm-4">
+				<label class="c-label" for="responsable">Responsable</label>
+                <input id="responsable" class="form-control c-input" [(ngModel)]="model.responsable" name="responsable" placeholder="Agente o responsable" [disabled]="editingProyecto && !id" />
+			</div>
+            @if (alcance === 'unica' && (model.estadoComercial !== 'Vendida' && model.estadoComercial !== 'En Venta')) {
+                <div class="col-xs-12 col-sm-4">
+                    <label class="c-label" for="entrega">Disponibilidad / Entrega (Est.)</label>
+                    <input type="date" id="entrega" class="form-control c-input" [(ngModel)]="model.entrega" name="entrega" />
+                </div>
+            }
+		</div>
+        @if (alcance === 'unica') {
+            <div class="row">
+                <div class="col-xs-12 col-sm-4">
+                    <label class="c-label" for="ubicacion">Ubicación</label>
+                    <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Dirección" />
+                </div>
+                <div class="col-xs-12 col-sm-4">
+                    <label class="c-label" for="city">Ciudad</label>
+                    <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
+                        <option value="">Seleccione</option>
+                        @for (c of ciudades; track c) {
+                            <option [value]="c.value">{{ c.label }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-4">
+                    <label class="c-label" for="barrio">Barrio / Zona</label>
+                    <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
+                        <option value="">Seleccione</option>
+                        @for (b of barrios; track b) {
+                            <option [value]="b">{{ b }}</option>
+                        }
+                    </select>
+                </div>
             </div>
-          }
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="frame-footer">
-    <button routerLink="/unidades" class="btn c-btn btn-default">Cancelar</button>
-    <button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
-  </div>
+        }
+		<div class="row">
+			<div class="col-xs-12 col-sm-4">
+				<label class="c-label" for="comision">Comisión (%)</label>
+                <input id="comision" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.comision" name="comision" placeholder="Ej: 3" [disabled]="editingProyecto && !id" />
+			</div>
+		</div>
+        @if (model.tipoUnidad) {
+        <div class="row">
+			<div class="separator"><span>Específicos</span><hr></div>
+			<!-- Específicos: Apartamento -->
+			@if (model.tipoUnidad === 'Apartamento') {
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="dormitorios">Dormitorios</label>
+                <input id="dormitorios" type="number" class="form-control c-input" [(ngModel)]="model.dormitorios" name="dormitorios" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="banos">Baños</label>
+                <input id="banos" type="number" class="form-control c-input" [(ngModel)]="model.banos" name="banos" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="m2i">m² Internos</label>
+                <input id="m2i" type="number" class="form-control c-input" [(ngModel)]="model.m2Internos" name="m2Internos" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="m2t">m² Totales</label>
+                <input id="m2t" type="number" class="form-control c-input" [(ngModel)]="model.m2Totales" name="m2Totales" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="piso">Piso</label>
+                <input id="piso" type="number" class="form-control c-input" [(ngModel)]="model.piso" name="piso" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="orientacion">Orientación</label>
+                <select id="orientacion" class="form-control c-input" [(ngModel)]="model.orientacion" name="orientacion" [disabled]="editingProyecto && !id">
+						<option value="">Seleccione</option>
+						@for (o of orientaciones; track o) { <option [value]="o">{{ o }}</option> }
+					</select>
+				</div>
+				<div class="col-xs-12">
+					<label class="c-label">Extras y Características</label>
+					<div class="row">
+						@for (e of apartmentExtras; track e) {
+							<div class="col-xs-12 col-sm-4">
+								<div class="checkbox">
+									<label>
+                    <input type="checkbox" [checked]="(model.extras || []).includes(e)" (change)="onExtraChange(e, $event.target.checked)" [disabled]="editingProyecto && !id"> {{ e }}
+									</label>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Específicos: Casa -->
+			@if (model.tipoUnidad === 'Casa') {
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="dormitoriosC">Dormitorios</label>
+                <input id="dormitoriosC" type="number" class="form-control c-input" [(ngModel)]="model.dormitorios" name="dormitoriosCasa" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="banosC">Baños</label>
+                <input id="banosC" type="number" class="form-control c-input" [(ngModel)]="model.banos" name="banosCasa" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="m2e">Sup. Edificada (m²)</label>
+                <input id="m2e" type="number" class="form-control c-input" [(ngModel)]="model.superficieEdificada" name="superficieEdificada" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="m2st">Sup. Terreno (m²)</label>
+                <input id="m2st" type="number" class="form-control c-input" [(ngModel)]="model.superficieTerreno" name="superficieTerreno" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="antiguedad">Antigüedad (Años)</label>
+                <input id="antiguedad" type="number" class="form-control c-input" [(ngModel)]="model.antiguedad" name="antiguedad" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-2">
+					<label class="c-label" for="condicion">Condición</label>
+                <select id="condicion" class="form-control c-input" [(ngModel)]="model.condicion" name="condicion" [disabled]="editingProyecto && !id">
+						<option value="">Seleccione</option>
+						@for (c of condicionCasaOptions; track c) { <option [value]="c">{{ c }}</option> }
+					</select>
+				</div>
+				<div class="col-xs-12">
+					<label class="c-label">Extras y Características</label>
+					<div class="row">
+						@for (e of houseExtras; track e) {
+							<div class="col-xs-12 col-sm-4">
+								<div class="checkbox">
+									<label>
+                    <input type="checkbox" [checked]="(model.extras || []).includes(e)" (change)="onExtraChange(e, $event.target.checked)" [disabled]="editingProyecto && !id"> {{ e }}
+									</label>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Específicos: Chacra -->
+			@if (model.tipoUnidad === 'Chacra') {
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="hectareasC">Hectáreas de Tierra</label>
+                    <input id="hectareasC" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.hectareas" name="hectareasC" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="m2edif">m² Edificados</label>
+                    <input id="m2edif" type="number" class="form-control c-input" [(ngModel)]="model.m2Edificados" name="m2Edificados" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="dormR">Dormitorios (Casa)</label>
+                    <input id="dormR" type="number" class="form-control c-input" [(ngModel)]="model.dormitorios" name="dormitoriosR" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="banosR">Baños (Casa)</label>
+                    <input id="banosR" type="number" class="form-control c-input" [(ngModel)]="model.banos" name="banosR" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="tipoConst">Tipo de Construcción</label>
+                    <input id="tipoConst" class="form-control c-input" [(ngModel)]="model.tipoConstruccion" name="tipoConstruccion" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="acceso">Acceso</label>
+                    <input id="acceso" class="form-control c-input" [(ngModel)]="model.acceso" name="acceso" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="infra">Infraestructura</label>
+                    <input id="infra" class="form-control c-input" [(ngModel)]="model.infraestructura" name="infraestructura" placeholder="Galpones, corrales, etc." [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12">
+					<label class="c-label">Servicios Básicos</label>
+					<div class="row">
+						<div class="col-xs-12 col-sm-4">
+                            <label><input type="checkbox" [(ngModel)]="model.luz" name="luz" [disabled]="editingProyecto && !id" /> Luz eléctrica</label>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+                            <label><input type="checkbox" [(ngModel)]="model.agua" name="agua" [disabled]="editingProyecto && !id" /> Agua potable</label>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+                            <label><input type="checkbox" [(ngModel)]="model.internet" name="internet" [disabled]="editingProyecto && !id" /> Internet</label>
+						</div>
+					</div>
+				</div>
+			}
+
+			<!-- Específicos: Campo -->
+			@if (model.tipoUnidad === 'Campo') {
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="hectareasF">Hectáreas de Tierra</label>
+                    <input id="hectareasF" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.hectareas" name="hectareasF" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="aptitud">Aptitud del Suelo</label>
+                    <select id="aptitud" class="form-control c-input" [(ngModel)]="model.aptitudSuelo" name="aptitudSuelo" [disabled]="editingProyecto && !id">
+						<option value="">Seleccione</option>
+						<option>Ganadera</option>
+						<option>Agrícola</option>
+						<option>Forestal</option>
+						<option>Mixta</option>
+					</select>
+				</div>
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="indice">Índice de Productividad</label>
+                    <input id="indice" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.indiceProductividad" name="indiceProductividad" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-3">
+					<label class="c-label" for="accesoF">Acceso</label>
+                    <input id="accesoF" class="form-control c-input" [(ngModel)]="model.acceso" name="accesoF" [disabled]="editingProyecto && !id" />
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="mejoras">Mejoras de Trabajo</label>
+                    <textarea id="mejoras" class="form-control c-input" [(ngModel)]="model.mejorasTrabajo" name="mejorasTrabajo" placeholder="Alambrados, mangas, molinos..." [disabled]="editingProyecto && !id"></textarea>
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="infraHab">Infraestructura Habitacional</label>
+                    <textarea id="infraHab" class="form-control c-input" [(ngModel)]="model.infraestructuraHabitacional" name="infraestructuraHabitacional" placeholder="Casa principal/personal" [disabled]="editingProyecto && !id"></textarea>
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					<label class="c-label" for="fuentes">Fuentes de Agua</label>
+                    <textarea id="fuentes" class="form-control c-input" [(ngModel)]="model.fuentesAgua" name="fuentesAgua" placeholder="Arroyos, pozos, tajamares" [disabled]="editingProyecto && !id"></textarea>
+				</div>
+			}
+		</div>
+        }
+
+		<!-- Tabla de Unidades (flujo proyecto) -->
+		@if (alcance === 'proyecto') {
+			<div class="row" style="margin-top: 16px;">
+				<div class="col-xs-12">
+					<div class="separator"><span>Unidades en {{ nuevoProyecto.nombre || 'Proyecto' }}</span><hr></div>
+					<div class="table-responsive">
+						<table class="table c-table table-striped">
+							<thead>
+								<tr>
+									<th>Referencia</th>
+									<th>Tipo</th>
+									<th>M2 / Hectáreas</th>
+									<th>Estado</th>
+									<th style="width: 140px;">Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+                                @if (sessionUnits.length) {
+                                    @for (u of sessionUnits; track u) {
+                                        <tr [class]="u.id === id ? 'row-editing' : ''">
+                                            <td>{{ u.nombre }}</td>
+                                            <td>{{ u.tipoUnidad }}</td>
+                                            <td>{{ getPrimarySize(u) }}</td>
+                                            <td>{{ u.estadoComercial }}</td>
+                                            <td>
+                                                <a class="btn-table" (click)="editFromTable(u)">Editar</a>
+                                                <a class="btn-table" (click)="deleteFromTable(u)" style="margin-left: 6px;">Eliminar</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                } @else {
+                                    <tr>
+                                        <td colspan="5" class="text-center">No hay unidades en este proyecto</td>
+                                    </tr>
+                                }
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+	<div class="frame-footer">
+		<button routerLink="/unidades" class="btn c-btn btn-default">Cancelar</button>
+		@if (alcance === 'proyecto' && !id) {
+			<button class="btn c-btn btn-white" [disabled]="busy" (click)="addAndRepeat()">Agregar y Repetir</button>
+		}
+		<button class="btn c-btn btn-primary" [disabled]="busy" (click)="save()">Guardar</button>
+	</div>
 </div>
+

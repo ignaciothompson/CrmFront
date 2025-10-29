@@ -17,6 +17,12 @@ export class UnidadService {
 		const ref = collection(this.firestore, 'unidades');
 		const added = await addDoc(ref, unidad);
 		await this.events.new('Unidades', { id: added.id, ...unidad });
+    if (unidad?.proyectoId) {
+      const pref = doc(this.firestore, 'proyectos', String(unidad.proyectoId));
+      const prev: any = await firstValueFrom(docData(pref));
+      const unidadesCount = (prev?.unidadesCount || 0) + 1;
+      await updateDoc(pref, { unidadesCount });
+    }
 		return added;
 	}
 
@@ -38,5 +44,12 @@ export class UnidadService {
     const previous = await firstValueFrom(docData(ref, { idField: 'id' }));
     await deleteDoc(ref);
     await this.events.delete('Unidades', previous as any);
+    const prev: any = previous;
+    if (prev?.proyectoId) {
+      const pref = doc(this.firestore, 'proyectos', String(prev.proyectoId));
+      const pprev: any = await firstValueFrom(docData(pref));
+      const unidadesCount = Math.max(0, (pprev?.unidadesCount || 0) - 1);
+      await updateDoc(pref, { unidadesCount });
+    }
   }
 }

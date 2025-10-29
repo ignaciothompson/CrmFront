@@ -46,6 +46,51 @@
   <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
 </div>
 
+<div class="frame m-b-md">
+  <div class="frame-title">
+    <h4>Proyectos</h4>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Desarrollador</th>
+          <th>Localidad</th>
+          <th>Barrio</th>
+          <th>Dirección</th>
+          <th>Fecha entrega</th>
+          <th>Unidades</th>
+          <th style="width:140px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of proyectos; track p) {
+          <tr>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.desarrollador }}</td>
+            <td>{{ labelForCity(p.ciudad || p.localidad) }}</td>
+            <td>{{ p.barrio }}</td>
+            <td>{{ p.direccion }}</td>
+            <td>{{ p.entrega }}</td>
+            <td class="text-end">{{ p.unidadesCount || 0 }}</td>
+            <td class="text-end">
+              <a href="javascript:;" class="btn-table" (click)="goEditarProyecto(p)" aria-label="Editar Proyecto"><i class="fas fa-pen"></i></a>
+              <a href="javascript:;" class="btn-table" (click)="shareProyecto(p)" aria-label="Compartir"><i class="fa fa-external-link"></i></a>
+              <a href="javascript:;" class="btn-table eliminar" (click)="confirmDeleteProyecto(p)" aria-label="Eliminar Proyecto"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+        }
+        @if (!proyectos.length) {
+          <tr>
+            <td colspan="7" class="text-center">Sin proyectos</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <div class="frame">
   <div class="frame-title">
     <h4>Unidades (25)</h4>
@@ -92,3 +137,4 @@
 
   </div>
 </div>
+

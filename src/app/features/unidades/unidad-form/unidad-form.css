@@ -11,3 +11,29 @@
     font-weight: 600;
 }
 
+.separator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 ;
+}
+
+.separator > span {
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.separator > hr {
+    flex: 1 1 auto;
+    border: 0;
+    border-top: 1px solid var(--text-color, #ddd);
+    margin: 0;
+}
+
+.table tr.row-editing,
+.c-table tr.row-editing {
+    background-color: var(--primary-color, #2c7be5);
+    color: #fff;
+}
+

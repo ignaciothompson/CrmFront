@@ -7,6 +7,8 @@ import { MainLayout } from './shared/layout/main-layout';
 
 const routes: Routes = [
 	{ path: 'login', loadComponent: () => import('./features/auth/login/login').then(m => m.Login) },
+  // Public proyecto share page
+  { path: 'proyecto/:id', loadComponent: () => import('./features/unidades/unidades-shared/unidades-shared').then(m => m.UnidadesShared) },
   // Public access to shared comparativas by id (new public path)
   { path: 'comparacion/:id', loadComponent: () => import('./features/comparativas/pages/comparativa-detail/comparativa-detail').then(m => m.ComparativaDetailPage) },
 	{

@@ -24,6 +24,7 @@ export class TypeaheadComponent implements ControlValueAccessor {
   @Input() idKey: string = 'id';
   @Input() labelKey: string = 'label';
   @Input() placeholder: string = 'Buscar...';
+  @Input() disabled: boolean = false;
 
   inputText: string = '';
   private valueId: string | null = null;

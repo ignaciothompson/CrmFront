@@ -1,0 +1,14 @@
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.close {
+  background: transparent;
+  border: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+

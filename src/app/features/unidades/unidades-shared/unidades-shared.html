@@ -1,0 +1,48 @@
+<div class="frame">
+  <div class="frame-title">
+    <h4>{{ proyecto?.nombre || 'Proyecto' }}</h4>
+  </div>
+  <div class="frame-body">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6">
+        <div><strong>Desarrollador:</strong> {{ proyecto?.desarrollador || '-' }}</div>
+        <div><strong>Entrega:</strong> {{ proyecto?.entrega || '-' }}</div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <div><strong>Localidad:</strong> {{ proyecto?.ciudad || proyecto?.localidad || '-' }}</div>
+        <div><strong>Barrio:</strong> {{ proyecto?.barrio || '-' }}</div>
+        <div><strong>Dirección:</strong> {{ proyecto?.direccion || '-' }}</div>
+      </div>
+    </div>
+    <h5 class="mt-2">Unidades</h5>
+    <div class="table-responsive">
+      <table class="table c-table table-striped">
+        <thead>
+          <tr>
+            <th>Referencia</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>M2 / Ha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of unidades; track u) {
+            <tr>
+              <td>{{ u.nombre }}</td>
+              <td>{{ u.tipoUnidad }}</td>
+              <td>{{ u.estadoComercial }}</td>
+              <td>{{ getPrimarySize(u) }}</td>
+            </tr>
+          }
+          @if (!unidades.length) {
+            <tr>
+              <td colspan="4" class="text-center">Sin unidades</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
