@@ -1,0 +1,56 @@
+# Summary
+
+- Introduction
+  - Overview (README.md)
+  - How the App Works (how-the-app-works.md)
+- Getting Started
+  - Installation and Setup (guides/installation-and-setup.md)
+  - Project Structure (guides/project-structure.md)
+  - Environment Configuration (guides/environment-config.md)
+- Architecture and Routing
+  - Architecture (guides/architecture.md)
+  - State Management (guides/state-management.md)
+  - Error Handling and Logging (guides/error-handling-and-logging.md)
+- Style and UX
+  - Style Guide (style/style-guide.md)
+  - Design Tokens (style/design-tokens.md)
+  - Accessibility (guides/accessibility.md)
+- Components
+  - Overview (components/overview.md)
+  - Components Index (components.md)
+  - Forms (forms.md)
+  - Typeahead (components/typeahead.md)
+  - Layout (components/layout.md)
+  - Not Found (components/not-found.md)
+  - Table (components/table.md)
+- Features
+  - Overview (features/overview.md)
+  - Dashboard (features/dashboard.md)
+  - Auth (features/auth.md)
+  - Unidades (features/unidades.md)
+  - Entrevistas (features/entrevistas.md)
+  - Comparativas (features/comparativas.md)
+    - Crear (features/comparativas/create.md)
+    - Listado (features/comparativas/list.md)
+    - Detalle público (features/comparativas/detail.md)
+    - Compare Modal (features/comparativas/modal.md)
+  - Contactos (features/contactos.md)
+  - Ventas (features/ventas.md)
+  - Listas Negras (features/listas-negras.md)
+  - Reportes (features/reportes.md)
+  - Importar (features/importar.md)
+  - Monitor de Eventos (features/monitor-eventos.md)
+  - Usuario (features/usuario.md)
+- Data and APIs
+  - Data Model (data/data-model.md)
+  - API (data/api.md)
+  - Firestore (data/firestore.md)
+  - Firestore Rules (data/firestore-rules.md)
+  - Importing (importing.md)
+  - Reports (data/reports.md)
+- Libraries (libraries.md)
+- Meta
+  - Contributing (meta/CONTRIBUTING.md)
+  - Code of Conduct (meta/CODE_OF_CONDUCT.md)
+  - Changelog (meta/CHANGELOG.md)
+  - Security (meta/SECURITY.md)

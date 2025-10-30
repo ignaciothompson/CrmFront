@@ -80,6 +80,13 @@
        border-color: var(--link-color) !important;
        z-index: 5;
    }
+
+   /* En grupos de input, los btn-square deben verse como blancos (convención) */
+   .c-skin .input-group .btn.c-btn.btn-square {
+       color: var(--text-highlight-color);
+       border-color: var(--border-color-grey);
+       background-color: white;
+   }
    
    /* -----------------------------------------------------------------
       BOTÓN OUTLINE (CON BORDE)
