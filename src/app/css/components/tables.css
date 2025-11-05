@@ -49,7 +49,7 @@
     position: sticky;
     top: 0;
     z-index: 2;
-    background-color: #ffffff; /* mantener el fondo al hacer sticky */
+    background-color: var(--surface-2); /* themed surface for sticky header */
 }
 
 /* -----------------------------------------------------------------
@@ -57,10 +57,38 @@
    ----------------------------------------------------------------- */
 
 .c-skin .table.c-table.table-striped tbody tr:nth-child(odd) {
-    background-color: #ffffff;
+    background-color: var(--surface-1);
 }
 
 .c-skin .table.c-table.table-striped tbody tr:nth-child(even) {
-    background-color: var(--bg-lightcolor); /* #f8f8f8 */
+    background-color: var(--surface-3); /* subtle alternate row */
 }
 
+/* Dark theme table styles */
+.c-skin.theme-dark .table.c-table th {
+    background-color: transparent;
+    color: white;
+}
+
+.c-skin.theme-dark .table.c-table.table-fixed thead th {
+    background-color: transparent;
+}
+
+.c-skin.theme-dark .table.c-table.table-striped tbody tr td {
+    color: white;
+    border-color: var(--border);
+}
+    .c-skin.theme-dark .table.c-table.table-striped tbody tr:nth-child(odd) td {
+    background-color: var(--surface-1);
+}
+
+.c-skin.theme-dark .table.c-table.table-striped tbody tr:nth-child(even) td {
+    background-color: var(--surface-2);
+}
+
+/* List Group */
+.c-skin.theme-dark .list-group-item {
+    background-color: var(--surface-1);
+    color: white;
+    border-color: var(--border);
+}

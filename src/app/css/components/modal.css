@@ -19,3 +19,30 @@
     text-decoration: none;
     line-height: 1;
 }
+
+/* -----------------------------------------------------------------
+   DARK THEME SUPPORT FOR MODALS
+   ----------------------------------------------------------------- */
+
+/* Bootstrap modal dark theme overrides */
+.c-skin.theme-dark .modal-content {
+    background-color: var(--surface-1);
+    border-color: var(--border);
+    color: var(--text-color);
+}
+
+.c-skin.theme-dark .modal-header {
+    border-bottom-color: var(--border);
+}
+
+.c-skin.theme-dark .modal-header .modal-title {
+    color: var(--text-highlight-color);
+}
+
+.c-skin.theme-dark .modal-footer {
+    border-top-color: var(--border);
+}
+
+.c-skin.theme-dark .modal-body {
+    color: var(--text-color);
+}

@@ -4,7 +4,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 15px;
-  background: #fff;
+  background: var(--surface-2);
   margin: -15px -15px 15px -15px;
   padding: 15px;
 }
@@ -29,13 +29,17 @@
 
 /* Frames */
 .c-skin .frame {
-  background: #fff;
-  border: none;
+  background: var(--surface-1);
   border-radius: 5px;
   padding: 15px;
 
   /* bottom-only shadow, consistent with cards */
   box-shadow: 0 8px 14px -10px rgba(0, 0, 0, 0.18);
+}
+
+/* Dark theme borders */
+.c-skin.theme-dark .frame {
+  border: 1px solid var(--border);
 }
 
 .c-skin .frame-title {

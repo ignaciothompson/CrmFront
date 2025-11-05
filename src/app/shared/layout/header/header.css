@@ -1,7 +1,8 @@
 .app-header {
 	height: 60px;
-	background: #ffffff;
+	background: var(--surface-2);
 }
+
 
 .app-header h6 {
 	font-size: 18px;

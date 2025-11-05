@@ -16,7 +16,8 @@
 
 /* Card base styles */
 .c-skin .card {
-  background: #fff;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
   border-radius: 5px;
   box-shadow: 0 8px 14px -10px rgba(0, 0, 0, 0.18);
   border: none;
@@ -89,5 +90,10 @@
   .c-skin .cards-container-5 > .card {
     flex: 0 0 calc((100% - var(--card-gap) * 4) / 5);
   }
+}
+
+/* Dark theme borders */
+.c-skin.theme-dark .card {
+  border: 1px solid var(--border);
 }
 

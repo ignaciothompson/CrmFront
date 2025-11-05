@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h5 class="modal-title">Agregar a Lista Negra</h5>
-  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+  <button type="button" aria-label="Close" (click)="activeModal.dismiss()"><i class="fas fa-times"></i></button>
 </div>
 <div class="modal-body">
   <div class="mb-2">
@@ -16,8 +16,8 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn c-btn btn-default" (click)="activeModal.dismiss()">Cancelar</button>
-  <button class="btn c-btn btn-primary" (click)="confirm()">Agregar</button>
+  <button class="btn c-btn btn-default btn-small" (click)="activeModal.dismiss()">Cancelar</button>
+  <button class="btn c-btn btn-primary btn-small" (click)="confirm()">Agregar</button>
 </div>
 
 

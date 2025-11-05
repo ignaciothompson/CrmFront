@@ -4,8 +4,15 @@
     --primary-color: #1E3A8A;
     --primary-faded-color: #526780;
     --border-color-grey: #B1B1B1;
+    /* base border token used across layout */
+    --border: #B1B1B1;
     --bg-color: #EEEEEE;
     --bg-lightcolor: #F8F8F8;
+    /* app surfaces (light theme) */
+    --app-bg: #EEEEEE;           /* main app background */
+    --surface-1: #FFFFFF;        /* cards, panels */
+    --surface-2: #FFFFFF;        /* header/sidebar */
+    --surface-3: #F6F8FA;        /* subtle surface (tables striped, etc) */
     /*base colors*/
     --text-color: #585858;
     --text-highlight-color: #212121;
@@ -62,4 +69,38 @@
     /*alto del label sobre los elementos (por ej. input)*/
     /*sería utilizado en elementos que no tengan un label superior, y deban emparejarse con otro elemento que sí lo tenga*/
     --label-takenup-space: clamp(20px, 0.8vw, 23px);   /* 20px-23px scaled */
+}
+
+/* GitHub-like dark theme overrides */
+.theme-dark {
+    /* canvas and surfaces */
+    --app-bg: #0d1117;              /* canvasDefault */
+    --surface-1: #0d1117;           /* base surface */
+    --surface-2: #161b22;           /* header/sidebar */
+    --surface-3: #0f1620;           /* subtle alt rows */
+
+    /* borders */
+    --border: #3b3c3d;              /* borderDefault */
+    --border-color-grey: #6b6c6c;
+
+    /* text */
+    --text-color: white;          /* fg.muted */
+    --text-highlight-color: white;/* fg.default */
+    --text-light-color: #8b949e;    /* fg.subtle */
+
+    /* links and accents */
+    --link-color: #2f81f7;          /* accent.fg */
+    --primary-color: #2f81f7;
+    --primary-faded-color: #1f6feb;
+    --primary-hover-color: #1f6feb;
+    --primary-soft-bg: #0f2449;
+    --primary-soft-border: #24416c;
+    --primary-contrast: #ffffff;
+
+    /* semantic */
+    --success-color: #238636;       /* GitHub green */
+    --success-hover-color: #2ea043;
+    --success-soft-bg: #102117;
+    --success-soft-border: #1f6f3a;
+    --success-contrast: #ffffff;
 }

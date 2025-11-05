@@ -85,7 +85,7 @@
    .c-skin .input-group .btn.c-btn.btn-square {
        color: var(--text-highlight-color);
        border-color: var(--border-color-grey);
-       background-color: white;
+       background-color: var(--surface-1);
    }
    
    /* -----------------------------------------------------------------
@@ -148,7 +148,7 @@
    .c-skin .btn.c-btn.btn-white {
        color: var(--text-highlight-color);
        border-color: var(--border-color-grey);
-       background-color: white;
+       background-color: var(--surface-1);
    }
    
    /* Estados interactivos del botón blanco */
@@ -313,3 +313,29 @@
                width: var(--mobile-height) !important;
            }
    }
+
+/* -----------------------------------------------------------------
+   DARK THEME ENHANCEMENTS FOR BUTTONS
+   ----------------------------------------------------------------- */
+
+/* Enhanced btn-white appearance in dark theme */
+.c-skin.theme-dark .btn.c-btn.btn-white {
+    background-color: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-color);
+}
+
+.c-skin.theme-dark .btn.c-btn.btn-white:hover,
+.c-skin.theme-dark .btn.c-btn.btn-white:focus,
+.c-skin.theme-dark .btn.c-btn.btn-white:active {
+    background-color: var(--surface-3);
+    border-color: var(--primary-color);
+    color: var(--primary-color) !important;
+}
+
+/* Default button in dark theme */
+.c-skin.theme-dark .btn.c-btn.btn-default {
+    background-color: var(--bg-color);
+    border: none;
+    color: #585858 ;
+}

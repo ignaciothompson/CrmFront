@@ -1,7 +1,6 @@
 .app-sidebar {
 	width: 220px;
-	border-right: 1px solid var(--border);
-	background: #ffffff;
+	background: var(--surface-2);
 }
 
 .app-sidebar .sidebar-title {
@@ -27,7 +26,6 @@
 .sidebar-footer {
     position: fixed;
     bottom: 30px;
-	border-top: 1px solid var(--border);
     width: 100%;
     max-width: 220px;
 }
@@ -45,4 +43,13 @@
 .app-sidebar .sidebar-footer .nav-link.active {
 	background-color: var(--primary-color);
 	color: #fff;
+}
+
+/* Dark theme borders */
+.c-skin.theme-dark .app-sidebar {
+	border-right: 1px solid var(--border);
+}
+
+.c-skin.theme-dark .sidebar-footer {
+	border-top: 1px solid var(--border);
 }

@@ -104,3 +104,42 @@
 .c-skin .fc .fc-timegrid-slot {
   height: 90px;
 }
+
+/* -----------------------------------------------------------------
+   DARK THEME SUPPORT FOR FULLCALENDAR
+   ----------------------------------------------------------------- */
+
+.c-skin.theme-dark {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--surface-1);
+  --fc-neutral-bg-color: var(--surface-2);
+  --fc-today-bg-color: var(--primary-soft-bg);
+
+  /* Dark theme button styles */
+  --fc-button-text-color: var(--text-color);
+  --fc-button-bg-color: var(--surface-2);
+  --fc-button-border-color: var(--border);
+  --fc-button-hover-bg-color: var(--surface-3);
+  --fc-button-hover-border-color: var(--primary-color);
+  --fc-button-active-bg-color: var(--surface-3);
+  --fc-button-active-border-color: var(--primary-color);
+
+  /* Events in dark theme */
+  --fc-event-bg-color: var(--success-color);
+  --fc-event-border-color: var(--success-color);
+  --fc-event-text-color: var(--success-contrast);
+}
+
+/* Additional dark theme text color overrides */
+.c-skin.theme-dark .fc .fc-toolbar-title {
+  color: var(--text-highlight-color);
+}
+
+.c-skin.theme-dark .fc .fc-col-header-cell {
+  color: var(--text-color);
+  background-color: transparent;
+}
+
+.c-skin.theme-dark .fc .fc-daygrid-day-number {
+  color: var(--text-color);
+}

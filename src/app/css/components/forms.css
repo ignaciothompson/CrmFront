@@ -70,6 +70,17 @@
     padding-top: 3px;
 }
 
+/* Input para fechas - Estilo del icono del calendario */
+.c-skin input.form-control.c-input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5); /* Gris medio por defecto, ajustable */
+}
+
+/* Dark theme para icono de fecha */
+.c-skin.theme-dark input.form-control.c-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Blanco en dark theme */
+}
+
 /* -----------------------------------------------------------------
    GRUPOS DE INPUT - RANGO
    Campos para rangos (desde/hasta)

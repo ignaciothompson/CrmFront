@@ -5,7 +5,11 @@
 		</button>
 		<h6 class="m-0">{{ title }}</h6>
 	</div>
-    <div ngbDropdown class="d-inline-block">
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn c-btn btn-square btn-white" (click)="toggleTheme()" [attr.aria-label]="isDark ? 'Switch to light' : 'Switch to dark'">
+            <i class="fa" [ngClass]="isDark ? 'fa-sun' : 'fa-moon'"></i>
+        </button>
+        <div ngbDropdown class="d-inline-block">
         <button class="btn btn-light rounded-pill d-flex align-items-center gap-2" ngbDropdownToggle>
             <i class="far fa-user"></i>
             <span>{{ userName || 'Nombre Usuario' }}</span>
@@ -21,6 +25,7 @@
                 <i class="fa fa-right-from-bracket"></i>
                 <span>Log Out</span>
             </button>
+        </div>
         </div>
     </div>
 </header>
