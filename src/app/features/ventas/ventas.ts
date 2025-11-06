@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { VentaService, VentaRecord } from '../../core/services/venta';
 import { ContactoService } from '../../core/services/contacto';
 import { UnidadService } from '../../core/services/unidad';
+import { VentaInfoModal } from './venta-info-modal/venta-info-modal';
 
 @Component({
   selector: 'app-ventas',
@@ -14,7 +16,12 @@ import { UnidadService } from '../../core/services/unidad';
   styleUrl: './ventas.css'
 })
 export class VentasPage {
-  constructor(private ventaService: VentaService, private contactoService: ContactoService, private unidadService: UnidadService) {}
+  constructor(
+    private ventaService: VentaService, 
+    private contactoService: ContactoService, 
+    private unidadService: UnidadService,
+    private modal: NgbModal
+  ) {}
 
   // Filters
   dateFrom: string | null = null; // YYYY-MM-DD
@@ -57,5 +64,19 @@ export class VentasPage {
       list = list.filter(r => (r.date || 0) <= to);
     }
     this.filtered = list;
+  }
+
+  verInfo(r: VentaRecord): void {
+    const modalRef = this.modal.open(VentaInfoModal, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.venta = r;
+  }
+
+  getTotalGanado(): number {
+    return this.filtered.reduce((sum, r) => {
+      if (r?.importe && r?.comision) {
+        return sum + (r.importe * r.comision / 100);
+      }
+      return sum;
+    }, 0);
   }
 }

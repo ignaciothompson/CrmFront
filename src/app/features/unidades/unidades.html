@@ -41,6 +41,13 @@
         <input type="number" id="precio-max" class="form-control c-input" placeholder="Max">
       </div>
     </div>
+    <div class="col-xs-12 col-sm-6 col-md-2">
+      <label for="mostrar-vendidas" class="c-label">Estado</label>
+      <div class="form-check m-t-sm">
+        <input type="checkbox" id="mostrar-vendidas" class="form-check-input" [(ngModel)]="mostrarVendidas" (ngModelChange)="applyFilters()">
+        <label class="form-check-label" for="mostrar-vendidas">Mostrar vendidas/rentadas</label>
+      </div>
+    </div>
   </div>
   <button class="btn c-btn btn-white btn-square" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
   <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>

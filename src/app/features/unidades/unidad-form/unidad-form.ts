@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
 import { UnidadService } from '../../../core/services/unidad';
 import { ProyectoService } from '../../../core/services/proyecto';
@@ -15,7 +16,16 @@ import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
   styleUrl: './unidad-form.css'
 })
 export class UnidadForm {
-  constructor(private route: ActivatedRoute, private router: Router, private unidadService: UnidadService, private proyectoService: ProyectoService) {}
+  @Input() unidadId?: string;
+  @Input() proyectoId?: string;
+  @Input() editProyecto: boolean = false;
+
+  constructor(
+    private router: Router, 
+    private unidadService: UnidadService, 
+    private proyectoService: ProyectoService,
+    public activeModal?: NgbActiveModal
+  ) {}
 
   // Main form model. We keep legacy fields for backward-compat while introducing new dynamic-unit fields
   model: any = {
@@ -112,15 +122,21 @@ export class UnidadForm {
   barrios: string[] = [];
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id') ?? undefined;
-    const qp = this.route.snapshot.queryParamMap;
-    const qpProyectoId = qp.get('proyectoId');
-    const qpEditProyecto = qp.get('editProyecto') === '1' || qp.get('editProyecto') === 'true';
+    // Siempre abrimos como modal - si no hay activeModal, redirigir a unidades
+    if (!this.activeModal) {
+      this.router.navigate(['/unidades']);
+      return;
+    }
+
+    this.id = this.unidadId;
+    const proyectoIdInput = this.proyectoId;
+    const editProyectoInput = this.editProyecto;
+    
     this.proyectoService.getProyectos().subscribe(ps => {
       this.proyectosAll = ps || [];
       this.proyectoItems = this.proyectosAll.map(p => ({ id: String(p.id), label: String(p.nombre) }));
-      if (qpProyectoId) {
-        const p = this.proyectosAll.find(x => String(x.id) === String(qpProyectoId));
+      if (proyectoIdInput) {
+        const p = this.proyectosAll.find(x => String(x.id) === String(proyectoIdInput));
         if (p) {
           this.alcance = 'proyecto';
           this.proyectoModo = 'nuevo';
@@ -133,7 +149,7 @@ export class UnidadForm {
             direccion: p.direccion || '',
             entrega: p.entrega || ''
           };
-          this.editingProyecto = qpEditProyecto;
+          this.editingProyecto = editProyectoInput;
           this.projectLocked = false;
           this.reloadSessionUnits();
         }
@@ -181,10 +197,13 @@ export class UnidadForm {
     }
     if (this.id) {
       await this.unidadService.updateUnidad(this.id, payload);
-      this.router.navigate(['/unidades']);
     } else {
       await this.unidadService.addUnidad(payload);
-      this.router.navigate(['/unidades']);
+    }
+    
+    // Siempre es modal, cerrarlo con éxito
+    if (this.activeModal) {
+      this.activeModal.close(true);
     }
   }
 

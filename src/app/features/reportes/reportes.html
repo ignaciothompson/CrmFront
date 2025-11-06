@@ -1,20 +1,103 @@
 <div class="subheader">
 	<div class="row">
 		<div class="col-xs-12 col-sm-4">
-			<div class="input-group input-range">
+				<div class="input-group input-range">
 				<div class="range-item">
 					<label class="c-label" for="reportes-start-date">Desde</label>
-					<input id="reportes-start-date" type="date" class="form-control c-input" [(ngModel)]="startDateStr">
+					<input id="reportes-start-date" type="date" class="form-control c-input" [(ngModel)]="startDateStr" (ngModelChange)="onStartDateChange($event)">
 				</div>
 				<div class="range-item">
 					<label class="c-label" for="reportes-end-date">Hasta</label>
-					<input id="reportes-end-date" type="date" class="form-control c-input" [(ngModel)]="endDateStr">
+					<input id="reportes-end-date" type="date" class="form-control c-input" [(ngModel)]="endDateStr" (ngModelChange)="onEndDateChange($event)">
 				</div>
 			</div>
 		</div>
 	</div>
 	<button class="btn c-btn btn-white btn-square" (click)="resetRange()"><i class="fa fa-refresh"></i></button>
 	<button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
+</div>
+<div class="row m-b-md">
+	<div class="col-xs-12">
+		<div class="frame">
+			<div class="frame-title">
+				<h4>Dinero Ganado</h4>
+			</div>
+			<div class="frame-body">
+				<div class="row m-b-md">
+					<div class="col-xs-12 col-sm-4">
+						<div class="card info">
+							<div class="card-icon">
+								<i class="fa fa-dollar-sign"></i>
+							</div>
+							<div class="card-data">
+								<div class="card-title">Total Ganado</div>
+								<div class="card-value">{{ getTotalDineroGanado() | currency:'USD':'symbol':'1.0-0' }}</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<div class="card success">
+							<div class="card-icon">
+								<i class="fa fa-handshake"></i>
+							</div>
+							<div class="card-data">
+								<div class="card-title">Total Ventas</div>
+								<div class="card-value">{{ getTotalVentas() }}</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<div class="card warning">
+							<div class="card-icon">
+								<i class="fa fa-key"></i>
+							</div>
+							<div class="card-data">
+								<div class="card-title">Total Rentas</div>
+								<div class="card-value">{{ getTotalRentas() }}</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="table-responsive">
+					<table class="table c-table table-striped">
+						<thead>
+							<tr>
+								<th>Fecha</th>
+								<th>Contacto</th>
+								<th>Unidad</th>
+								<th>Tipo</th>
+								<th>Importe</th>
+								<th>Comisión %</th>
+								<th>Total Comisión</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (v of filteredVentas; track v) {
+								<tr>
+									<td>{{ v.date | date:'short' }}</td>
+									<td>{{ v?.contacto?.nombre || '-' }}</td>
+									<td>{{ v?.unidad?.nombre || '-' }}</td>
+									<td>{{ v?.type | titlecase }}</td>
+									<td>{{ v?.importe ? (v.importe | currency:'USD':'symbol':'1.0-0') : '-' }}</td>
+									<td>{{ v?.comision ? (v.comision + '%') : '-' }}</td>
+									<td>
+										@if (v?.importe && v?.comision) {
+											{{ ((v.importe ?? 0) * (v.comision ?? 0) / 100) | currency:'USD':'symbol':'1.0-0' }}
+										} @else {
+											-
+										}
+									</td>
+								</tr>
+							}
+							@if (!filteredVentas.length) {
+								<tr><td colspan="7" class="text-center">Sin resultados</td></tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="row">
 	<div class="col-xs-12">
@@ -74,3 +157,4 @@
 		</div>
 	</div>
 </div>
+

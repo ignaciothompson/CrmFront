@@ -1,7 +1,7 @@
 <div class="frame">
-	<div class="frame-title">
-		<h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
-	</div>
+    <div class="frame-title">
+        <h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
+    </div>
 	<div class="frame-body">
 		<div class="row">
 			<!-- Paso 1: Alcance -->
@@ -81,8 +81,6 @@
 				<label class="c-label" for="nombre">Nombre / Referencia</label>
                 <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" placeholder="Ej: Unidad 101" [disabled]="editingProyecto && !id" />
 			</div>
-		</div>
-		<div class="row">
 			<div class="col-xs-12 col-sm-4">
 				<label class="c-label" for="estadoComercial">Estado</label>
                 <select id="estadoComercial" class="form-control c-input" [(ngModel)]="model.estadoComercial" name="estadoComercial" [disabled]="editingProyecto && !id">
@@ -101,34 +99,30 @@
                     <input type="date" id="entrega" class="form-control c-input" [(ngModel)]="model.entrega" name="entrega" />
                 </div>
             }
-		</div>
-        @if (alcance === 'unica') {
-            <div class="row">
-                <div class="col-xs-12 col-sm-4">
-                    <label class="c-label" for="ubicacion">Ubicación</label>
-                    <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Dirección" />
-                </div>
-                <div class="col-xs-12 col-sm-4">
-                    <label class="c-label" for="city">Ciudad</label>
-                    <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
-                        <option value="">Seleccione</option>
-                        @for (c of ciudades; track c) {
-                            <option [value]="c.value">{{ c.label }}</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-xs-12 col-sm-4">
-                    <label class="c-label" for="barrio">Barrio / Zona</label>
-                    <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
-                        <option value="">Seleccione</option>
-                        @for (b of barrios; track b) {
-                            <option [value]="b">{{ b }}</option>
-                        }
-                    </select>
-                </div>
-            </div>
-        }
-		<div class="row">
+            @if (alcance === 'unica') {
+                    <div class="col-xs-12 col-sm-4">
+                        <label class="c-label" for="ubicacion">Ubicación</label>
+                        <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Dirección" />
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <label class="c-label" for="city">Ciudad</label>
+                        <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
+                            <option value="">Seleccione</option>
+                            @for (c of ciudades; track c) {
+                                <option [value]="c.value">{{ c.label }}</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <label class="c-label" for="barrio">Barrio / Zona</label>
+                        <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
+                            <option value="">Seleccione</option>
+                            @for (b of barrios; track b) {
+                                <option [value]="b">{{ b }}</option>
+                            }
+                        </select>
+                    </div>
+            }
 			<div class="col-xs-12 col-sm-4">
 				<label class="c-label" for="comision">Comisión (%)</label>
                 <input id="comision" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.comision" name="comision" placeholder="Ej: 3" [disabled]="editingProyecto && !id" />
@@ -355,12 +349,11 @@
 			</div>
 		}
 	</div>
-	<div class="frame-footer">
-		<button routerLink="/unidades" class="btn c-btn btn-default">Cancelar</button>
-		@if (alcance === 'proyecto' && !id) {
-			<button class="btn c-btn btn-white" [disabled]="busy" (click)="addAndRepeat()">Agregar y Repetir</button>
-		}
-		<button class="btn c-btn btn-primary" [disabled]="busy" (click)="save()">Guardar</button>
-	</div>
+    <div class="frame-footer">
+        <button type="button" class="btn c-btn btn-default" (click)="activeModal?.dismiss()">Cancelar</button>
+        @if (alcance === 'proyecto' && !id) {
+            <button class="btn c-btn btn-white" [disabled]="busy" (click)="addAndRepeat()">Agregar y Repetir</button>
+        }
+        <button type="button" class="btn c-btn btn-primary" [disabled]="busy" (click)="save()">Guardar</button>
+    </div>
 </div>
-

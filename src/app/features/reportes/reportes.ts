@@ -1,25 +1,32 @@
 import { Component } from '@angular/core';
-
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
+import { VentaService, VentaRecord } from '../../core/services/venta';
 import demo from './demoData.json';
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css'
 })
 export class Reportes {
-  constructor(private unidadService: UnidadService, private contactoService: ContactoService) {}
+  constructor(
+    private unidadService: UnidadService, 
+    private contactoService: ContactoService,
+    private ventaService: VentaService
+  ) {}
 
   // Raw data caches
   private allUnidades: any[] = [];
   private allContactos: any[] = [];
+  allVentas: VentaRecord[] = [];
+  filteredVentas: VentaRecord[] = [];
 
   // Filters
   startDateStr: string | null = null;
@@ -87,6 +94,11 @@ export class Reportes {
       this.allContactos = demoContactos;
       this.applyFilters();
     });
+
+    this.ventaService.getVentas().subscribe(vs => {
+      this.allVentas = (vs || []).sort((a, b) => (b?.date || 0) - (a?.date || 0));
+      this.applyFilters();
+    });
   }
 
   // No manual resize needed; maintainAspectRatio=false + CSS ensures 100% height
@@ -149,6 +161,36 @@ export class Reportes {
 
     // Recompute Entrevistas with auto/manual grouping
     this.updateEntrevistasData();
+
+    // Filter ventas by date range
+    this.filteredVentas = this.allVentas.filter(v => {
+      if (!v.date) return false;
+      const ventaDate = new Date(v.date);
+      if (this.startDate && ventaDate < this.startDate) return false;
+      if (this.endDate) {
+        const end = new Date(this.endDate);
+        end.setHours(23, 59, 59, 999);
+        if (ventaDate > end) return false;
+      }
+      return true;
+    });
+  }
+
+  getTotalDineroGanado(): number {
+    return this.filteredVentas.reduce((sum, v) => {
+      if (v?.importe && v?.comision) {
+        return sum + (v.importe * v.comision / 100);
+      }
+      return sum;
+    }, 0);
+  }
+
+  getTotalVentas(): number {
+    return this.filteredVentas.filter(v => v.type === 'venta').length;
+  }
+
+  getTotalRentas(): number {
+    return this.filteredVentas.filter(v => v.type === 'renta').length;
   }
 
   private getFilteredUnidades(): any[] {

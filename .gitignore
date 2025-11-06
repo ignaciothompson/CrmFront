@@ -52,3 +52,9 @@ storage-debug.log
 ui-debug.log
 firestore.rules
 
+# Tasks and notes
+TASKS.md
+*.tasks
+*.todo
+TODO.md
+

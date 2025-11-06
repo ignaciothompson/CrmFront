@@ -81,6 +81,16 @@
     filter: invert(1); /* Blanco en dark theme */
 }
 
+.c-skin.theme-dark .form-control {
+    background-color: var(--surface-1);
+    border-color: var(--border);
+    color: var(--text-color);
+}
+
+.c-skin.theme-dark .form-control::placeholder {
+    color: var(--text-color);
+}
+
 /* -----------------------------------------------------------------
    GRUPOS DE INPUT - RANGO
    Campos para rangos (desde/hasta)

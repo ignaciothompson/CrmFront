@@ -3,9 +3,10 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
-import { Router } from '@angular/router';
 import { ContactoService } from '../../core/services/contacto';
 import { Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ContactoForm } from './contacto-form/contacto-form';
 
 @Component({
   selector: 'app-contactos',
@@ -15,7 +16,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './contactos.css'
 })
 export class Contactos implements OnDestroy {
-  constructor(private router: Router, private contactoService: ContactoService) {}
+  constructor(private contactoService: ContactoService, private modal: NgbModal) {}
 
   localidad: string = '';
   selectedBarrio: string = '';
@@ -53,8 +54,31 @@ export class Contactos implements OnDestroy {
 
   labelForCity(value: string): string { return this.cityLabelMap[value] || value || ''; }
 
-  goNuevo(): void { this.router.navigate(['/contactos/form']); }
-  goEditar(id: string): void { this.router.navigate(['/contactos/form', id]); }
+  goNuevo(): void {
+    const modalRef = this.modal.open(ContactoForm, { size: 'xl', backdrop: 'static', keyboard: false });
+    modalRef.result.then((result: any) => {
+      // Si se guardó exitosamente, recargar los contactos pero mantener los filtros
+      if (result === true) {
+        this.recompute();
+      }
+    }).catch(() => {
+      // Modal cerrado sin guardar, mantener filtros
+    });
+  }
+
+  goEditar(id: string): void {
+    const modalRef = this.modal.open(ContactoForm, { size: 'xl', backdrop: 'static', keyboard: false });
+    const component = modalRef.componentInstance as ContactoForm;
+    component.contactoId = String(id);
+    modalRef.result.then((result: any) => {
+      // Si se guardó exitosamente, recargar los contactos pero mantener los filtros
+      if (result === true) {
+        this.recompute();
+      }
+    }).catch(() => {
+      // Modal cerrado sin guardar, mantener filtros
+    });
+  }
 
   async eliminar(id: string): Promise<void> {
     if (!id) return;

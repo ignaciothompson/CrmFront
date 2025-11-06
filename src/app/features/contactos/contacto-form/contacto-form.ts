@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContactoService } from '../../../core/services/contacto';
 
 @Component({
@@ -12,7 +13,13 @@ import { ContactoService } from '../../../core/services/contacto';
   styleUrl: './contacto-form.css'
 })
 export class ContactoForm {
-  constructor(private route: ActivatedRoute, private router: Router, private contactoService: ContactoService) {}
+  @Input() contactoId?: string;
+
+  constructor(
+    private router: Router, 
+    private contactoService: ContactoService,
+    public activeModal?: NgbActiveModal
+  ) {}
 
   id?: string;
   model: any = {
@@ -34,7 +41,13 @@ export class ContactoForm {
   barriosPreferencia: string[] = [];
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id') ?? undefined;
+    // Siempre abrimos como modal - si no hay activeModal, redirigir a contactos
+    if (!this.activeModal) {
+      this.router.navigate(['/contactos']);
+      return;
+    }
+
+    this.id = this.contactoId;
     if (this.id) {
       this.contactoService.getContactoById(this.id).subscribe(c => {
         if (!c) return;
@@ -63,9 +76,25 @@ export class ContactoForm {
   save(): void {
     const payload = { ...this.model };
     if (this.id) {
-      this.contactoService.updateContacto(this.id, payload).then(() => this.router.navigate(['/contactos']));
+      this.contactoService.updateContacto(this.id, payload).then(() => {
+        if (this.activeModal) {
+          this.activeModal.close(true);
+        }
+      });
     } else {
-      this.contactoService.addContacto(payload).then(() => this.router.navigate(['/contactos']));
+      this.contactoService.addContacto(payload).then(() => {
+        if (this.activeModal) {
+          this.activeModal.close(true);
+        }
+      });
+    }
+  }
+
+  cancel(): void {
+    if (this.activeModal) {
+      this.activeModal.dismiss();
+    } else {
+      this.router.navigate(['/contactos']);
     }
   }
 }

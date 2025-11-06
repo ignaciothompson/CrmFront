@@ -2,12 +2,12 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
 import { UnidadService } from '../../core/services/unidad';
 import { ProyectoService } from '../../core/services/proyecto';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DeleteModal } from './delete-modal/delete-modal';
+import { UnidadForm } from './unidad-form/unidad-form';
 
 @Component({
   selector: 'app-unidades',
@@ -17,11 +17,12 @@ import { DeleteModal } from './delete-modal/delete-modal';
   styleUrl: './unidades.css'
 })
 export class Unidades implements OnDestroy {
-  constructor(private router: Router, private unidadService: UnidadService, private proyectoService: ProyectoService, private modal: NgbModal) {}
+  constructor(private unidadService: UnidadService, private proyectoService: ProyectoService, private modal: NgbModal) {}
 
   localidad: string = '';
   barrios: string[] = [];
   selectedBarrio: string = '';
+  mostrarVendidas: boolean = false; // Filtro para mostrar unidades vendidas/rentadas
   allUnidades: any[] = [];
   filteredUnidades: any[] = [];
   proyectos: any[] = [];
@@ -58,6 +59,7 @@ export class Unidades implements OnDestroy {
   resetFilters(): void {
     this.localidad = '';
     this.selectedBarrio = '';
+    this.mostrarVendidas = false;
     this.recomputeFilters();
   }
 
@@ -66,14 +68,27 @@ export class Unidades implements OnDestroy {
   }
 
   private recomputeFilters(): void {
+    // Primero filtrar por estado (vendidas/rentadas/deshabilitadas)
+    let unidades = this.allUnidades;
+    if (!this.mostrarVendidas) {
+      // Por defecto, excluir unidades vendidas, rentadas o deshabilitadas
+      unidades = unidades.filter(u => {
+        const vendida = u?.vendida || u?.sold || u?.disponibilidad === 'Vendida';
+        const rentada = u?.rented || u?.disponibilidad === 'Rentada';
+        const deshabilitada = u?.activo === false;
+        return !vendida && !rentada && !deshabilitada;
+      });
+    }
+
+    // Luego filtrar por ciudad y barrio
     if (this.localidad) {
-      const byCity = this.allUnidades.filter(u => (u.city || u.localidad) === this.localidad);
+      const byCity = unidades.filter(u => (u.city || u.localidad) === this.localidad);
       const set = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
       this.barrios = Array.from(set).sort();
       this.filteredUnidades = byCity.filter(u => !this.selectedBarrio || u.barrio === this.selectedBarrio);
     } else {
       this.barrios = [];
-      this.filteredUnidades = this.allUnidades.slice();
+      this.filteredUnidades = unidades.slice();
     }
   }
 
@@ -83,15 +98,44 @@ export class Unidades implements OnDestroy {
   }
 
   goNuevo(): void {
-    this.router.navigate(['/unidades/form']);
+    const modalRef = this.modal.open(UnidadForm, { size: 'xl', backdrop: 'static', keyboard: false });
+    modalRef.result.then((result: any) => {
+      // Si se guardó exitosamente, recargar las unidades pero mantener los filtros
+      if (result === true) {
+        this.recomputeFilters();
+      }
+    }).catch(() => {
+      // Modal cerrado sin guardar, mantener filtros
+    });
   }
 
   goEditar(id: number): void {
-    this.router.navigate(['/unidades/form', id]);
+    const modalRef = this.modal.open(UnidadForm, { size: 'xl', backdrop: 'static', keyboard: false });
+    const component = modalRef.componentInstance as UnidadForm;
+    component.unidadId = String(id);
+    modalRef.result.then((result: any) => {
+      // Si se guardó exitosamente, recargar las unidades pero mantener los filtros
+      if (result === true) {
+        this.recomputeFilters();
+      }
+    }).catch(() => {
+      // Modal cerrado sin guardar, mantener filtros
+    });
   }
 
   goEditarProyecto(p: any): void {
-    this.router.navigate(['/unidades/form'], { queryParams: { proyectoId: p.id, editProyecto: 1 } });
+    const modalRef = this.modal.open(UnidadForm, { size: 'xl', backdrop: 'static', keyboard: false });
+    const component = modalRef.componentInstance as UnidadForm;
+    component.proyectoId = String(p.id);
+    component.editProyecto = true;
+    modalRef.result.then((result: any) => {
+      // Si se guardó exitosamente, recargar las unidades pero mantener los filtros
+      if (result === true) {
+        this.recomputeFilters();
+      }
+    }).catch(() => {
+      // Modal cerrado sin guardar, mantener filtros
+    });
   }
 
   shareProyecto(p: any): void {

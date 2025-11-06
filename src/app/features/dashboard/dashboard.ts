@@ -8,6 +8,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { MeetModal } from '../entrevistas/components/meet-modal/meet-modal';
+import { UnidadForm } from '../unidades/unidad-form/unidad-form';
+import { ContactoForm } from '../contactos/contacto-form/contacto-form';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -154,8 +156,18 @@ export class Dashboard {
     const cat = ev?.categoria;
     const current = ev?.data?.current || {};
     const id = current?.id || current?.contactoId || current?.unidadId || current?.idRef;
-    if (cat === 'Contactos' && id) { this.router.navigate([`/contactos/form`, id]); return; }
-    if (cat === 'Unidades' && id) { this.router.navigate([`/unidades/form`, id]); return; }
+    if (cat === 'Contactos' && id) {
+      const modalRef = this.modal.open(ContactoForm, { size: 'xl', backdrop: 'static', keyboard: false });
+      const component = modalRef.componentInstance as ContactoForm;
+      component.contactoId = String(id);
+      return;
+    }
+    if (cat === 'Unidades' && id) { 
+      const modalRef = this.modal.open(UnidadForm, { size: 'xl', backdrop: 'static', keyboard: false });
+      const component = modalRef.componentInstance as UnidadForm;
+      component.unidadId = String(id);
+      return;
+    }
     if (cat === 'Entrevistas' && (id || ev?.id)) { this.router.navigate([`/entrevistas`]); return; }
     this.router.navigate(['/monitor-eventos']);
   }

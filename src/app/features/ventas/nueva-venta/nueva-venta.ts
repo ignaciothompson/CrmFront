@@ -26,6 +26,10 @@ export class NuevaVentaModal {
   selectedContactoId: string | null = null;
   selectedUnidadId: string | null = null;
   selectedType: 'venta' | 'renta' = 'venta';
+  importe: number | null = null;
+  comision: number | null = null; // Porcentaje de comisión
+  precioUnitario: number | null = null; // Precio de la unidad seleccionada
+  meses: number | null = null; // Meses de renta (solo para tipo renta)
 
   contactoItems: Array<{ id: string; label: string }> = [];
   unidadItems: Array<{ id: string; label: string }> = [];
@@ -33,6 +37,7 @@ export class NuevaVentaModal {
   unidades: any[] = [];
 
   ventas: VentaRecord[] = [];
+  ventasAgregadas: VentaRecord[] = []; // Ventas agregadas en esta sesión
 
   ngOnInit(): void {
     this.contactoService.getContactos().subscribe(cs => {
@@ -52,27 +57,144 @@ export class NuevaVentaModal {
     this.selectedType = r?.type || 'venta';
     this.selectedContactoId = r?.contacto?.id || null;
     this.selectedUnidadId = r?.unidad?.id || null;
+    this.importe = r?.importe || null;
+    this.comision = r?.comision || null;
+    this.precioUnitario = r?.precioUnitario || null;
+    this.meses = r?.meses || null;
   }
 
-  async confirmar(): Promise<void> {
+  onUnidadSelected(): void {
+    if (this.selectedUnidadId) {
+      const unidad = this.unidades.find(u => String(u.id) === String(this.selectedUnidadId));
+      if (unidad) {
+        this.precioUnitario = unidad?.precioUSD || unidad?.precio || null;
+        // Si no hay importe, usar el precio de la unidad
+        if (!this.importe && this.precioUnitario) {
+          this.importe = this.precioUnitario;
+        }
+      }
+    } else {
+      this.precioUnitario = null;
+    }
+  }
+
+  agregar(): void {
+    if (!this.selectedUnidadId) return;
+    
+    // Validar que si es renta, tenga meses especificados
+    if (this.selectedType === 'renta' && (!this.meses || this.meses <= 0)) {
+      alert('Por favor, especifica la cantidad de meses para la renta.');
+      return;
+    }
+
     const contacto = this.contactos.find(c => String(c.id) === String(this.selectedContactoId));
     const unidad = this.unidades.find(u => String(u.id) === String(this.selectedUnidadId));
     if (!unidad) return;
 
-    // Update unidad as sold/rented
-    const changes: any = {};
-    if (this.selectedType === 'venta') changes.vendida = true;
-    if (this.selectedType === 'renta') changes.rented = true;
-    await this.unidadService.updateUnidad(String(unidad.id), changes);
-
-    // Record venta
-    await this.ventaService.addVenta({
+    // Crear venta temporal (sin guardar aún)
+    const nuevaVenta: VentaRecord = {
       date: Date.now(),
       type: this.selectedType,
       contacto: contacto ? { id: String(contacto.id), nombre: `${contacto?.Nombre || contacto?.nombre || ''} ${contacto?.Apellido || contacto?.apellido || ''}`.trim() } : null,
-      unidad: { id: String(unidad.id), nombre: String(unidad?.nombre || unidad?.name || 'Unidad'), localidad: String(unidad?.ciudad || unidad?.city || unidad?.localidad || '') }
-    });
+      unidad: { id: String(unidad.id), nombre: String(unidad?.nombre || unidad?.name || 'Unidad'), localidad: String(unidad?.ciudad || unidad?.city || unidad?.localidad || '') },
+      importe: this.importe || undefined,
+      comision: this.comision || undefined,
+      precioUnitario: this.precioUnitario || undefined,
+      meses: this.selectedType === 'renta' ? (this.meses || undefined) : undefined
+    };
 
-    this.activeModal.close(true);
+    // Agregar a la lista temporal
+    this.ventasAgregadas.unshift(nuevaVenta);
+
+    // Resetear formulario
+    this.resetForm();
+  }
+
+  resetForm(): void {
+    this.selectedContactoId = null;
+    this.selectedUnidadId = null;
+    this.selectedType = 'venta';
+    this.importe = null;
+    this.comision = null;
+    this.precioUnitario = null;
+    this.meses = null;
+  }
+
+  eliminarDeLista(index: number): void {
+    this.ventasAgregadas.splice(index, 1);
+  }
+
+  async confirmar(): Promise<void> {
+    if (this.ventasAgregadas.length === 0) {
+      // Si no hay ventas agregadas, intentar agregar la actual
+      if (this.selectedUnidadId) {
+        this.agregar();
+      } else {
+        return;
+      }
+    }
+
+    const errores: string[] = [];
+    const exitosas: string[] = [];
+
+    // Procesar todas las ventas agregadas
+    for (const venta of this.ventasAgregadas) {
+      const unidad = this.unidades.find(u => String(u.id) === String(venta.unidad.id));
+      if (!unidad) {
+        errores.push(`Unidad ${venta.unidad.nombre} no encontrada`);
+        continue;
+      }
+
+      try {
+        // Primero guardar la venta
+        const ventaDoc = await this.ventaService.addVenta(venta);
+        console.log('Venta guardada exitosamente:', ventaDoc.id);
+
+        // Solo si la venta se guardó exitosamente, actualizar la unidad
+        const changes: any = {
+          activo: false // Deshabilitar la unidad
+        };
+        if (venta.type === 'venta') {
+          changes.vendida = true;
+          changes.disponibilidad = 'Vendida';
+        }
+        if (venta.type === 'renta') {
+          changes.rented = true;
+          changes.disponibilidad = 'Rentada';
+          // Calcular fecha de finalización de renta (fecha actual + meses)
+          if (venta.meses && venta.meses > 0) {
+            const fechaActual = new Date();
+            const fechaFinRenta = new Date(fechaActual);
+            fechaFinRenta.setMonth(fechaFinRenta.getMonth() + venta.meses);
+            // Guardar como timestamp en milisegundos
+            changes.fechaFinRenta = fechaFinRenta.getTime();
+            // También guardar fecha de inicio de renta
+            changes.fechaInicioRenta = fechaActual.getTime();
+          }
+        }
+        await this.unidadService.updateUnidad(String(unidad.id), changes);
+        console.log('Unidad actualizada exitosamente:', unidad.id);
+        exitosas.push(`Venta para ${venta.unidad.nombre} guardada correctamente`);
+      } catch (error: any) {
+        console.error('Error al guardar venta:', error);
+        const mensajeError = error?.message || 'Error desconocido';
+        errores.push(`${venta.unidad.nombre}: ${mensajeError}`);
+      }
+    }
+
+    // Mostrar resultados
+    if (errores.length > 0) {
+      const mensaje = `Se guardaron ${exitosas.length} venta(s) correctamente.\n\nErrores:\n${errores.join('\n')}`;
+      alert(mensaje);
+      // Si hubo errores pero también exitosas, cerrar el modal de todas formas
+      if (exitosas.length > 0) {
+        this.activeModal.close(true);
+      }
+    } else {
+      // Todo exitoso
+      if (exitosas.length > 0) {
+        this.activeModal.close(true);
+      }
+    }
   }
 }

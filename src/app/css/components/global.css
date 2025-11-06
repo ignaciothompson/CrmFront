@@ -330,46 +330,4 @@ body.c-skin {
     }
 }
 
-/* --------------------------------------------------------------
-   Dark theme adjustments for common Bootstrap elements
-   -------------------------------------------------------------- */
-.c-skin.theme-dark .btn-light {
-    color: var(--text-highlight-color);
-    background-color: var(--surface-1);
-    border-color: var(--border);
-}
 
-.c-skin.theme-dark .dropdown-menu {
-    background-color: var(--surface-2);
-    border-color: var(--border);
-    color: var(--text-color);
-}
-
-.c-skin.theme-dark .dropdown-item {
-    color: var(--text-color);
-}
-
-.c-skin.theme-dark .dropdown-item:hover,
-.c-skin.theme-dark .dropdown-item:focus {
-    color: var(--text-highlight-color);
-    background-color: var(--surface-3);
-}
-
-.c-skin.theme-dark .form-control {
-    background-color: var(--surface-1);
-    border-color: var(--border);
-    color: var(--text-color);
-}
-
-.c-skin.theme-dark .form-control::placeholder {
-    color: var(--text-light-color);
-}
-
-/* Additional modal backdrop and overlay support */
-.c-skin.theme-dark .modal-backdrop {
-    background-color: rgba(13, 17, 23, 0.8);
-}
-
-.c-skin.theme-dark .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-}

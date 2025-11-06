@@ -17,38 +17,63 @@
     </div>
     <div class="col-xs-12 col-sm-4 m-b">
       <label class="form-label"><b>Unidad</b></label>
-      <typeahead [(ngModel)]="selectedUnidadId" name="selectedUnidadId" [items]="unidadItems" idKey="id" labelKey="label" placeholder="Buscar unidad..."></typeahead>
+      <typeahead [(ngModel)]="selectedUnidadId" name="selectedUnidadId" [items]="unidadItems" idKey="id" labelKey="label" placeholder="Buscar unidad..." (ngModelChange)="onUnidadSelected()"></typeahead>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-4 m-b">
+      <label class="form-label"><b>Importe (USD)</b></label>
+      <input type="number" class="form-control c-input" [(ngModel)]="importe" name="importe" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="col-xs-12 col-sm-4 m-b">
+      <label class="form-label"><b>Comisión (%)</b></label>
+      <input type="number" class="form-control c-input" [(ngModel)]="comision" name="comision" placeholder="0.00" step="0.01" min="0" max="100">
+    </div>
+    @if (selectedType === 'renta') {
+      <div class="col-xs-12 col-sm-4 m-b">
+        <label class="form-label"><b>Meses</b></label>
+        <input type="number" class="form-control c-input" [(ngModel)]="meses" name="meses" placeholder="0" step="1" min="1" required>
+      </div>
+    } @else {
+      <div class="col-xs-12 col-sm-4 m-b"></div>
+    }
+    <div class="col-xs-12 col-sm-4 m-b text-end">
+      <button class="btn c-btn btn-small btn-primary m-t-label" (click)="agregar()">Agregar</button>
     </div>
   </div>
 
   <div class="row m-t">
     <div class="col-xs-12">
-      <p class="m-b-xs"><b>Recientes</b></p>
+      <p class="m-b-xs"><b>Ventas a guardar</b></p>
       <div class="table-responsive">
         <table class="table c-table table-striped">
           <thead>
             <tr>
-              <th>Fecha</th>
               <th>Contacto</th>
               <th>Unidad</th>
               <th>Tipo</th>
+              <th>Importe</th>
+              <th>Comisión</th>
+              <th>Meses</th>
               <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            @for (r of ventas; track r) {
+            @for (r of ventasAgregadas; track $index) {
               <tr>
-                <td>{{ r.date | date:'short' }}</td>
                 <td>{{ r?.contacto?.nombre || '-' }}</td>
                 <td>{{ r?.unidad?.nombre || '-' }}</td>
                 <td>{{ r?.type | titlecase }}</td>
+                <td>{{ r?.importe ? (r.importe | currency:'USD':'symbol':'1.0-0') : '-' }}</td>
+                <td>{{ r?.comision ? (r.comision + '%') : '-' }}</td>
+                <td>{{ r?.type === 'renta' && r?.meses ? r.meses + ' meses' : '-' }}</td>
                 <td class="text-end">
-                  <button class="btn-table" title="Editar" (click)="editRow(r)"><i class="fas fa-pen"></i></button>
+                  <button class="btn-table eliminar" title="Eliminar" (click)="eliminarDeLista($index)"><i class="fa fa-trash"></i></button>
                 </td>
               </tr>
             }
-            @if (!ventas.length) {
-              <tr><td colspan="5" class="text-center">Sin registros</td></tr>
+            @if (!ventasAgregadas.length) {
+              <tr><td colspan="7" class="text-center">No hay ventas agregadas</td></tr>
             }
           </tbody>
         </table>
@@ -58,5 +83,5 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn c-btn btn-small btn-default" (click)="activeModal.dismiss()">Cancelar</button>
-  <button type="button" class="btn c-btn btn-small btn-primary" [disabled]="!selectedUnidadId" (click)="confirmar()">Confirmar</button>
+  <button type="button" class="btn c-btn btn-small btn-primary" [disabled]="ventasAgregadas.length === 0" (click)="confirmar()">Guardar @if (ventasAgregadas.length > 0) { ({{ ventasAgregadas.length }}) }</button>
 </div>
