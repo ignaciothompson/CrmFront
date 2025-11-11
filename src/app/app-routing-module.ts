@@ -18,8 +18,9 @@ const routes: Routes = [
 		children: [
 			{ path: '', pathMatch: 'full', redirectTo: 'dashboard' },
 			{ path: 'dashboard', data: { title: 'Dashboard' }, loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard) },
-      { path: 'ventas', data: { title: 'Ventas' }, loadComponent: () => import('./features/ventas/ventas').then(m => m.VentasPage) },
+            { path: 'ventas', data: { title: 'Ventas' }, loadComponent: () => import('./features/ventas/ventas').then(m => m.VentasPage) },
 			{ path: 'contactos', data: { title: 'Contactos' }, loadComponent: () => import('./features/contactos/contactos').then(m => m.Contactos) },
+			{ path: 'contactos-seguimiento', data: { title: 'Seguimiento de Contactos' }, loadComponent: () => import('./features/contactos-seguimiento/contactos-seguimiento').then(m => m.ContactosSeguimiento) },
             { path: 'unidades', data: { title: 'Listado de Proyectos' }, loadComponent: () => import('./features/unidades/unidades').then(m => m.Unidades) },
             { path: 'comparativas', data: { title: 'Crear Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-create/comparativas').then(m => m.Comparativas) },
             { path: 'listado-comparativas', data: { title: 'Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-list/comparativas-list').then(m => m.ComparativasListPage) },

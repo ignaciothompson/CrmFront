@@ -114,6 +114,11 @@ export interface Contacto {
   preferencias?: ContactoPreferencias;
   entrevista?: ContactoEntrevista;
   entrevistaPendiente?: boolean;
+  // Seguimiento fields
+  tipoContacto?: 'Seguimiento' | 'No seguimiento';
+  estado?: string;
+  ultimoContacto?: number; // timestamp
+  proximoContacto?: number; // timestamp
   createdAt?: number;
   updatedAt?: number;
 }

@@ -95,6 +95,36 @@
           <option [ngValue]="4">4+</option>
         </select>
       </div>
+
+      <div class="col-xs-12 m-0"><h6 class="bold">Seguimiento</h6></div>
+      <div class="col-xs-12 col-sm-4">
+        <label class="c-label" for="tipoContacto">Tipo de Contacto</label>
+        <select id="tipoContacto" class="form-control c-input" [(ngModel)]="model.tipoContacto" name="tipoContacto">
+          <option value="No seguimiento">No seguimiento</option>
+          <option value="Seguimiento">Seguimiento</option>
+        </select>
+      </div>
+
+      @if (model.tipoContacto === 'Seguimiento') {
+        <div class="col-xs-12 col-sm-4">
+          <label class="c-label" for="estado">Estado</label>
+          <select id="estado" class="form-control c-input" [(ngModel)]="model.estado" name="estado">
+            <option value="">Seleccione</option>
+            <option value="Activo">Activo</option>
+            <option value="Interesado">Interesado</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Abandonado">Abandonado</option>
+          </select>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <label class="c-label" for="ultimoContacto">Último Contacto</label>
+          <input id="ultimoContacto" type="date" class="form-control c-input" [(ngModel)]="model.ultimoContacto" name="ultimoContacto" />
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <label class="c-label" for="proximoContacto">Próximo Contacto</label>
+          <input id="proximoContacto" type="date" class="form-control c-input" [(ngModel)]="model.proximoContacto" name="proximoContacto" />
+        </div>
+      }
     </div>
   </div>
   <div class="frame-footer">

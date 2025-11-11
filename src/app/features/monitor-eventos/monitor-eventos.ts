@@ -24,10 +24,11 @@ export class MonitorEventosComponent {
   items: any[] = [];
 
   ngOnInit(): void {
-    // Default to past 7 days
+    // Default to past 7 days, ending tomorrow to include today's activity
     const end = new Date();
+    end.setDate(end.getDate() + 1); // Tomorrow to include today
     const start = new Date();
-    start.setDate(end.getDate() - 6);
+    start.setDate(end.getDate() - 7); // 7 days back from tomorrow
     this.startDateStr = start.toISOString().slice(0,10);
     this.endDateStr = end.toISOString().slice(0,10);
     this.load();

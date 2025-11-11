@@ -25,7 +25,11 @@ export class ContactoForm {
   model: any = {
     Nombre: '', Apellido: '', Celular: '', Mail: '', Pareja: false, familia: false,
     direccion: { Ciudad: '', Barrio: '' },
-    preferencia: { Ciudad: '', Barrio: '', TipoResidencia: '', Cuartos: null }
+    preferencia: { Ciudad: '', Barrio: '', TipoResidencia: '', Cuartos: null },
+    tipoContacto: 'No seguimiento',
+    estado: '',
+    ultimoContacto: '',
+    proximoContacto: ''
   };
   ciudades = [
     { value: 'norte', label: 'Montevideo' },
@@ -52,6 +56,13 @@ export class ContactoForm {
       this.contactoService.getContactoById(this.id).subscribe(c => {
         if (!c) return;
         this.model = { ...this.model, ...c };
+        // Convert timestamps to date strings for date inputs
+        if (c.ultimoContacto) {
+          this.model.ultimoContacto = new Date(c.ultimoContacto).toISOString().split('T')[0];
+        }
+        if (c.proximoContacto) {
+          this.model.proximoContacto = new Date(c.proximoContacto).toISOString().split('T')[0];
+        }
         this.syncFamiliaFlag();
         this.recomputeBarrios();
       });
@@ -74,18 +85,61 @@ export class ContactoForm {
   }
 
   save(): void {
-    const payload = { ...this.model };
+    // Clean payload: ensure nested objects exist and preserve actual values
+    const payload: any = {
+      Nombre: this.model.Nombre ?? '',
+      Apellido: this.model.Apellido ?? '',
+      Celular: this.model.Celular ?? '',
+      Mail: this.model.Mail ?? '',
+      Pareja: this.model.Pareja ?? false,
+      familia: this.model.familia ?? false,
+      direccion: {
+        Ciudad: this.model.direccion?.Ciudad ?? '',
+        Barrio: this.model.direccion?.Barrio ?? ''
+      },
+      preferencia: {
+        Ciudad: this.model.preferencia?.Ciudad ?? '',
+        Barrio: this.model.preferencia?.Barrio ?? '',
+        TipoResidencia: this.model.preferencia?.TipoResidencia ?? '',
+        Cuartos: this.model.preferencia?.Cuartos ?? null
+      },
+      tipoContacto: this.model.tipoContacto ?? 'No seguimiento'
+    };
+
+    // Only add seguimiento fields if tipoContacto is 'Seguimiento'
+    if (this.model.tipoContacto === 'Seguimiento') {
+      payload.estado = this.model.estado ?? '';
+      // Convert date strings to timestamps
+      if (this.model.ultimoContacto) {
+        payload.ultimoContacto = new Date(this.model.ultimoContacto).getTime();
+      }
+      if (this.model.proximoContacto) {
+        payload.proximoContacto = new Date(this.model.proximoContacto).getTime();
+      }
+    } else {
+      // Clear seguimiento fields if not seguimiento
+      payload.estado = '';
+      payload.ultimoContacto = null;
+      payload.proximoContacto = null;
+    }
+
     if (this.id) {
       this.contactoService.updateContacto(this.id, payload).then(() => {
         if (this.activeModal) {
           this.activeModal.close(true);
         }
+      }).catch((error) => {
+        console.error('Error updating contacto:', error);
+        alert('Error al guardar el contacto. Por favor, intente nuevamente.');
       });
     } else {
       this.contactoService.addContacto(payload).then(() => {
         if (this.activeModal) {
           this.activeModal.close(true);
         }
+      }).catch((error) => {
+        console.error('Error adding contacto:', error);
+        alert('Error al guardar el contacto. Por favor, intente nuevamente.');
       });
     }
   }

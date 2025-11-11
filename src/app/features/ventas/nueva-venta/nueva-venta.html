@@ -21,23 +21,23 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-xs-12 col-sm-4 m-b">
+    <div class="col-xs-12 col-sm-3 m-b">
       <label class="form-label"><b>Importe (USD)</b></label>
       <input type="number" class="form-control c-input" [(ngModel)]="importe" name="importe" placeholder="0.00" step="0.01" min="0">
     </div>
-    <div class="col-xs-12 col-sm-4 m-b">
+    <div class="col-xs-12 col-sm-3 m-b">
       <label class="form-label"><b>Comisión (%)</b></label>
       <input type="number" class="form-control c-input" [(ngModel)]="comision" name="comision" placeholder="0.00" step="0.01" min="0" max="100">
     </div>
     @if (selectedType === 'renta') {
-      <div class="col-xs-12 col-sm-4 m-b">
+      <div class="col-xs-12 col-sm-3 m-b">
         <label class="form-label"><b>Meses</b></label>
         <input type="number" class="form-control c-input" [(ngModel)]="meses" name="meses" placeholder="0" step="1" min="1" required>
       </div>
     } @else {
-      <div class="col-xs-12 col-sm-4 m-b"></div>
+      <div class="col-xs-12 col-sm-3 m-b"></div>
     }
-    <div class="col-xs-12 col-sm-4 m-b text-end">
+    <div class="col-xs-12 col-sm-3 m-b text-end">
       <button class="btn c-btn btn-small btn-primary m-t-label" (click)="agregar()">Agregar</button>
     </div>
   </div>

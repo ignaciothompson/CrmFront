@@ -1,0 +1,140 @@
+<div class="subheader">
+  <div class="row">
+    <!-- Estado Filter -->
+    <div class="col-xs-12 col-sm-6 col-md-3">
+      <label class="c-label" for="estadoFilter">Estado</label>
+      <select id="estadoFilter" class="form-control c-input" [(ngModel)]="estadoFilter" (ngModelChange)="applyFilters()">
+        <option value="">Todos</option>
+        <option value="Activo">Activo</option>
+        <option value="Interesado">Interesado</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Abandonado">Abandonado</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn c-btn btn-white btn-square" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
+  <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
+</div>
+
+<!-- First Frame: Cards + Upcoming Contacts Table -->
+<div class="cards-container-3" style="margin-bottom: 20px;">
+  <div class="card info">
+    <div class="card-icon">
+      <i class="fas fa-users"></i>
+    </div>
+    <div class="card-data">
+      <div class="card-title">Total Seguimiento</div>
+      <div class="card-value">{{ totalSeguimiento }}</div>
+    </div>
+  </div>
+  <div class="card warning">
+    <div class="card-icon">
+      <i class="fas fa-calendar-week"></i>
+    </div>
+    <div class="card-data">
+      <div class="card-title">Esta Semana</div>
+      <div class="card-value">{{ upcomingThisWeek }}</div>
+    </div>
+  </div>
+  <div class="card danger">
+    <div class="card-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <div class="card-data">
+      <div class="card-title">Vencidos</div>
+      <div class="card-value">{{ overdueContacts }}</div>
+    </div>
+  </div>
+</div>
+<div class="frame" style="margin-bottom: 20px;">
+  <div class="frame-title">
+    <h4>Próximos Contactos (Próximos 3 días)</h4>
+  </div>
+  <div class="frame-body">
+    <!-- Cards Section -->
+
+    <!-- Table for contacts with proximoContacto in next 3 days -->
+    <div class="scroll-table">
+      <table class="table c-table table-fixed table-striped">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Último Contacto</th>
+            <th>Próximo Contacto</th>
+            <th>Estado</th>
+            <th width="50"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of upcomingContacts; track c.id) {
+            <tr>
+              <td>{{ c?.Nombre || c?.nombre }} {{ c?.Apellido || c?.apellido }}</td>
+              <td>{{ formatDate(c.ultimoContacto) }}</td>
+              <td>{{ formatDate(c.proximoContacto) }}</td>
+              <td>
+                @if (c.estado) {
+                  <span class="label c-label small" [ngClass]="getEstadoLabelClass(c.estado)">{{ c.estado }}</span>
+                } @else {
+                  -
+                }
+              </td>
+              <td class="text-center" width="50">
+                <a href="javascript:;" (click)="editContacto(c.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+              </td>
+            </tr>
+          }
+          @if (!upcomingContacts.length) {
+            <tr>
+              <td colspan="5" class="text-center">Sin contactos próximos en los próximos 3 días</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Second Frame: All Contacts Table -->
+<div class="frame">
+  <div class="frame-title">
+    <h4>Todos los Contactos en Seguimiento</h4>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Último Contacto</th>
+          <th>Próximo Contacto</th>
+          <th>Estado</th>
+          <th width="50"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of filtered; track c.id) {
+          <tr>
+            <td>{{ c?.Nombre || c?.nombre }} {{ c?.Apellido || c?.apellido }}</td>
+            <td>{{ formatDate(c.ultimoContacto) }}</td>
+            <td>{{ formatDate(c.proximoContacto) }}</td>
+            <td>
+              @if (c.estado) {
+                <span class="label c-label small" [ngClass]="getEstadoLabelClass(c.estado)">{{ c.estado }}</span>
+              } @else {
+                -
+              }
+            </td>
+            <td class="text-center" width="50">
+              <a href="javascript:;" (click)="editContacto(c.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+            </td>
+          </tr>
+        }
+        @if (!filtered.length) {
+          <tr>
+            <td colspan="5" class="text-center">Sin resultados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+

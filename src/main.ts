@@ -24,7 +24,7 @@ bootstrapApplication(App, {
     }),
     provideFirestore(() => {
       const db = getFirestore();
-      if (isDevMode()) connectFirestoreEmulator(db, 'localhost', 8080);
+      if (isDevMode()) connectFirestoreEmulator(db, 'localhost', 8090);
       return db;
     })
   ]

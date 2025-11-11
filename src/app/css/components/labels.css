@@ -47,6 +47,11 @@
     margin: 0;
 }
 
+.c-skin .label.c-label.small {
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
 .c-skin .label.c-label i {
     margin-right: 0.5rem;
 }
