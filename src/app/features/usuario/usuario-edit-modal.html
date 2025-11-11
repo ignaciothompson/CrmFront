@@ -1,0 +1,52 @@
+<div class="frame">
+  <div class="frame-title">
+    <h4>Editar Usuario</h4>
+  </div>
+  <div class="frame-body">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6">
+        <label class="c-label" for="editNombre">Nombre</label>
+        <input id="editNombre" class="form-control c-input" [(ngModel)]="model.nombre" name="editNombre" />
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <label class="c-label" for="editApellido">Apellido</label>
+        <input id="editApellido" class="form-control c-input" [(ngModel)]="model.apellido" name="editApellido" />
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <label class="c-label" for="editEmail">Email</label>
+        <input id="editEmail" type="email" class="form-control c-input" [(ngModel)]="model.email" name="editEmail" disabled />
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <label class="c-label" for="editTelefono">Teléfono</label>
+        <input id="editTelefono" class="form-control c-input" [(ngModel)]="model.telefono" name="editTelefono" />
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <label class="c-label">Permisos</label>
+        <div class="mt-2">
+          <label class="d-flex align-items-center gap-2">
+            <input type="checkbox" [(ngModel)]="model.canDelete" name="editCanDelete" />
+            <span>Puede eliminar</span>
+          </label>
+        </div>
+      </div>
+      <div class="col-xs-12">
+        <label class="c-label">Localidades</label>
+        <div class="d-flex flex-wrap gap-3 mt-2">
+          @for (loc of localidadesOptions; track loc.value) {
+            <label class="d-flex align-items-center gap-2">
+              <input type="checkbox" [checked]="hasLocalidad(loc.value)" (change)="toggleLocalidad(loc.value)" />
+              <span>{{ loc.label }}</span>
+            </label>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame-footer">
+    <button class="btn c-btn btn-default" (click)="cancel()">Cancelar</button>
+    <button class="btn c-btn btn-primary" (click)="save()" [disabled]="busy">
+      {{ busy ? 'Guardando...' : 'Guardar' }}
+    </button>
+  </div>
+</div>
+

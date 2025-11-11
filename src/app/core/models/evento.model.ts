@@ -1,7 +1,7 @@
 // Auditoría de acciones - modelos de eventos
 
 export type EventoTipo = 'Nuevo' | 'Editado' | 'Eliminado';
-export type EventoCategoria = 'Contactos' | 'Unidades' | 'Entrevistas' | 'ListaNegra';
+export type EventoCategoria = 'Contactos' | 'Unidades' | 'Entrevistas' | 'ListaNegra' | 'Usuarios';
 
 export interface EventoData<T> {
   current: T;

@@ -45,6 +45,10 @@ export class Header implements OnInit {
 		this.router.navigateByUrl('/usuario');
 	}
 
+	goToAdminUsers() {
+		this.router.navigateByUrl('/administrar-usuarios');
+	}
+
 	async logout() {
 		try {
 			await signOut(this.auth);

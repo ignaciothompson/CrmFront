@@ -1,0 +1,115 @@
+@if (showCreateForm) {
+  <div class="frame mb-3">
+    <div class="frame-title">
+      <h4>Nuevo Usuario</h4>
+      <button class="btn c-btn btn-default btn-sm" (click)="toggleCreateForm()">Cancelar</button>
+    </div>
+    <div class="frame-body">
+      <div class="row">
+        <div class="col-xs-12 col-sm-6">
+          <label class="c-label" for="newNombre">Nombre</label>
+          <input id="newNombre" class="form-control c-input" [(ngModel)]="newUsuario.nombre" name="newNombre" />
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <label class="c-label" for="newApellido">Apellido</label>
+          <input id="newApellido" class="form-control c-input" [(ngModel)]="newUsuario.apellido" name="newApellido" />
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <label class="c-label" for="newEmail">Email</label>
+          <input id="newEmail" type="email" class="form-control c-input" [(ngModel)]="newUsuario.email" name="newEmail" />
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <label class="c-label" for="newTelefono">Teléfono</label>
+          <input id="newTelefono" class="form-control c-input" [(ngModel)]="newUsuario.telefono" name="newTelefono" />
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <label class="c-label" for="newPassword">Contraseña</label>
+          <input id="newPassword" type="password" class="form-control c-input" [(ngModel)]="newUsuario.password" name="newPassword" />
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <label class="c-label">Permisos</label>
+          <div class="mt-2">
+            <label class="d-flex align-items-center gap-2">
+              <input type="checkbox" [(ngModel)]="newUsuario.canDelete" name="newCanDelete" />
+              <span>Puede eliminar</span>
+            </label>
+          </div>
+        </div>
+        <div class="col-xs-12">
+          <label class="c-label">Localidades</label>
+          <div class="d-flex flex-wrap gap-3 mt-2">
+            @for (loc of localidadesOptions; track loc.value) {
+              <label class="d-flex align-items-center gap-2">
+                <input type="checkbox" [checked]="hasLocalidad(newUsuario.localidades, loc.value)" (change)="toggleLocalidad(loc.value)" />
+                <span>{{ loc.label }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-footer">
+      <button class="btn c-btn btn-primary" (click)="createUsuario()" [disabled]="busy">
+        {{ busy ? 'Creando...' : 'Crear Usuario' }}
+      </button>
+    </div>
+  </div>
+}
+
+<div class="frame">
+  <div class="frame-title">
+    <h4>Administrar Usuarios</h4>
+    <div class="frame-actions">
+      <button class="btn c-btn btn-primary" (click)="toggleCreateForm()" [disabled]="showCreateForm">
+        Nuevo Usuario
+      </button>
+    </div>
+  </div>
+  <div class="frame-body scroll-table">
+    <table class="table c-table table-fixed table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Puede Eliminar</th>
+          <th>Localidades</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (usuario of filteredUsuarios; track usuario.id) {
+          <tr>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.apellido }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.telefono || '-' }}</td>
+            <td>
+              @if (usuario.canDelete) {
+                <span class="badge bg-success">Sí</span>
+              } @else {
+                <span class="badge bg-secondary">No</span>
+              }
+            </td>
+            <td>{{ getLocalidadesLabel(usuario.localidades) }}</td>
+            <td class="text-end">
+              <button class="btn-table" (click)="editUsuario(usuario)" aria-label="Editar">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button class="btn-table eliminar" (click)="deleteUsuario(usuario.id!)" aria-label="Eliminar">
+                <i class="fa fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        }
+        @if (!filteredUsuarios.length) {
+          <tr>
+            <td colspan="7" class="text-center">Sin usuarios</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+

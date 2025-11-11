@@ -1,5 +1,32 @@
-<div class="page">
-  <h2 class="m-0">Usuario</h2>
+<div class="frame">
+  <div class="frame-title">
+    <h4>Mi Perfil</h4>
+  </div>
+  <div class="frame-body">
+    <div class="row">
+      <div class="col-xs-12 col-sm-3">
+        <label class="c-label" for="nombre">Nombre</label>
+        <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" />
+      </div>
+      <div class="col-xs-12 col-sm-3">
+        <label class="c-label" for="apellido">Apellido</label>
+        <input id="apellido" class="form-control c-input" [(ngModel)]="model.apellido" name="apellido" />
+      </div>
+      <div class="col-xs-12 col-sm-3">
+        <label class="c-label" for="email">Email</label>
+        <input id="email" type="email" class="form-control c-input" [(ngModel)]="model.email" name="email" disabled />
+      </div>
+      <div class="col-xs-12 col-sm-3">
+        <label class="c-label" for="telefono">Teléfono</label>
+        <input id="telefono" class="form-control c-input" [(ngModel)]="model.telefono" name="telefono" />
+      </div>
+    </div>
+  </div>
+  <div class="frame-footer m-t-md">
+    <button class="btn c-btn btn-primary" (click)="save()" [disabled]="busy">
+      {{ busy ? 'Guardando...' : 'Guardar' }}
+    </button>
+  </div>
 </div>
 
 

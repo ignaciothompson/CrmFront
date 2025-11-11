@@ -30,6 +30,7 @@ const routes: Routes = [
 			{ path: 'entrevistas', data: { title: 'Entrevistas' }, loadComponent: () => import('./features/entrevistas/entrevistas').then(m => m.Entrevistas) },
 			{ path: 'entrevistas/form', data: { title: 'Entrevista' }, loadComponent: () => import('./features/entrevistas/form/entrevista-form').then(m => m.EntrevistaForm) },
 			{ path: 'usuario', data: { title: 'Usuario' }, loadComponent: () => import('./features/usuario/usuario').then(m => m.Usuario) },
+			{ path: 'administrar-usuarios', data: { title: 'Administrar Usuarios' }, loadComponent: () => import('./features/usuario/administrar-usuarios').then(m => m.AdministrarUsuarios) },
 			{ path: 'importar', data: { title: 'Importar' }, loadComponent: () => import('./features/importar/importar').then(m => m.Importar) },
 		]
 	},

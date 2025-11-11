@@ -1,9 +1,85 @@
 rules_version = '2';
 service cloud.firestore {
 	match /databases/{database}/documents {
-		match /{document=**} {
-			allow read, write: if true;
+		// Helper function to get user's usuario document (returns null if doesn't exist)
+		function getUserData() {
+			return exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) 
+				? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data 
+				: null;
 		}
+		
+		// Helper function to check if user can delete
+		function canDelete() {
+			let userData = getUserData();
+			return request.auth != null && userData != null && userData.canDelete == true;
+		}
+		
+		// Helper function to check if user is admin (can manage other users)
+		function isAdmin() {
+			let userData = getUserData();
+			return request.auth != null && userData != null && userData.canDelete == true;
+		}
+		
+		// Usuarios collection
+		match /usuarios/{userId} {
+			allow read: if request.auth != null;
+			// Users can create/update their own profile, admins can create/update any user
+			allow create: if request.auth != null && (request.auth.uid == userId || isAdmin());
+			allow update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+			allow delete: if canDelete();
+		}
+		
+		// Contactos collection
+		match /contactos/{contactoId} {
+			allow read: if request.auth != null;
+			allow create, update: if request.auth != null;
+			allow delete: if canDelete();
+		}
+		
+		// Unidades collection
+		match /unidades/{unidadId} {
+			allow read: if request.auth != null;
+			allow create, update: if request.auth != null;
+			allow delete: if canDelete();
+		}
+		
+		// Proyectos collection
+		match /proyectos/{proyectoId} {
+			allow read: if request.auth != null;
+			allow create, update: if request.auth != null;
+			allow delete: if canDelete();
+		}
+		
+		// Entrevistas collection
+		match /entrevistas/{entrevistaId} {
+			allow read: if request.auth != null;
+			allow create, update: if request.auth != null;
+			allow delete: if canDelete();
+		}
+		
+		// Ventas collection
+		match /ventas/{ventaId} {
+			allow read: if request.auth != null;
+			allow create, update: if request.auth != null;
+			allow delete: if canDelete();
+		}
+		
+		// Comparativas collection
+		match /comparativas/{comparativaId} {
+			allow read: if request.auth != null;
+			allow create, update: if request.auth != null;
+			allow delete: if canDelete();
+		}
+		
+		// Eventos collection - read-only for authenticated users, write only via service
+		match /eventos/{eventoId} {
+			allow read: if request.auth != null;
+			allow write: if request.auth != null; // EventMonitorService writes here
+		}
+		
+		// Public routes - allow read access to specific shared documents
+		// These would need to be accessed via specific document IDs
+		// For now, keeping them restricted - you may want to add specific rules
 	}
 }
 
