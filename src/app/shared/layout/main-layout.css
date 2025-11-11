@@ -2,3 +2,10 @@
 .sidebar-wrapper { width: 220px; transition: width .2s ease; }
 .content-wrapper { min-width: 0; background: var(--app-bg); }
 .app-content { background: var(--app-bg); overflow-y: auto; }
+
+/* Hide sidebar on mobile */
+@media (max-width: 991.98px) {
+  .sidebar-wrapper {
+    display: none;
+  }
+}

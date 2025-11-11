@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BreakpointService } from './core/services/breakpoint.service';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +9,13 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('crm-dashboard-fe');
+
+  constructor(private breakpointService: BreakpointService) {}
+
+  ngOnInit(): void {
+    // Initialize breakpoint service early to ensure body classes are set
+    // The service is already initialized via constructor injection
+  }
 }

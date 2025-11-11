@@ -25,52 +25,121 @@
       </select>
     </div>
   </div>
-  <button class="btn c-btn btn-white btn-square" (click)="dateFrom = null; dateTo = null; selectedContactoId = null; selectedUnidadId = null; selectedType = ''; applyFilters()"><i class="fa fa-refresh"></i></button>
-  <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
+  <div class="subheader-actions">
+    <button class="btn c-btn btn-white btn-square" (click)="dateFrom = null; dateTo = null; selectedContactoId = null; selectedUnidadId = null; selectedType = ''; applyFilters()"><i class="fa fa-refresh"></i></button>
+    <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
+  </div>
 </div>
 
 <div class="frame">
   <div class="frame-title">
     <h4>Ventas</h4>
   </div>
-  <div class="frame-body scroll-table">
-    <table class="table c-table table-fixed table-striped">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Contacto</th>
-          <th>Unidad</th>
-          <th>Tipo</th>
-          <th>Valor</th>
-          <th>Comisión</th>
-          <th class="text-end">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (r of filtered; track r) {
+  <div class="frame-body">
+    <!-- Desktop Table View -->
+    <div class="ventas-table-container d-none d-md-block">
+      <table class="table c-table table-fixed table-striped">
+        <thead>
           <tr>
-            <td>{{ r.date | date:'short' }}</td>
-            <td>{{ r?.contacto?.nombre || '-' }}</td>
-            <td>{{ r?.unidad?.nombre || '-' }}</td>
-            <td>{{ r?.type | titlecase }}</td>
-            <td>{{ r?.importe ? (r.importe | currency:'USD':'symbol':'1.0-0') : '-' }}</td>
-            <td>
-              @if (r?.importe && r?.comision) {
-                {{ ((r.importe ?? 0) * (r.comision ?? 0) / 100) | currency:'USD':'symbol':'1.0-0' }}
-                <small class="text-muted">({{ r.comision ?? 0 }}%)</small>
-              } @else {
-                -
-              }
-            </td>
-            <td class="text-end">
-              <button class="btn-table" title="Ver información" (click)="verInfo(r)"><i class="fas fa-info-circle"></i></button>
-            </td>
+            <th>Fecha</th>
+            <th>Contacto</th>
+            <th>Unidad</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Comisión</th>
+            <th class="text-end">Acciones</th>
           </tr>
-        }
-        @if (!filtered.length) {
-          <tr><td colspan="7" class="text-center">Sin resultados</td></tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (r of filtered; track r) {
+            <tr>
+              <td>{{ r.date | date:'short' }}</td>
+              <td>{{ r?.contacto?.nombre || '-' }}</td>
+              <td>{{ r?.unidad?.nombre || '-' }}</td>
+              <td>{{ r?.type | titlecase }}</td>
+              <td>{{ r?.importe ? (r.importe | currency:'USD':'symbol':'1.0-0') : '-' }}</td>
+              <td>
+                @if (r?.importe && r?.comision) {
+                  {{ ((r.importe ?? 0) * (r.comision ?? 0) / 100) | currency:'USD':'symbol':'1.0-0' }}
+                  <small class="text-muted">({{ r.comision ?? 0 }}%)</small>
+                } @else {
+                  -
+                }
+              </td>
+              <td class="text-end">
+                <button class="btn-table" title="Ver información" (click)="verInfo(r)"><i class="fas fa-info-circle"></i></button>
+              </td>
+            </tr>
+          }
+          @if (!filtered.length) {
+            <tr><td colspan="7" class="text-center">Sin resultados</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="clickable-cards-container d-md-none">
+      @for (r of filtered; track r) {
+        <div class="clickable-card" (click)="verInfo(r)">
+          <div class="clickable-card-header">
+            <div class="clickable-card-date">
+              <i class="fa fa-calendar"></i>
+              <span>{{ r.date | date:'short' }}</span>
+            </div>
+            <div class="clickable-card-badge" [ngClass]="r?.type === 'venta' ? 'badge-success' : 'badge-primary'">
+              {{ r?.type | titlecase }}
+            </div>
+          </div>
+          <div class="clickable-card-body">
+            <div class="clickable-card-row">
+              <div class="clickable-card-label">
+                <i class="fa fa-user"></i>
+                <span>Contacto</span>
+              </div>
+              <div class="clickable-card-value">{{ r?.contacto?.nombre || '-' }}</div>
+            </div>
+            <div class="clickable-card-row">
+              <div class="clickable-card-label">
+                <i class="fa fa-building"></i>
+                <span>Unidad</span>
+              </div>
+              <div class="clickable-card-value">{{ r?.unidad?.nombre || '-' }}</div>
+            </div>
+            <div class="clickable-card-row">
+              <div class="clickable-card-label">
+                <i class="fa fa-dollar-sign"></i>
+                <span>Valor</span>
+              </div>
+              <div class="clickable-card-value highlight">
+                {{ r?.importe ? (r.importe | currency:'USD':'symbol':'1.0-0') : '-' }}
+              </div>
+            </div>
+            @if (r?.importe && r?.comision) {
+              <div class="clickable-card-row">
+                <div class="clickable-card-label">
+                  <i class="fa fa-percent"></i>
+                  <span>Comisión</span>
+                </div>
+                <div class="clickable-card-value">
+                  {{ ((r.importe ?? 0) * (r.comision ?? 0) / 100) | currency:'USD':'symbol':'1.0-0' }}
+                  <small class="text-muted">({{ r.comision ?? 0 }}%)</small>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="clickable-card-footer">
+            <i class="fa fa-info-circle"></i>
+            <span>Tap para ver detalles</span>
+          </div>
+        </div>
+      }
+      @if (!filtered.length) {
+        <div class="clickable-card-empty">
+          <i class="fa fa-inbox"></i>
+          <p>Sin resultados</p>
+        </div>
+      }
+    </div>
   </div>
 </div>

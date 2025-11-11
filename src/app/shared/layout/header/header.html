@@ -1,11 +1,12 @@
 <header class="app-header d-flex align-items-center justify-content-between px-3">
-	<div class="d-flex align-items-center gap-3">
+	<!-- Desktop Layout -->
+	<div class="d-flex align-items-center gap-3" *ngIf="isDesktop">
 		<button class="btn c-btn btn-square btn-primary" (click)="goHome()">
 			<i class="far fa-house"></i>
 		</button>
 		<h6 class="m-0">{{ title }}</h6>
 	</div>
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2" *ngIf="isDesktop">
         <button class="btn c-btn btn-square btn-white" (click)="toggleTheme()" [attr.aria-label]="isDark ? 'Switch to light' : 'Switch to dark'">
             <i class="fa" [ngClass]="isDark ? 'fa-sun' : 'fa-moon'"></i>
         </button>
@@ -32,4 +33,41 @@
         </div>
         </div>
     </div>
+
+	<!-- Mobile Layout -->
+	<div class="d-flex align-items-center justify-content-between w-100" *ngIf="isMobile">
+		<button class="btn c-btn btn-square btn-primary" (click)="goHome()">
+			<i class="far fa-house"></i>
+		</button>
+		<button class="btn c-btn btn-menu" (click)="toggleMobileMenu()" [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'">
+			Menú <i class="fa" [ngClass]="mobileMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+		</button>
+		<div ngbDropdown class="d-inline-block">
+			<button class="btn c-btn btn-square btn-white" ngbDropdownToggle [attr.aria-label]="'User menu'">
+				<i class="far fa-user"></i>
+			</button>
+			<div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+				<button class="dropdown-item d-flex align-items-center gap-2" (click)="goToUserSettings()">
+					<i class="fa fa-gear"></i>
+					<span>Ajustes Usuario</span>
+				</button>
+				<button class="dropdown-item d-flex align-items-center gap-2" (click)="goToAdminUsers()">
+					<i class="fa fa-users"></i>
+					<span>Administrar Usuarios</span>
+				</button>
+				<div class="dropdown-divider"></div>
+				<button class="dropdown-item text-danger d-flex align-items-center gap-2" (click)="logout()">
+					<i class="fa fa-right-from-bracket"></i>
+					<span>Log Out</span>
+				</button>
+			</div>
+		</div>
+	</div>
 </header>
+
+<!-- Mobile Menu -->
+<app-mobile-menu 
+	*ngIf="isMobile"
+	[isOpen]="mobileMenuOpen"
+	(closeMenu)="closeMobileMenu()">
+</app-mobile-menu>

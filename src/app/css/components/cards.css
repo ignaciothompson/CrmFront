@@ -27,6 +27,7 @@
   flex-wrap: nowrap;
   flex-direction: row;
   gap: 15px;
+  min-width: 280px; /* minimum width on all screen sizes */
 }
 
 .c-skin .card-icon {
@@ -73,6 +74,17 @@
   color: var(--link-color);
 }
 
+/* Mobile: cards are 100% width with minimum width of 280px */
+@media (max-width: 991.98px) {
+  .c-skin .cards-container-1 > .card,
+  .c-skin .cards-container-2 > .card,
+  .c-skin .cards-container-3 > .card,
+  .c-skin .cards-container-4 > .card,
+  .c-skin .cards-container-5 > .card {
+    flex: 0 0 100%;
+  }
+}
+
 /* Desktop: keep all cards in a single row per container size */
 @media (min-width: 992px) {
   .c-skin .cards-container-1 > .card {
@@ -95,5 +107,174 @@
 /* Dark theme borders */
 .c-skin.theme-dark .card {
   border: 1px solid var(--border);
+}
+
+/* =================================================================
+   CLICKABLE CARDS - Reusable card components for list views
+   Use these classes for mobile-friendly clickable card layouts
+   ================================================================= */
+
+/* Clickable Cards Container */
+.c-skin .clickable-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Clickable Card Base */
+.c-skin .clickable-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.c-skin .clickable-card:hover,
+.c-skin .clickable-card:active {
+  background: var(--surface-2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Clickable Card Header */
+.c-skin .clickable-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.c-skin .clickable-card-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.c-skin .clickable-card-date i {
+  color: var(--link-color);
+}
+
+/* Clickable Card Badge */
+.c-skin .clickable-card-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.c-skin .clickable-card-badge.badge-primary {
+  background: var(--primary-soft-bg);
+  color: var(--primary-color);
+}
+
+.c-skin .clickable-card-badge.badge-success {
+  background: var(--success-soft-bg);
+  color: var(--success-color);
+}
+
+.c-skin .clickable-card-badge.badge-danger {
+  background: var(--lightred-color);
+  color: var(--danger-color);
+}
+
+.c-skin .clickable-card-badge.badge-warning {
+  background: var(--lightorange-color);
+  color: var(--warning-color);
+}
+
+.c-skin .clickable-card-badge.badge-info {
+  background: var(--lightblue-color);
+  color: var(--link-color);
+}
+
+/* Clickable Card Body */
+.c-skin .clickable-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.c-skin .clickable-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.c-skin .clickable-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-light-color);
+  font-size: 14px;
+}
+
+.c-skin .clickable-card-label i {
+  color: var(--link-color);
+  width: 16px;
+  text-align: center;
+}
+
+.c-skin .clickable-card-value {
+  color: var(--text-highlight-color);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.c-skin .clickable-card-value.highlight {
+  color: var(--primary-color);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Clickable Card Footer */
+.c-skin .clickable-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--link-color);
+  font-size: 13px;
+}
+
+/* Clickable Card Empty State */
+.c-skin .clickable-card-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light-color);
+}
+
+.c-skin .clickable-card-empty i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.c-skin .clickable-card-empty p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Dark theme adjustments for clickable cards */
+.c-skin.theme-dark .clickable-card {
+  background: var(--surface-1);
+  border-color: var(--border);
+}
+
+.c-skin.theme-dark .clickable-card:hover,
+.c-skin.theme-dark .clickable-card:active {
+  background: var(--surface-2);
 }
 

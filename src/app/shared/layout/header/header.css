@@ -1,6 +1,8 @@
 .app-header {
 	height: 60px;
 	background: var(--surface-2);
+	position: relative;
+	z-index: 1001;
 }
 
 
@@ -14,4 +16,27 @@
 
 .app-header .btn-light::after {
 	display: none;
+}
+
+/* Mobile header adjustments */
+@media (max-width: 991.98px) {
+	.app-header {
+		border-bottom: 1px solid var(--border);
+	}
+}
+
+/* Dark theme border */
+.theme-dark .app-header {
+	border-bottom: 1px solid var(--border);
+}
+
+.btn-menu {
+    border: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 18px !important;
+}
+
+.btn-menu:hover, .btn-menu:focus, .btn-menu:active {
+    color: var(--primary-color);
 }

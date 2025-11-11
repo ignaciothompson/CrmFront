@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { RouterModule } from '@angular/router';
 import { Header } from './header/header';
@@ -7,12 +8,13 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Auth, onAuthStateChanged, Unsubscribe } from '@angular/fire/auth';
 import { UsuarioService } from '../../core/services/usuario';
+import { BreakpointService } from '../../core/services/breakpoint.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterModule, Header, Sidebar],
+  imports: [CommonModule, RouterModule, Header, Sidebar],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
@@ -25,12 +27,22 @@ export class MainLayout implements OnInit, OnDestroy {
     private router: Router, 
     private route: ActivatedRoute,
     private auth: Auth,
-    private usuarioService: UsuarioService
-  ) {
+    private usuarioService: UsuarioService,
+    public breakpointService: BreakpointService
+) {
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
-      const deepest = this.getDeepestChild(this.route);
+        const deepest = this.getDeepestChild(this.route);
       this.pageTitle = deepest.snapshot.data['title'] || this.pageTitle;
     });
+}
+
+  // Getters for cleaner template syntax
+  get isMobile(): boolean {
+    return this.breakpointService.isMobile();
+  }
+
+  get isDesktop(): boolean {
+    return this.breakpointService.isDesktop();
   }
 
   ngOnInit(): void {

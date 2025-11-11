@@ -38,20 +38,26 @@
 </div>
 
 <div class="row m-t-md">
-  <div class="col-xs-12 col-sm-8">
-    <div class="frame">
-      <div class="frame-title">
+  <div class="col-xs-12 col-sm-12 col-md-8">
+    <div class="frame collapsable" [class.collapsed]="calendarCollapsed">
+      <div class="frame-title" (click)="toggleCalendar()">
         <h4>Calendario de entrevistas</h4>
+        <span class="frame-chevron" *ngIf="breakpointService.isMobile()">
+          <i class="fa fa-chevron-down"></i>
+        </span>
       </div>
       <div class="frame-body" style="height: calc(100vh - 280px);">
-        <full-calendar [options]="calendarOptions"></full-calendar>
+        <full-calendar #fullCalendar [options]="calendarOptions"></full-calendar>
       </div>
     </div>
   </div>
-  <div class="col-xs-12 col-sm-4">
-    <div class="frame">
-      <div class="frame-title">
+  <div class="col-xs-12 col-sm-12 col-md-4">
+    <div class="frame collapsable" [class.collapsed]="activityCollapsed">
+      <div class="frame-title" (click)="activityCollapsed = !activityCollapsed">
         <h4>Actividad reciente</h4>
+        <span class="frame-chevron" *ngIf="breakpointService.isMobile()">
+          <i class="fa fa-chevron-down"></i>
+        </span>
       </div>
       <div class="frame-body" style="max-height: calc(100vh - 280px); overflow-y: auto;">
         <div class="recent-activity">

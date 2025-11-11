@@ -75,4 +75,37 @@
   gap: 8px;
 }
 
+/* Collapsible frames on mobile */
+@media (max-width: 991.98px) {
+  /* Make collapsable frame titles clickable */
+  .c-skin .frame.collapsable .frame-title {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Style the chevron icon */
+  .c-skin .frame.collapsable .frame-title .frame-chevron {
+    font-size: 14px;
+    color: var(--text-color);
+    transition: transform 0.3s ease;
+    margin-left: 8px;
+  }
+
+  /* Rotate chevron when expanded */
+  .c-skin .frame.collapsable:not(.collapsed) .frame-title .frame-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Hide body and footer when collapsed */
+  .c-skin .frame.collapsable.collapsed .frame-body,
+  .c-skin .frame.collapsable.collapsed .frame-footer {
+    display: none;
+  }
+
+  /* Remove bottom padding from title when collapsed */
+  .c-skin .frame.collapsable.collapsed .frame-title {
+    padding-bottom: 0;
+  }
+}
+
 

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
 import { EntrevistaService } from '../../core/services/entrevista';
@@ -13,6 +13,7 @@ import { ContactoForm } from '../contactos/contacto-form/contacto-form';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { BreakpointService } from '../../core/services/breakpoint.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,13 +23,27 @@ import timeGridPlugin from '@fullcalendar/timegrid';
   styleUrl: './dashboard.css'
 })
 export class Dashboard {
-  constructor(private unidadService: UnidadService, private contactoService: ContactoService, private entrevistaService: EntrevistaService, private modal: NgbModal, private firestore: Firestore, private router: Router) {}
+  @ViewChild('fullCalendar') fullCalendarComponent!: FullCalendarComponent;
+
+  constructor(
+    private unidadService: UnidadService, 
+    private contactoService: ContactoService, 
+    private entrevistaService: EntrevistaService, 
+    private modal: NgbModal, 
+    private firestore: Firestore, 
+    private router: Router,
+    public breakpointService: BreakpointService
+  ) {}
 
   // Cards
   totalUnidades = 0;
   totalContactos = 0;
   unidadesDisponibles = 0;
   entrevistasPendientes = 0;
+
+  // Collapsible frames (start collapsed on mobile)
+  calendarCollapsed = true;
+  activityCollapsed = true;
 
   // Calendar
   calendarOptions: any = {
@@ -56,6 +71,21 @@ export class Dashboard {
 
   get publicRecent() {
     return this.recent;
+  }
+
+  toggleCalendar(): void {
+    this.calendarCollapsed = !this.calendarCollapsed;
+    // If expanding on mobile, refresh calendar dimensions after frame becomes visible
+    if (!this.calendarCollapsed && this.breakpointService.isMobile()) {
+      setTimeout(() => {
+        if (this.fullCalendarComponent) {
+          const calendarApi = this.fullCalendarComponent.getApi();
+          if (calendarApi) {
+            calendarApi.updateSize();
+          }
+        }
+      }, 300);
+    }
   }
 
   ngOnInit(): void {

@@ -4,11 +4,13 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Auth } from '@angular/fire/auth';
 import { signOut } from 'firebase/auth';
 import { Router } from '@angular/router';
+import { MobileMenu } from '../mobile-menu/mobile-menu';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, NgbDropdownModule],
+  imports: [CommonModule, NgbDropdownModule, MobileMenu],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -17,8 +19,22 @@ export class Header implements OnInit {
 	@Input() userName: string = '';
 
     isDark = false;
+    mobileMenuOpen = false;
 
-	constructor(private router: Router, private auth: Auth) {}
+	constructor(
+		private router: Router, 
+		private auth: Auth,
+		public breakpointService: BreakpointService
+	) {}
+
+	// Getters for cleaner template syntax
+	get isMobile(): boolean {
+		return this.breakpointService.isMobile();
+	}
+
+	get isDesktop(): boolean {
+		return this.breakpointService.isDesktop();
+	}
 
   ngOnInit() {
     try {
@@ -58,5 +74,13 @@ export class Header implements OnInit {
 
   goHome() {
     this.router.navigateByUrl('/dashboard');
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
   }
 }

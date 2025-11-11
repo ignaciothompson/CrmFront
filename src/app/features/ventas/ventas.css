@@ -1,1 +1,45 @@
 .subheader .btn { margin-top: 10px; margin-right: 6px; }
+
+/* Subheader actions container */
+.subheader-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Mobile: Full width inputs and buttons */
+@media (max-width: 767.98px) {
+  .subheader .row > [class^="col-"],
+  .subheader .row > [class*=" col-"] {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .subheader .form-control,
+  .subheader typeahead,
+  .subheader .c-input {
+    width: 100%;
+  }
+
+  .subheader-actions {
+    width: 100%;
+    flex-direction: column;
+    margin-top: 0;
+  }
+
+  .subheader-actions .btn {
+    width: 100%;
+    margin-top: 10px;
+    margin-right: 0;
+  }
+}
+
+/* Desktop table container */
+.ventas-table-container {
+  overflow-x: auto;
+}
+
+.ventas-table-container .table {
+  min-width: 800px;
+}
