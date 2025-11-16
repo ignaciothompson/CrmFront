@@ -9,6 +9,9 @@
     "test": "ng test",
     "emulators": "firebase emulators:start --import=.emulator-data --export-on-exit"
   },
+  "engines": {
+    "node": "22.16.0"
+  },
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,
