@@ -1,0 +1,90 @@
+/* =================================================================
+   COMPONENT: SUBHEADER
+   Filter bar component with submit button
+   ================================================================= */
+
+/* -----------------------------------------------------------------
+   BASE SUBHEADER STYLES
+   Main container styling (also defined in container.css)
+   ----------------------------------------------------------------- */
+.subheader {
+  background: var(--surface-2);
+  margin: -15px -15px 15px -15px;
+  padding: 15px;
+}
+
+/* -----------------------------------------------------------------
+   SUBHEADER CONTENT LAYOUT
+   Bootstrap row structure for filters and button
+   ----------------------------------------------------------------- */
+.subheader .row {
+  width: 100%;
+  margin: 0;
+  align-items: flex-end;
+}
+
+/* -----------------------------------------------------------------
+   BOOTSTRAP GRID COMPATIBILITY
+   Styles for Bootstrap column classes within subheader
+   ----------------------------------------------------------------- */
+.subheader .row > [class^='col-'],
+.subheader .row > [class*=' col-'] {
+  padding-left: 7.5px;
+  padding-right: 7.5px;
+}
+
+/* Remove left padding on first column, right padding on last */
+.subheader .row > [class^='col-']:first-child,
+.subheader .row > [class*=' col-']:first-child {
+  padding-left: 15px;
+}
+
+.subheader .row > [class^='col-']:last-child,
+.subheader .row > [class*=' col-']:last-child {
+  padding-right: 15px;
+}
+
+.subheader .row button {
+  margin-top: 15px;
+}
+
+/* -----------------------------------------------------------------
+   RESPONSIVE STYLES
+   Mobile and tablet adjustments (< 992px)
+   ----------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  /* All filters and button full width on mobile */
+  .subheader .row > [class^='col-'],
+  .subheader .row > [class*=' col-'] {
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 10px;
+    width: 100% !important;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Remove offset classes on mobile */
+  .subheader .row > [class*='offset-'] {
+    margin-left: 0 !important;
+  }
+
+  /* Remove padding from first/last columns */
+  .subheader .row > [class^='col-']:first-child,
+  .subheader .row > [class*=' col-']:first-child {
+    padding-left: 0;
+  }
+
+  .subheader .row > [class^='col-']:last-child,
+  .subheader .row > [class*=' col-']:last-child {
+    padding-right: 0;
+  }
+
+  /* Button spacing */
+  .subheader button {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+

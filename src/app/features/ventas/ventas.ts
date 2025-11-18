@@ -7,11 +7,12 @@ import { VentaService, VentaRecord } from '../../core/services/venta';
 import { ContactoService } from '../../core/services/contacto';
 import { UnidadService } from '../../core/services/unidad';
 import { VentaInfoModal } from './venta-info-modal/venta-info-modal';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-ventas',
   standalone: true,
-  imports: [CommonModule, FormsModule, TypeaheadComponent],
+  imports: [CommonModule, FormsModule, TypeaheadComponent, SubheaderComponent],
   templateUrl: './ventas.html',
   styleUrl: './ventas.css'
 })
@@ -23,7 +24,10 @@ export class VentasPage {
     private modal: NgbModal
   ) {}
 
-  // Filters
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
+
+  // Filters (kept for backward compatibility with applyFilters logic)
   dateFrom: string | null = null; // YYYY-MM-DD
   dateTo: string | null = null;   // YYYY-MM-DD
   selectedContactoId: string | null = null;
@@ -44,10 +48,81 @@ export class VentasPage {
     });
     this.contactoService.getContactos().subscribe(cs => {
       this.contactoItems = (cs || []).map(c => ({ id: String(c.id), label: `${c?.Nombre || c?.nombre || ''} ${c?.Apellido || c?.apellido || ''}`.trim() }));
+      this.updateFilterConfigs();
     });
     this.unidadService.getUnidades().subscribe(us => {
       this.unidadItems = (us || []).map(u => ({ id: String(u.id), label: `${u?.nombre || u?.name || 'Unidad'} — ${u?.barrio || ''}`.trim() }));
+      this.updateFilterConfigs();
     });
+  }
+
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'dateFrom',
+        type: 'date',
+        label: 'Desde',
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      },
+      {
+        id: 'dateTo',
+        type: 'date',
+        label: 'Hasta',
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      },
+      {
+        id: 'contacto',
+        type: 'typeahead',
+        label: 'Contacto',
+        placeholder: 'Buscar contacto...',
+        items: this.contactoItems,
+        idKey: 'id',
+        labelKey: 'label',
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      },
+      {
+        id: 'unidad',
+        type: 'typeahead',
+        label: 'Unidad',
+        placeholder: 'Buscar unidad...',
+        items: this.unidadItems,
+        idKey: 'id',
+        labelKey: 'label',
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      },
+      {
+        id: 'tipo',
+        type: 'select',
+        label: 'Tipo',
+        placeholder: 'Todos',
+        values: [
+          { value: '', label: 'Todos' },
+          { value: 'venta', label: 'Venta' },
+          { value: 'renta', label: 'Renta' }
+        ],
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    // Update local filter variables from subheader values
+    this.dateFrom = values['dateFrom'] || null;
+    this.dateTo = values['dateTo'] || null;
+    this.selectedType = (values['tipo'] || '') as '' | 'venta' | 'renta';
+    this.selectedContactoId = values['contacto'] || null;
+    this.selectedUnidadId = values['unidad'] || null;
+    
+    this.applyFilters();
+  }
+
+  onFilterReset(): void {
+    this.dateFrom = null;
+    this.dateTo = null;
+    this.selectedType = '';
+    this.selectedContactoId = null;
+    this.selectedUnidadId = null;
+    this.applyFilters();
   }
 
   applyFilters(): void {

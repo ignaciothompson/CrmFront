@@ -1,0 +1,118 @@
+@if (type === 'range') {
+  <div class="filter-wrapper">
+    @if (label) {
+      <label [for]="id + '-from'" class="c-label">{{ label }}</label>
+    }
+    <div class="input-group input-range">
+      <div class="range-item">
+        <input
+          [id]="id + '-from'"
+          [type]="inputType"
+          class="form-control c-input"
+          [placeholder]="placeholder || 'Desde'"
+          [value]="rangeFrom"
+          (input)="onRangeFromChange($any($event.target).value)"
+          [disabled]="disabled"
+          [required]="required"
+          [min]="minDate ? minDate : min"
+          [max]="maxDate ? maxDate : max"
+          [step]="step"
+        />
+      </div>
+      <div class="range-item">
+        <input
+          [id]="id + '-to'"
+          [type]="inputType"
+          class="form-control c-input"
+          placeholder="Hasta"
+          [value]="rangeTo"
+          (input)="onRangeToChange($any($event.target).value)"
+          [disabled]="disabled"
+          [required]="required"
+          [min]="minDate ? minDate : min"
+          [max]="maxDate ? maxDate : max"
+          [step]="step"
+        />
+      </div>
+    </div>
+  </div>
+} @else if (type === 'multiselect') {
+  <div class="filter-wrapper">
+    @if (label) {
+      <label class="c-label">{{ label }}</label>
+    }
+    <div class="multiselect-wrapper">
+      @for (option of values; track option.value) {
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [id]="id + '-' + option.value"
+            [checked]="isSelected(option.value)"
+            (change)="onMultiselectChange(option, $event)"
+            [disabled]="disabled"
+          />
+          <label class="form-check-label" [for]="id + '-' + option.value">
+            {{ option.label }}
+          </label>
+        </div>
+      }
+    </div>
+  </div>
+} @else if (type === 'select') {
+  <div class="filter-wrapper">
+    @if (label) {
+      <label [for]="id" class="c-label">{{ label }}</label>
+    }
+    <select
+      [id]="id"
+      class="form-control c-input"
+      [value]="value"
+      (change)="onInputChange($any($event.target).value)"
+      [disabled]="disabled"
+      [required]="required"
+    >
+      @if (!required) {
+        <option [value]="null">{{ placeholder || 'Seleccionar...' }}</option>
+      }
+      @for (option of values; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+} @else if (type === 'typeahead') {
+  <div class="filter-wrapper">
+    @if (label) {
+      <label [for]="id" class="c-label">{{ label }}</label>
+    }
+    <typeahead
+      [items]="items"
+      [idKey]="idKey"
+      [labelKey]="labelKey"
+      [placeholder]="placeholder || 'Buscar...'"
+      [disabled]="disabled"
+      [ngModel]="value"
+      (ngModelChange)="onTypeaheadChange($event)"
+    ></typeahead>
+  </div>
+} @else {
+  <div class="filter-wrapper">
+    @if (label) {
+      <label [for]="id" class="c-label">{{ label }}</label>
+    }
+    <input
+      [id]="id"
+      [type]="inputType"
+      class="form-control c-input"
+      [placeholder]="placeholder"
+      [value]="value"
+      (input)="onInputChange($any($event.target).value)"
+      [disabled]="disabled"
+      [required]="required"
+      [min]="type === 'date' ? minDate : min"
+      [max]="type === 'date' ? maxDate : max"
+      [step]="step"
+    />
+  </div>
+}
+

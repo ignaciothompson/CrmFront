@@ -73,6 +73,15 @@ export class Dashboard {
     return this.recent;
   }
 
+  // Getters for cleaner template syntax
+  get isMobile(): boolean {
+    return this.breakpointService.isMobile();
+  }
+
+  get isDesktop(): boolean {
+    return this.breakpointService.isDesktop();
+  }
+
   toggleCalendar(): void {
     this.calendarCollapsed = !this.calendarCollapsed;
     // If expanding on mobile, refresh calendar dimensions after frame becomes visible

@@ -38,7 +38,7 @@
 </div>
 
 <div class="row m-t-md">
-  <div class="col-xs-12 col-sm-12 col-md-8">
+  <div class="col-xs-12 col-sm-12 col-md-8" [ngClass]="{'m-b-md': isMobile}">
     <div class="frame collapsable" [class.collapsed]="calendarCollapsed">
       <div class="frame-title" (click)="toggleCalendar()">
         <h4>Calendario de entrevistas</h4>

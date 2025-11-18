@@ -1,111 +1,81 @@
-/* Subheaders */
-.c-skin .subheader {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 15px;
-  background: var(--surface-2);
-  margin: -15px -15px 15px -15px;
-  padding: 15px;
-}
-
-.c-skin .subheader .row > [class^="col-"],
-.c-skin .subheader .row > [class*=" col-"] {
-  padding-left: 7.5px;
-  padding-right: 7.5px;
-}
-
-/* Remove left padding on first column, right padding on last */
-.c-skin .subheader .row > [class^="col-"]:first-child,
-.c-skin .subheader .row > [class*=" col-"]:first-child {
-  padding-left: 15px;
-}
-
-.c-skin .subheader .row > [class^="col-"]:last-child,
-.c-skin .subheader .row > [class*=" col-"]:last-child {
-  padding-right: 15px;
-}
-
-
 /* Frames */
 .c-skin .frame {
-  background: var(--surface-2);
-  border-radius: 5px;
-  padding: 15px;
+	background: var(--surface-2);
+	border-radius: 5px;
+	padding: 15px;
 
-  /* bottom-only shadow, consistent with cards */
-  box-shadow: 0 8px 14px -10px rgba(0, 0, 0, 0.18);
+	/* bottom-only shadow, consistent with cards */
+	box-shadow: 0 8px 14px -10px rgba(0, 0, 0, 0.18);
 }
 
 /* Dark theme borders */
 .c-skin.theme-dark .frame {
-  border: 1px solid var(--border);
+	border: 1px solid var(--border);
 }
 
 .c-skin .frame-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 15px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-bottom: 15px;
 }
 
 .c-skin .frame-title h4 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-highlight-color);
+	margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--text-highlight-color);
 }
 
 /* Optional wrapper for right-aligned title actions */
 .c-skin .frame-title .frame-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .c-skin .frame-body.scroll-table {
-  overflow-y: auto;
-  max-height: 400px;
+	overflow-y: auto;
+	max-height: 400px;
 }
 
 .c-skin .frame-footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 8px;
 }
 
 /* Collapsible frames on mobile */
 @media (max-width: 991.98px) {
-  /* Make collapsable frame titles clickable */
-  .c-skin .frame.collapsable .frame-title {
-    cursor: pointer;
-    user-select: none;
-  }
 
-  /* Style the chevron icon */
-  .c-skin .frame.collapsable .frame-title .frame-chevron {
-    font-size: 14px;
-    color: var(--text-color);
-    transition: transform 0.3s ease;
-    margin-left: 8px;
-  }
+	/* Make collapsable frame titles clickable */
+	.c-skin .frame.collapsable .frame-title {
+		cursor: pointer;
+		user-select: none;
+	}
 
-  /* Rotate chevron when expanded */
-  .c-skin .frame.collapsable:not(.collapsed) .frame-title .frame-chevron {
-    transform: rotate(180deg);
-  }
+	/* Style the chevron icon */
+	.c-skin .frame.collapsable .frame-title .frame-chevron {
+		font-size: 14px;
+		color: var(--text-color);
+		transition: transform 0.3s ease;
+		margin-left: 8px;
+	}
 
-  /* Hide body and footer when collapsed */
-  .c-skin .frame.collapsable.collapsed .frame-body,
-  .c-skin .frame.collapsable.collapsed .frame-footer {
-    display: none;
-  }
+	/* Rotate chevron when expanded */
+	.c-skin .frame.collapsable:not(.collapsed) .frame-title .frame-chevron {
+		transform: rotate(180deg);
+	}
 
-  /* Remove bottom padding from title when collapsed */
-  .c-skin .frame.collapsable.collapsed .frame-title {
-    padding-bottom: 0;
-  }
+	/* Hide body and footer when collapsed */
+	.c-skin .frame.collapsable.collapsed .frame-body,
+	.c-skin .frame.collapsable.collapsed .frame-footer {
+		display: none;
+	}
+
+	/* Remove bottom padding from title when collapsed */
+	.c-skin .frame.collapsable.collapsed .frame-title {
+		padding-bottom: 0;
+	}
 }
-
-

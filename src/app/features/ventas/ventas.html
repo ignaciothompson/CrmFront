@@ -1,35 +1,8 @@
-<div class="subheader">
-  <div class="row">
-    <div class="col-xs-12 col-sm-6 col-md-2">
-      <label class="c-label">Desde</label>
-      <input type="date" class="form-control c-input" [(ngModel)]="dateFrom" />
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-2">
-      <label class="c-label">Hasta</label>
-      <input type="date" class="form-control c-input" [(ngModel)]="dateTo" />
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-3">
-      <label class="c-label">Contacto</label>
-      <typeahead [(ngModel)]="selectedContactoId" name="ventasContacto" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Filtrar contacto..."></typeahead>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-3">
-      <label class="c-label">Unidad</label>
-      <typeahead [(ngModel)]="selectedUnidadId" name="ventasUnidad" [items]="unidadItems" idKey="id" labelKey="label" placeholder="Filtrar unidad..."></typeahead>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-2">
-      <label class="c-label">Tipo</label>
-      <select class="form-control c-input" [(ngModel)]="selectedType">
-        <option value="">Todos</option>
-        <option value="venta">Venta</option>
-        <option value="renta">Renta</option>
-      </select>
-    </div>
-  </div>
-  <div class="subheader-actions">
-    <button class="btn c-btn btn-white btn-square" (click)="dateFrom = null; dateTo = null; selectedContactoId = null; selectedUnidadId = null; selectedType = ''; applyFilters()"><i class="fa fa-refresh"></i></button>
-    <button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
-  </div>
-</div>
+<app-subheader 
+  [filters]="subheaderFilters"
+  (submit)="onFilterSubmit($event)"
+  [submitLabel]="'Aplicar'">
+</app-subheader>
 
 <div class="frame">
   <div class="frame-title">

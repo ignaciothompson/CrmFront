@@ -1,0 +1,40 @@
+<div class="subheader">
+  <div class="row w-100">
+    @if (filters.length > 0) {
+      @for (filterConfig of filters; track filterConfig.id) {
+        <div [class]="filterConfig.columnClass || columnClass">
+          <app-filter
+            [id]="filterConfig.id"
+            [type]="filterConfig.type"
+            [label]="filterConfig.label"
+            [placeholder]="filterConfig.placeholder || ''"
+            [values]="filterConfig.values || []"
+            [disabled]="filterConfig.disabled || false"
+            [required]="filterConfig.required || false"
+            [min]="filterConfig.min"
+            [max]="filterConfig.max"
+            [step]="filterConfig.step"
+            [minDate]="filterConfig.minDate"
+            [maxDate]="filterConfig.maxDate"
+            [multiple]="filterConfig.multiple || false"
+            [items]="filterConfig.items || []"
+            [idKey]="filterConfig.idKey || 'id'"
+            [labelKey]="filterConfig.labelKey || 'label'"
+          ></app-filter>
+        </div>
+      }
+    } @else {
+      <ng-content></ng-content>
+    }
+    <div [class]="buttonColumnClass + (buttonOffsetClass ? ' ' + buttonOffsetClass : '') + ' d-flex align-items-end justify-content-end gap-2'">
+      <button 
+        type="button" 
+        class="btn c-btn btn-primary" 
+        (click)="onSubmit()"
+      >
+        {{ submitLabel }}
+      </button>
+    </div>
+  </div>
+</div>
+
