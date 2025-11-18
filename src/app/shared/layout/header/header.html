@@ -40,7 +40,7 @@
 			<i class="far fa-house"></i>
 		</button>
 		<button class="btn c-btn btn-menu" (click)="toggleMobileMenu()" [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'">
-			Menú <i class="fa" [ngClass]="mobileMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+			{{title || 'Menú'}} <i class="fa" [ngClass]="mobileMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
 		</button>
 		<div ngbDropdown class="d-inline-block">
 			<button class="btn c-btn btn-square btn-white" ngbDropdownToggle [attr.aria-label]="'User menu'">

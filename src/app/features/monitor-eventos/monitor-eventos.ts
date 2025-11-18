@@ -4,16 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Firestore, collection, collectionData, query, where, Timestamp } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-monitor-eventos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, SubheaderComponent],
   templateUrl: './monitor-eventos.html',
   styleUrl: './monitor-eventos.css'
 })
 export class MonitorEventosComponent {
   constructor(private firestore: Firestore) {}
+
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
+  initialFilterValues: Record<string, any> = {};
 
   startDateStr: string | null = null;
   endDateStr: string | null = null;
@@ -24,13 +29,74 @@ export class MonitorEventosComponent {
   items: any[] = [];
 
   ngOnInit(): void {
-    // Default to past 7 days, ending tomorrow to include today's activity
-    const end = new Date();
-    end.setDate(end.getDate() + 1); // Tomorrow to include today
-    const start = new Date();
-    start.setDate(end.getDate() - 7); // 7 days back from tomorrow
-    this.startDateStr = start.toISOString().slice(0,10);
-    this.endDateStr = end.toISOString().slice(0,10);
+    // Set default date range: 7 days ago to today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    
+    this.startDateStr = sevenDaysAgo.toISOString().slice(0, 10);
+    this.endDateStr = today.toISOString().slice(0, 10);
+    
+    this.initialFilterValues = {
+      dateRange: {
+        from: this.startDateStr,
+        to: this.endDateStr
+      }
+    };
+    
+    this.updateFilterConfigs();
+    this.load();
+  }
+
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'dateRange',
+        type: 'range',
+        label: 'Rango de fechas',
+        placeholder: 'Rango',
+        columnClass: 'col-xs-12 col-sm-3 col-md-3'
+      },
+      {
+        id: 'categoria',
+        type: 'select',
+        label: 'Categoría',
+        values: [
+          { value: '', label: 'Todas las categorías' },
+          { value: 'Contactos', label: 'Contactos' },
+          { value: 'Unidades', label: 'Unidades' },
+          { value: 'Entrevistas', label: 'Entrevistas' },
+          { value: 'ListaNegra', label: 'Lista negra' }
+        ],
+        columnClass: 'col-xs-12 col-sm-3 col-md-3'
+      },
+      {
+        id: 'tipo',
+        type: 'select',
+        label: 'Tipo',
+        values: [
+          { value: '', label: 'Todos los tipos' },
+          { value: 'Nuevo', label: 'Alta' },
+          { value: 'Editado', label: 'Edición' },
+          { value: 'Eliminado', label: 'Eliminación' }
+        ],
+        columnClass: 'col-xs-12 col-sm-3 col-md-3'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    if (values['dateRange']) {
+      this.startDateStr = values['dateRange']?.from || null;
+      this.endDateStr = values['dateRange']?.to || null;
+    } else {
+      this.startDateStr = null;
+      this.endDateStr = null;
+    }
+    this.categoria = (values['categoria'] || '') as '' | 'Contactos' | 'Unidades' | 'Entrevistas' | 'ListaNegra';
+    this.tipo = (values['tipo'] || '') as '' | 'Nuevo' | 'Editado' | 'Eliminado';
     this.load();
   }
 
@@ -80,13 +146,6 @@ export class MonitorEventosComponent {
     });
   }
 
-  resetFilters(): void {
-    this.startDateStr = null;
-    this.endDateStr = null;
-    this.categoria = '';
-    this.tipo = '';
-    this.load();
-  }
 
   private computeStats() {
     const total = this.items.length;
@@ -113,6 +172,19 @@ export class MonitorEventosComponent {
     if (typeof v === 'boolean') return v ? 'si' : 'no';
     if (v === null || v === undefined) return '';
     return String(v);
+  }
+
+  getTipoBadgeClass(tipo: string): string {
+    switch (tipo) {
+      case 'Nuevo':
+        return 'badge-success';
+      case 'Editado':
+        return 'badge-info';
+      case 'Eliminado':
+        return 'badge-danger';
+      default:
+        return 'badge-primary';
+    }
   }
 }
 

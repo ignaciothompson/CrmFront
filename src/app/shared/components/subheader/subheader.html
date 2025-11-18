@@ -1,32 +1,64 @@
-<div class="subheader">
-  <div class="row w-100">
-    @if (filters.length > 0) {
-      @for (filterConfig of filters; track filterConfig.id) {
-        <div [class]="filterConfig.columnClass || columnClass">
-          <app-filter
-            [id]="filterConfig.id"
-            [type]="filterConfig.type"
-            [label]="filterConfig.label"
-            [placeholder]="filterConfig.placeholder || ''"
-            [values]="filterConfig.values || []"
-            [disabled]="filterConfig.disabled || false"
-            [required]="filterConfig.required || false"
-            [min]="filterConfig.min"
-            [max]="filterConfig.max"
-            [step]="filterConfig.step"
-            [minDate]="filterConfig.minDate"
-            [maxDate]="filterConfig.maxDate"
-            [multiple]="filterConfig.multiple || false"
-            [items]="filterConfig.items || []"
-            [idKey]="filterConfig.idKey || 'id'"
-            [labelKey]="filterConfig.labelKey || 'label'"
-          ></app-filter>
-        </div>
+<div class="subheader" [class.collapsed]="isCollapsed">
+  <!-- Collapsed View: Show active filters as chips -->
+  @if (isCollapsed && hasActiveFilters()) {
+    <div class="subheader-collapsed">
+      <div class="subheader-active-filters">
+        @for (filter of getActiveFilters() | keyvalue; track filter.key) {
+          <span class="filter-chip" (click)="expandSubheader()">
+            <span class="filter-chip-label">{{ filter.value.label }}:</span>
+            <span class="filter-chip-value">{{ filter.value.value }}</span>
+            <button 
+              type="button" 
+              class="filter-chip-remove" 
+              (click)="removeFilter(filter.key); $event.stopPropagation()"
+              aria-label="Eliminar filtro"
+            >
+              <i class="fa fa-times"></i>
+            </button>
+          </span>
+        }
+      </div>
+      <button 
+        type="button" 
+        class="btn c-btn btn-white btn-sm" 
+        (click)="expandSubheader()"
+      >
+        <i class="fa fa-edit"></i> Editar filtros
+      </button>
+    </div>
+  }
+  
+  <!-- Expanded View: Show all filters -->
+  @if (!isCollapsed) {
+    <div class="subheader-filters">
+      @if (filters.length > 0) {
+        @for (filterConfig of filters; track filterConfig.id) {
+          <div class="filter-item" [class]="filterConfig.columnClass || columnClass">
+            <app-filter
+              [id]="filterConfig.id"
+              [type]="filterConfig.type"
+              [label]="filterConfig.label"
+              [placeholder]="filterConfig.placeholder || ''"
+              [values]="filterConfig.values || []"
+              [disabled]="filterConfig.disabled || false"
+              [required]="filterConfig.required || false"
+              [min]="filterConfig.min"
+              [max]="filterConfig.max"
+              [step]="filterConfig.step"
+              [minDate]="filterConfig.minDate"
+              [maxDate]="filterConfig.maxDate"
+              [multiple]="filterConfig.multiple || false"
+              [items]="filterConfig.items || []"
+              [idKey]="filterConfig.idKey || 'id'"
+              [labelKey]="filterConfig.labelKey || 'label'"
+            ></app-filter>
+          </div>
+        }
+      } @else {
+        <ng-content></ng-content>
       }
-    } @else {
-      <ng-content></ng-content>
-    }
-    <div [class]="buttonColumnClass + (buttonOffsetClass ? ' ' + buttonOffsetClass : '') + ' d-flex align-items-end justify-content-end gap-2'">
+    </div>
+    <div class="subheader-submit">
       <button 
         type="button" 
         class="btn c-btn btn-primary" 
@@ -35,6 +67,6 @@
         {{ submitLabel }}
       </button>
     </div>
-  </div>
+  }
 </div>
 

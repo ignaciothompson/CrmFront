@@ -1,20 +1,23 @@
 import { Component } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContactoService } from '../../core/services/contacto';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 import { BlacklistModal } from './blacklist-modal/blacklist-modal';
 
 @Component({
   selector: 'app-listas-negras',
   standalone: true,
-  imports: [FormsModule, TypeaheadComponent],
+  imports: [FormsModule, SubheaderComponent],
   templateUrl: './listas-negras.html',
   styleUrl: './listas-negras.css'
 })
 export class ListasNegras {
   constructor(private modal: NgbModal, private contactoService: ContactoService) {}
+
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
 
   items: any[] = [];
   all: any[] = [];
@@ -27,7 +30,28 @@ export class ListasNegras {
       this.all = (cs || []);
       this.items = this.all.filter(c => !!c?.ListaNegra);
       this.searchItems = this.items.map(c => ({ id: String(c.id), label: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim() }));
+      this.updateFilterConfigs();
     });
+  }
+
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'contacto',
+        type: 'typeahead',
+        label: 'Contacto',
+        placeholder: 'Escriba para filtrar...',
+        items: this.searchItems,
+        idKey: 'id',
+        labelKey: 'label',
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    this.selectedId = values['contacto'] || null;
+    this.applyFilters();
   }
 
   openAddModal(): void {
@@ -45,10 +69,6 @@ export class ListasNegras {
     }).catch(() => {});
   }
 
-  resetFilters(): void {
-    this.selectedId = null;
-    this.applyFilters();
-  }
 
   applyFilters(): void {
     if (this.selectedId) {

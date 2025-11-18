@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TypeaheadComponent } from '../typeahead/typeahead';
 
-export type FilterType = 'text' | 'select' | 'date' | 'number' | 'range' | 'multiselect' | 'typeahead';
+export type FilterType = 'text' | 'select' | 'date' | 'number' | 'range' | 'multiselect' | 'typeahead' | 'radio' | 'checkbox';
 
 export interface FilterOption {
   value: any;
@@ -68,6 +68,12 @@ export class FilterComponent implements ControlValueAccessor {
       }
     } else if (this.type === 'multiselect') {
       this.selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
+    } else if (this.type === 'checkbox' && this.values && this.values.length > 0) {
+      // Checkbox group - use selectedValues
+      this.selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
+    } else if (this.type === 'checkbox' && (!this.values || this.values.length === 0)) {
+      // Single checkbox (boolean)
+      this.value = value === true || value === 'true' || value === 1;
     } else {
       this.value = value;
     }
@@ -127,6 +133,42 @@ export class FilterComponent implements ControlValueAccessor {
 
   isSelected(value: any): boolean {
     return this.selectedValues.includes(value);
+  }
+
+  onRadioChange(value: any): void {
+    this.value = value;
+    this.onChange(value);
+    this.onTouched();
+  }
+
+  onCheckboxChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.value = checked;
+    this.onChange(checked);
+    this.onTouched();
+  }
+
+  onCheckboxGroupChange(option: FilterOption, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    
+    if (!this.selectedValues) {
+      this.selectedValues = [];
+    }
+    
+    if (checked) {
+      if (!this.selectedValues.includes(option.value)) {
+        this.selectedValues.push(option.value);
+      }
+    } else {
+      this.selectedValues = this.selectedValues.filter(v => v !== option.value);
+    }
+    
+    this.onChange(this.selectedValues);
+    this.onTouched();
+  }
+
+  isCheckboxGroupSelected(value: any): boolean {
+    return this.selectedValues && this.selectedValues.includes(value);
   }
 
   get inputType(): string {

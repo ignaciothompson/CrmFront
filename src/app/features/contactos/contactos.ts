@@ -2,21 +2,24 @@ import { Component, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../core/services/contacto';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 import { ContactoForm } from './contacto-form/contacto-form';
 
 @Component({
   selector: 'app-contactos',
   standalone: true,
-  imports: [FormsModule, RouterModule, TypeaheadComponent],
+  imports: [FormsModule, RouterModule, SubheaderComponent],
   templateUrl: './contactos.html',
   styleUrl: './contactos.css'
 })
 export class Contactos implements OnDestroy {
   constructor(private contactoService: ContactoService, private modal: NgbModal) {}
+
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
 
   localidad: string = '';
   selectedBarrio: string = '';
@@ -39,16 +42,90 @@ export class Contactos implements OnDestroy {
           label: `${c?.Nombre || c?.nombre || ''} ${c?.Apellido || c?.apellido || ''}`.trim()
         }))
         .filter(it => !!it.label);
+      this.updateFilterConfigs();
       this.recompute();
     });
   }
 
-  onCiudadChange(): void {
-    this.selectedBarrio = '';
-    this.recompute();
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'nombre',
+        type: 'typeahead',
+        label: 'Nombre/Apellido',
+        placeholder: 'Escriba para filtrar...',
+        items: this.nameItems,
+        idKey: 'id',
+        labelKey: 'label',
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      },
+      {
+        id: 'localidad',
+        type: 'select',
+        label: 'Ciudad',
+        values: [
+          { value: '', label: 'Todas' },
+          { value: 'norte', label: 'Montevideo' },
+          { value: 'sur', label: 'Canelones' },
+          { value: 'este', label: 'Maldonado' }
+        ],
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      },
+      {
+        id: 'barrio',
+        type: 'select',
+        label: 'Barrio',
+        values: this.barrios.map(b => ({ value: b, label: b })),
+        disabled: !this.localidad,
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      },
+      {
+        id: 'tipoResidencia',
+        type: 'select',
+        label: 'Tipo de residencia',
+        values: [
+          { value: '', label: 'Todas' },
+          { value: 'Apartamento', label: 'Apartamento' },
+          { value: 'Casa', label: 'Casa' },
+          { value: 'Duplex', label: 'Duplex' }
+        ],
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      },
+      {
+        id: 'cuartos',
+        type: 'select',
+        label: 'Cuartos',
+        values: [
+          { value: null, label: 'Todos' },
+          { value: 1, label: '1' },
+          { value: 2, label: '2' },
+          { value: 3, label: '3' },
+          { value: 4, label: '4+' }
+        ],
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      }
+    ];
   }
 
-  onBarrioChange(): void {
+  onFilterSubmit(values: Record<string, any>): void {
+    this.nameSelectedId = values['nombre'] || null;
+    this.localidad = values['localidad'] || '';
+    this.selectedBarrio = values['barrio'] || '';
+    this.tipoResidencia = values['tipoResidencia'] || '';
+    this.cuartos = values['cuartos'] !== undefined && values['cuartos'] !== null ? values['cuartos'] : null;
+    
+    // Update barrios list when ciudad changes
+    if (this.localidad) {
+      const byCity = this.all.filter(c => (c?.direccion?.Ciudad || c.localidad || c.city) === this.localidad);
+      const set = new Set<string>(byCity.map(c => c?.direccion?.Barrio || c.barrio).filter(Boolean));
+      this.barrios = Array.from(set).sort();
+      this.updateFilterConfigs(); // Update barrio options
+    } else {
+      this.barrios = [];
+      this.selectedBarrio = '';
+      this.updateFilterConfigs();
+    }
+    
     this.recompute();
   }
 
@@ -87,15 +164,6 @@ export class Contactos implements OnDestroy {
     await this.contactoService.deleteContacto(String(id));
   }
 
-  resetFilters(): void {
-    this.localidad = '';
-    this.selectedBarrio = '';
-    this.recompute();
-  }
-
-  applyFilters(): void {
-    this.recompute();
-  }
 
   private recompute(): void {
     if (this.localidad) {

@@ -2,19 +2,22 @@ import { Component } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../core/services/contacto';
 import { EntrevistaService } from '../../core/services/entrevista';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-entrevistas',
   standalone: true,
-  imports: [FormsModule, RouterModule, TypeaheadComponent],
+  imports: [FormsModule, RouterModule, SubheaderComponent],
   templateUrl: './entrevistas.html',
   styleUrl: './entrevistas.css'
 })
 export class Entrevistas {
   constructor(private contactoService: ContactoService, private entrevistaService: EntrevistaService) {}
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
+
   items: any[] = [];
   all: any[] = [];
   selectedId: string | null = null; // contactoId
@@ -35,14 +38,37 @@ export class Entrevistas {
         if (!byContacto[cid]) byContacto[cid] = label;
       }
       this.searchItems = Object.entries(byContacto).map(([id, label]) => ({ id, label }));
+      this.updateFilterConfigs();
     });
   }
 
-  resetFilters(): void {
-    this.selectedId = null;
-    this.selectedDate = null;
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'contacto',
+        type: 'typeahead',
+        label: 'Contacto',
+        placeholder: 'Escriba para filtrar...',
+        items: this.searchItems,
+        idKey: 'id',
+        labelKey: 'label',
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      },
+      {
+        id: 'fecha',
+        type: 'date',
+        label: 'Fecha',
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    this.selectedId = values['contacto'] || null;
+    this.selectedDate = values['fecha'] || null;
     this.applyFilters();
   }
+
 
   applyFilters(): void {
     let filtered = this.all;

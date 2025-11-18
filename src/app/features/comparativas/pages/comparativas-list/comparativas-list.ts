@@ -4,16 +4,20 @@ import { ComparativaService } from '../../../../core/services/comparativa';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TypeaheadComponent } from '../../../../shared/components/typeahead/typeahead';
+import { SubheaderComponent, FilterConfig } from '../../../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-comparativas-list',
   standalone: true,
-  imports: [FormsModule, TypeaheadComponent],
+  imports: [FormsModule, TypeaheadComponent, SubheaderComponent],
   templateUrl: './comparativas-list.html',
   styleUrl: './comparativas-list.css'
 })
 export class ComparativasListPage {
   constructor(private comparativaService: ComparativaService, private router: Router) {}
+
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
 
   comparativas: any[] = [];
   filtered: any[] = [];
@@ -35,7 +39,28 @@ export class ComparativasListPage {
         if (!byContacto[id]) byContacto[id] = label;
       }
       this.contactoItems = Object.entries(byContacto).map(([id, label]) => ({ id, label }));
+      this.updateFilterConfigs();
     });
+  }
+
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'contacto',
+        type: 'typeahead',
+        label: 'Contacto',
+        placeholder: 'Escriba para filtrar...',
+        items: this.contactoItems,
+        idKey: 'id',
+        labelKey: 'label',
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    this.selectedContactoId = values['contacto'] || null;
+    this.applyFilters();
   }
 
   formatDate(ts?: number): string {
@@ -61,10 +86,6 @@ export class ComparativasListPage {
     this.comparativaService.deleteComparativa(String(c.id));
   }
 
-  resetFilters(): void {
-    this.selectedContactoId = null;
-    this.applyFilters();
-  }
 
   applyFilters(): void {
     let list = this.comparativas;

@@ -6,12 +6,13 @@ import { ChartConfiguration } from 'chart.js';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
 import { VentaService, VentaRecord } from '../../core/services/venta';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 import demo from './demoData.json';
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, SubheaderComponent],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css'
 })
@@ -27,6 +28,10 @@ export class Reportes {
   private allContactos: any[] = [];
   allVentas: VentaRecord[] = [];
   filteredVentas: VentaRecord[] = [];
+
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
+  initialFilterValues: Record<string, any> = {};
 
   // Filters
   startDateStr: string | null = null;
@@ -80,6 +85,27 @@ export class Reportes {
   private unidadesAutoGroup = true;
 
   ngOnInit(): void {
+    // Set default date range: 7 days ago to today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    
+    this.startDateStr = sevenDaysAgo.toISOString().slice(0, 10);
+    this.endDateStr = today.toISOString().slice(0, 10);
+    this.startDate = this.coerceDate(this.startDateStr);
+    this.endDate = this.coerceDate(this.endDateStr, true);
+    
+    this.initialFilterValues = {
+      dateRange: {
+        from: this.startDateStr,
+        to: this.endDateStr
+      }
+    };
+    
+    this.updateFilterConfigs();
+    
     // Temporary: use local demo data if collections are empty // CAMBIAR EN PRODUCCION
     this.unidadService.getUnidades().subscribe(us => {
       const demoUnidades = (demo as any)?.unidades ?? [];
@@ -101,41 +127,37 @@ export class Reportes {
     });
   }
 
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'dateRange',
+        type: 'range',
+        label: 'Rango de fechas',
+        placeholder: 'Rango',
+        columnClass: 'col-xs-12 col-sm-4 col-md-3'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    if (values['dateRange']) {
+      this.startDateStr = values['dateRange']?.from || null;
+      this.endDateStr = values['dateRange']?.to || null;
+      this.startDate = this.startDateStr ? this.coerceDate(this.startDateStr) : null;
+      this.endDate = this.endDateStr ? this.coerceDate(this.endDateStr, true) : null;
+    } else {
+      this.startDateStr = null;
+      this.endDateStr = null;
+      this.startDate = null;
+      this.endDate = null;
+    }
+    this.entrevistasAutoGroup = true;
+    this.unidadesAutoGroup = true;
+    this.applyFilters();
+  }
+
   // No manual resize needed; maintainAspectRatio=false + CSS ensures 100% height
 
-  onStartDateChange(value: any) {
-    const v = value != null ? String(value) : '';
-    this.startDateStr = v || null;
-    this.startDate = v ? this.coerceDate(v) : null;
-    this.entrevistasAutoGroup = true;
-    this.unidadesAutoGroup = true;
-    this.applyFilters();
-  }
-
-  onEndDateChange(value: any) {
-    const v = value != null ? String(value) : '';
-    this.endDateStr = v || null;
-    this.endDate = v ? this.coerceDate(v, true) : null;
-    this.entrevistasAutoGroup = true;
-    this.unidadesAutoGroup = true;
-    this.applyFilters();
-  }
-
-  resetRange() {
-    this.startDateStr = null;
-    this.endDateStr = null;
-    this.startDate = null;
-    this.endDate = null;
-    this.entrevistasAutoGroup = true;
-    this.unidadesAutoGroup = true;
-    this.applyFilters();
-  }
-
-  onClickFilter() {
-    this.entrevistasAutoGroup = true;
-    this.unidadesAutoGroup = true;
-    this.applyFilters();
-  }
 
   setEntrevistasGroupMode(mode: 'month' | 'week' | 'day') {
     this.entrevistasGroupMode = mode;

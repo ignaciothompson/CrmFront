@@ -8,44 +8,92 @@
    Main container styling (also defined in container.css)
    ----------------------------------------------------------------- */
 .subheader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 15px;
   background: var(--surface-2);
   margin: -15px -15px 15px -15px;
   padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.subheader.collapsed {
+  align-items: center;
+  padding: 10px 15px;
 }
 
 /* -----------------------------------------------------------------
-   SUBHEADER CONTENT LAYOUT
-   Bootstrap row structure for filters and button
+   SUBHEADER FILTERS CONTAINER
+   Flexbox container for all filters with gap
    ----------------------------------------------------------------- */
-.subheader .row {
-  width: 100%;
-  margin: 0;
+.subheader-filters {
+  display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
+  gap: 15px;
+  flex: 1;
+}
+
+.subheader-filters .filter-item {
+  flex-shrink: 0;
+}
+
+/* Bootstrap column classes support within flexbox */
+/* Extra small (xs) - default mobile */
+.subheader-filters .filter-item.col-xs-12 {
+  width: 100%;
+}
+
+/* Small (sm) - tablets */
+@media (min-width: 576px) {
+  .subheader-filters .filter-item.col-sm-6 {
+    flex-basis: calc(50% - 7.5px);
+    width: calc(50% - 7.5px);
+  }
+  
+  .subheader-filters .filter-item.col-sm-12 {
+    flex-basis: 100%;
+    width: 100%;
+  }
+}
+
+/* Medium (md) and up - desktop */
+@media (min-width: 992px) {
+  .subheader-filters .filter-item.col-md-2 {
+    flex-basis: calc(16.66666667% - 12.5px);
+    width: calc(16.66666667% - 12.5px);
+  }
+  
+  .subheader-filters .filter-item.col-md-3 {
+    flex-basis: calc(25% - 11.25px);
+    width: calc(25% - 11.25px);
+  }
+  
+  .subheader-filters .filter-item.col-md-4 {
+    flex-basis: calc(33.33333333% - 10px);
+    width: calc(33.33333333% - 10px);
+  }
+  
+  .subheader-filters .filter-item.col-md-6 {
+    flex-basis: calc(50% - 7.5px);
+    width: calc(50% - 7.5px);
+  }
+  
+  .subheader-filters .filter-item.col-md-12 {
+    flex-basis: 100%;
+    width: 100%;
+  }
 }
 
 /* -----------------------------------------------------------------
-   BOOTSTRAP GRID COMPATIBILITY
-   Styles for Bootstrap column classes within subheader
+   SUBHEADER SUBMIT CONTAINER
+   Container for the submit button, aligned to the right
    ----------------------------------------------------------------- */
-.subheader .row > [class^='col-'],
-.subheader .row > [class*=' col-'] {
-  padding-left: 7.5px;
-  padding-right: 7.5px;
-}
-
-/* Remove left padding on first column, right padding on last */
-.subheader .row > [class^='col-']:first-child,
-.subheader .row > [class*=' col-']:first-child {
-  padding-left: 15px;
-}
-
-.subheader .row > [class^='col-']:last-child,
-.subheader .row > [class*=' col-']:last-child {
-  padding-right: 15px;
-}
-
-.subheader .row button {
-  margin-top: 15px;
+.subheader-submit {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
 }
 
 /* -----------------------------------------------------------------
@@ -53,38 +101,109 @@
    Mobile and tablet adjustments (< 992px)
    ----------------------------------------------------------------- */
 @media (max-width: 991.98px) {
-  /* All filters and button full width on mobile */
-  .subheader .row > [class^='col-'],
-  .subheader .row > [class*=' col-'] {
-    padding-left: 0;
-    padding-right: 0;
-    margin-bottom: 10px;
-    width: 100% !important;
-    flex: 0 0 100%;
-    max-width: 100%;
+  .subheader {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  /* Remove offset classes on mobile */
-  .subheader .row > [class*='offset-'] {
-    margin-left: 0 !important;
-  }
-
-  /* Remove padding from first/last columns */
-  .subheader .row > [class^='col-']:first-child,
-  .subheader .row > [class*=' col-']:first-child {
-    padding-left: 0;
-  }
-
-  .subheader .row > [class^='col-']:last-child,
-  .subheader .row > [class*=' col-']:last-child {
-    padding-right: 0;
-  }
-
-  /* Button spacing */
-  .subheader button {
+  .subheader-filters {
     width: 100%;
-    margin-top: 10px;
   }
+
+  .subheader-filters .filter-item {
+    width: 100%;
+  }
+
+  .subheader-submit {
+    width: 100%;
+  }
+
+  .subheader-submit button {
+    width: 100%;
+  }
+}
+
+/* -----------------------------------------------------------------
+   COLLAPSED SUBHEADER STYLES
+   Active filters display when collapsed
+   ----------------------------------------------------------------- */
+.subheader-collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.subheader-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  align-items: center;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.filter-chip:hover {
+  background: var(--surface-3);
+  border-color: var(--link-color);
+}
+
+.filter-chip-label {
+  color: var(--text-light-color);
+  font-weight: 500;
+}
+
+.filter-chip-value {
+  color: var(--text-highlight-color);
+  font-weight: 600;
+}
+
+.filter-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin-left: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-light-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 11px;
+}
+
+.filter-chip-remove:hover {
+  background: var(--danger-color);
+  color: white;
+}
+
+/* Dark theme adjustments for filter chips */
+.theme-dark .filter-chip {
+  background: var(--surface-1);
+  border-color: var(--border);
+}
+
+.theme-dark .filter-chip:hover {
+  background: var(--surface-2);
+  border-color: var(--link-color);
 }
 
 

@@ -1,40 +1,9 @@
-<div class="subheader">
-  <div class="row">
-    <div class="col-xs-12 col-sm-3">
-      <div class="input-group input-range">
-        <div class="range-item">
-          <label class="c-label" for="ev-start">Desde</label>
-          <input id="ev-start" type="date" class="form-control c-input" [(ngModel)]="startDateStr">
-        </div>
-        <div class="range-item">
-          <label class="c-label" for="ev-end">Hasta</label>
-          <input id="ev-end" type="date" class="form-control c-input" [(ngModel)]="endDateStr">
-        </div>
-      </div>
-    </div>
-    <div class="col-xs-12 col-sm-3">
-      <label class="c-label">Categoría</label>
-      <select class="form-control c-input" [(ngModel)]="categoria">
-        <option value="">Todas las categorías</option>
-        <option value="Contactos">Contactos</option>
-        <option value="Unidades">Unidades</option>
-        <option value="Entrevistas">Entrevistas</option>
-        <option value="ListaNegra">Lista negra</option>
-      </select>
-    </div>
-    <div class="col-xs-12 col-sm-3">
-      <label class="c-label">Tipo</label>
-      <select class="form-control c-input" [(ngModel)]="tipo">
-        <option value="">Todos los tipos</option>
-        <option value="Nuevo">Alta</option>
-        <option value="Editado">Edición</option>
-        <option value="Eliminado">Eliminación</option>
-      </select>
-    </div>
-  </div>
-  <button class="btn c-btn btn-white btn-square" (click)="resetFilters()"><i class="fa fa-refresh"></i></button>
-  <button class="btn c-btn btn-primary" (click)="load()">Aplicar</button>
-</div>
+<app-subheader 
+  [filters]="subheaderFilters"
+  [initialValues]="initialFilterValues"
+  (submit)="onFilterSubmit($event)"
+  [submitLabel]="'Aplicar'">
+</app-subheader>
 
 <div class="cards-container-3 m-b-sm">
   <div class="card">
@@ -61,34 +30,85 @@
 </div>
 
 <div class="frame">
-  <div class="frame-body scroll-table">
-    <table class="table c-table table-striped table-fixed">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Categoría</th>
-          <th>Tipo</th>
-          <th>Usuario</th>
-          <th>Detalle</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (ev of items; track ev) {
+  <div class="frame-body">
+    <!-- Desktop Table View -->
+    <div class="d-none d-md-block scroll-table">
+      <table class="table c-table table-striped table-fixed">
+        <thead>
           <tr>
-            <td>{{ ev?.fecha | date:'yyyy-MM-dd HH:mm' }}</td>
-            <td>{{ ev?.categoria }}</td>
-            <td>{{ ev?.tipo }}</td>
-            <td>{{ ev?.usuario || '-' }}</td>
-            <td>{{ ev?._detalleStr }}</td>
+            <th>Fecha</th>
+            <th>Categoría</th>
+            <th>Tipo</th>
+            <th>Usuario</th>
+            <th>Detalle</th>
           </tr>
-        }
-        @if (!items.length) {
-          <tr>
-            <td colspan="5" class="text-center">Sin resultados</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (ev of items; track ev) {
+            <tr>
+              <td>{{ ev?.fecha | date:'yyyy-MM-dd HH:mm' }}</td>
+              <td>{{ ev?.categoria }}</td>
+              <td>{{ ev?.tipo }}</td>
+              <td>{{ ev?.usuario || '-' }}</td>
+              <td>{{ ev?._detalleStr }}</td>
+            </tr>
+          }
+          @if (!items.length) {
+            <tr>
+              <td colspan="5" class="text-center">Sin resultados</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="clickable-cards-container d-md-none">
+      @for (ev of items; track ev) {
+        <div class="clickable-card">
+          <div class="clickable-card-header">
+            <div class="clickable-card-date">
+              <i class="fa fa-calendar"></i>
+              <span>{{ ev?.fecha | date:'yyyy-MM-dd HH:mm' }}</span>
+            </div>
+            <div class="clickable-card-badge" [ngClass]="getTipoBadgeClass(ev?.tipo)">
+              {{ ev?.tipo }}
+            </div>
+          </div>
+          <div class="clickable-card-body">
+            <div class="clickable-card-row">
+              <div class="clickable-card-label">
+                <i class="fa fa-tag"></i>
+                <span>Categoría</span>
+              </div>
+              <div class="clickable-card-value">{{ ev?.categoria || '-' }}</div>
+            </div>
+            <div class="clickable-card-row">
+              <div class="clickable-card-label">
+                <i class="fa fa-user"></i>
+                <span>Usuario</span>
+              </div>
+              <div class="clickable-card-value">{{ ev?.usuario || '-' }}</div>
+            </div>
+            @if (ev?._detalleStr) {
+              <div class="clickable-card-row">
+                <div class="clickable-card-label">
+                  <i class="fa fa-info-circle"></i>
+                  <span>Detalle</span>
+                </div>
+                <div class="clickable-card-value">{{ ev._detalleStr }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (!items.length) {
+        <div class="clickable-card-empty">
+          <i class="fa fa-list"></i>
+          <p>Sin resultados</p>
+        </div>
+      }
+    </div>
   </div>
 </div>
 

@@ -10,8 +10,8 @@
           [type]="inputType"
           class="form-control c-input"
           [placeholder]="placeholder || 'Desde'"
-          [value]="rangeFrom"
-          (input)="onRangeFromChange($any($event.target).value)"
+          [ngModel]="rangeFrom"
+          (ngModelChange)="onRangeFromChange($event)"
           [disabled]="disabled"
           [required]="required"
           [min]="minDate ? minDate : min"
@@ -25,8 +25,8 @@
           [type]="inputType"
           class="form-control c-input"
           placeholder="Hasta"
-          [value]="rangeTo"
-          (input)="onRangeToChange($any($event.target).value)"
+          [ngModel]="rangeTo"
+          (ngModelChange)="onRangeToChange($event)"
           [disabled]="disabled"
           [required]="required"
           [min]="minDate ? minDate : min"
@@ -95,6 +95,74 @@
       (ngModelChange)="onTypeaheadChange($event)"
     ></typeahead>
   </div>
+} @else if (type === 'radio') {
+  <div class="filter-wrapper">
+    @if (label) {
+      <label class="c-label">{{ label }}</label>
+    }
+    <div class="radio-wrapper">
+      @for (option of values; track option.value) {
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            [name]="id"
+            [id]="id + '-' + option.value"
+            [value]="option.value"
+            [checked]="value === option.value"
+            (change)="onRadioChange(option.value)"
+            [disabled]="disabled"
+          />
+          <label class="form-check-label" [for]="id + '-' + option.value">
+            {{ option.label }}
+          </label>
+        </div>
+      }
+    </div>
+  </div>
+} @else if (type === 'checkbox') {
+  @if (values.length > 0) {
+    <!-- Multiple checkboxes (checkbox group) -->
+    <div class="filter-wrapper">
+      @if (label) {
+        <label class="c-label">{{ label }}</label>
+      }
+      <div class="checkbox-wrapper">
+        @for (option of values; track option.value) {
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="id + '-' + option.value"
+              [checked]="isCheckboxGroupSelected(option.value)"
+              (change)="onCheckboxGroupChange(option, $event)"
+              [disabled]="disabled"
+            />
+            <label class="form-check-label" [for]="id + '-' + option.value">
+              {{ option.label }}
+            </label>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Single checkbox (boolean) -->
+    <div class="filter-wrapper">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [id]="id"
+          [checked]="value === true || value === 'true' || value === 1"
+          (change)="onCheckboxChange($event)"
+          [disabled]="disabled"
+        />
+        <label class="form-check-label" [for]="id">
+          {{ label || placeholder }}
+        </label>
+      </div>
+    </div>
+  }
 } @else {
   <div class="filter-wrapper">
     @if (label) {
@@ -105,8 +173,8 @@
       [type]="inputType"
       class="form-control c-input"
       [placeholder]="placeholder"
-      [value]="value"
-      (input)="onInputChange($any($event.target).value)"
+      [ngModel]="value"
+      (ngModelChange)="onInputChange($event)"
       [disabled]="disabled"
       [required]="required"
       [min]="type === 'date' ? minDate : min"

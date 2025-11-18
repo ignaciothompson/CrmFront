@@ -26,6 +26,7 @@ export class VentasPage {
 
   // Filter configurations for subheader
   subheaderFilters: FilterConfig[] = [];
+  initialFilterValues: Record<string, any> = {};
 
   // Filters (kept for backward compatibility with applyFilters logic)
   dateFrom: string | null = null; // YYYY-MM-DD
@@ -42,6 +43,20 @@ export class VentasPage {
   filtered: VentaRecord[] = [];
 
   ngOnInit(): void {
+    // Set default date range: 7 days ago to today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    
+    this.dateFrom = sevenDaysAgo.toISOString().slice(0, 10);
+    this.dateTo = today.toISOString().slice(0, 10);
+    this.initialFilterValues = {
+      dateFrom: this.dateFrom,
+      dateTo: this.dateTo
+    };
+    
     this.ventaService.getVentas().subscribe(rows => {
       this.all = (rows || []).sort((a, b) => (b?.date || 0) - (a?.date || 0));
       this.filtered = this.all;

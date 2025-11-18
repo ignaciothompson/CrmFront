@@ -5,12 +5,13 @@ import { RouterModule } from '@angular/router';
 import { ContactoService } from '../../core/services/contacto';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 import { ContactoForm } from '../contactos/contacto-form/contacto-form';
 
 @Component({
   selector: 'app-contactos-seguimiento',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule],
+  imports: [FormsModule, CommonModule, RouterModule, SubheaderComponent],
   templateUrl: './contactos-seguimiento.html',
   styleUrl: './contactos-seguimiento.css'
 })
@@ -19,6 +20,12 @@ export class ContactosSeguimiento implements OnInit, OnDestroy {
     private contactoService: ContactoService,
     private modal: NgbModal
   ) {}
+
+  // Filter configurations for subheader
+  subheaderFilters: FilterConfig[] = [];
+
+  // Tabs
+  activeTab: 'proximos' | 'todos' = 'proximos';
 
   // Filters
   estadoFilter: string = '';
@@ -35,11 +42,36 @@ export class ContactosSeguimiento implements OnInit, OnDestroy {
   private sub?: Subscription;
 
   ngOnInit(): void {
+    this.updateFilterConfigs();
+    
     this.sub = this.contactoService.getContactos().subscribe(list => {
       this.all = list || [];
       this.computeStatistics();
       this.applyFilters();
     });
+  }
+
+  private updateFilterConfigs(): void {
+    this.subheaderFilters = [
+      {
+        id: 'estado',
+        type: 'select',
+        label: 'Estado',
+        values: [
+          { value: '', label: 'Todos' },
+          { value: 'Activo', label: 'Activo' },
+          { value: 'Interesado', label: 'Interesado' },
+          { value: 'Pendiente', label: 'Pendiente' },
+          { value: 'Abandonado', label: 'Abandonado' }
+        ],
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      }
+    ];
+  }
+
+  onFilterSubmit(values: Record<string, any>): void {
+    this.estadoFilter = values['estado'] || '';
+    this.applyFilters();
   }
 
   private computeStatistics(): void {
@@ -91,10 +123,6 @@ export class ContactosSeguimiento implements OnInit, OnDestroy {
     });
   }
 
-  resetFilters(): void {
-    this.estadoFilter = '';
-    this.applyFilters();
-  }
 
   formatDate(timestamp: number | undefined): string {
     if (!timestamp) return '-';
@@ -129,6 +157,14 @@ export class ContactosSeguimiento implements OnInit, OnDestroy {
     }).catch(() => {
       // Modal closed without saving
     });
+  }
+
+  setActiveTab(tab: 'proximos' | 'todos'): void {
+    this.activeTab = tab;
+  }
+
+  verContacto(c: any): void {
+    this.editContacto(c.id);
   }
 
   ngOnDestroy(): void {

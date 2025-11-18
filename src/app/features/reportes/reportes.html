@@ -1,21 +1,9 @@
-<div class="subheader">
-	<div class="row">
-		<div class="col-xs-12 col-sm-4">
-				<div class="input-group input-range">
-				<div class="range-item">
-					<label class="c-label" for="reportes-start-date">Desde</label>
-					<input id="reportes-start-date" type="date" class="form-control c-input" [(ngModel)]="startDateStr" (ngModelChange)="onStartDateChange($event)">
-				</div>
-				<div class="range-item">
-					<label class="c-label" for="reportes-end-date">Hasta</label>
-					<input id="reportes-end-date" type="date" class="form-control c-input" [(ngModel)]="endDateStr" (ngModelChange)="onEndDateChange($event)">
-				</div>
-			</div>
-		</div>
-	</div>
-	<button class="btn c-btn btn-white btn-square" (click)="resetRange()"><i class="fa fa-refresh"></i></button>
-	<button class="btn c-btn btn-primary" (click)="applyFilters()">Aplicar</button>
-</div>
+<app-subheader 
+  [filters]="subheaderFilters"
+  [initialValues]="initialFilterValues"
+  (submit)="onFilterSubmit($event)"
+  [submitLabel]="'Aplicar'">
+</app-subheader>
 <div class="row m-b-md">
 	<div class="col-xs-12">
 		<div class="frame">
@@ -58,7 +46,8 @@
 						</div>
 					</div>
 				</div>
-				<div class="table-responsive">
+				<!-- Desktop Table View -->
+				<div class="d-none d-md-block table-responsive">
 					<table class="table c-table table-striped">
 						<thead>
 							<tr>
@@ -94,6 +83,67 @@
 							}
 						</tbody>
 					</table>
+				</div>
+				<!-- Mobile Card View -->
+				<div class="clickable-cards-container d-md-none">
+					@for (v of filteredVentas; track v) {
+						<div class="clickable-card">
+							<div class="clickable-card-header">
+								<div class="clickable-card-date">
+									<i class="fa fa-calendar"></i>
+									<span>{{ v.date | date:'short' }}</span>
+								</div>
+								<div class="clickable-card-badge" [ngClass]="v?.type === 'venta' ? 'badge-success' : 'badge-primary'">
+									{{ v?.type | titlecase }}
+								</div>
+							</div>
+							<div class="clickable-card-body">
+								<div class="clickable-card-row">
+									<div class="clickable-card-label">
+										<i class="fa fa-user"></i>
+										<span>Contacto</span>
+									</div>
+									<div class="clickable-card-value">{{ v?.contacto?.nombre || '-' }}</div>
+								</div>
+								<div class="clickable-card-row">
+									<div class="clickable-card-label">
+										<i class="fa fa-building"></i>
+										<span>Unidad</span>
+									</div>
+									<div class="clickable-card-value">{{ v?.unidad?.nombre || '-' }}</div>
+								</div>
+								<div class="clickable-card-row">
+									<div class="clickable-card-label">
+										<i class="fa fa-dollar-sign"></i>
+										<span>Importe</span>
+									</div>
+									<div class="clickable-card-value highlight">
+										{{ v?.importe ? (v.importe | currency:'USD':'symbol':'1.0-0') : '-' }}
+									</div>
+								</div>
+								<div class="clickable-card-row">
+									<div class="clickable-card-label">
+										<i class="fa fa-percent"></i>
+										<span>Comisión</span>
+									</div>
+									<div class="clickable-card-value">
+										@if (v?.importe && v?.comision) {
+											{{ ((v.importe ?? 0) * (v.comision ?? 0) / 100) | currency:'USD':'symbol':'1.0-0' }}
+											<small class="text-muted">({{ v.comision }}%)</small>
+										} @else {
+											-
+										}
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+					@if (!filteredVentas.length) {
+						<div class="clickable-card-empty">
+							<i class="fa fa-chart-line"></i>
+							<p>Sin resultados</p>
+						</div>
+					}
 				</div>
 			</div>
 		</div>
