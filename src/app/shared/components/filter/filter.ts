@@ -43,6 +43,7 @@ export class FilterComponent implements ControlValueAccessor {
   @Input() items: any[] = []; // Array of items for typeahead
   @Input() idKey: string = 'id'; // Key to use for item ID
   @Input() labelKey: string = 'label'; // Key to use for item label
+  @Input() validateOnBlur: boolean = false; // Validate on blur instead of input change
 
   // For range type
   rangeFrom: any = null;
@@ -93,8 +94,17 @@ export class FilterComponent implements ControlValueAccessor {
 
   onInputChange(value: any): void {
     this.value = value;
-    this.onChange(value);
-    this.onTouched();
+    if (!this.validateOnBlur) {
+      this.onChange(value);
+      this.onTouched();
+    }
+  }
+
+  onInputBlur(): void {
+    if (this.validateOnBlur) {
+      this.onChange(this.value);
+      this.onTouched();
+    }
   }
 
   onTypeaheadChange(value: string | null): void {
@@ -105,14 +115,32 @@ export class FilterComponent implements ControlValueAccessor {
 
   onRangeFromChange(value: any): void {
     this.rangeFrom = value;
-    this.onChange({ from: this.rangeFrom, to: this.rangeTo });
-    this.onTouched();
+    if (!this.validateOnBlur) {
+      this.onChange({ from: this.rangeFrom, to: this.rangeTo });
+      this.onTouched();
+    }
+  }
+
+  onRangeFromBlur(): void {
+    if (this.validateOnBlur) {
+      this.onChange({ from: this.rangeFrom, to: this.rangeTo });
+      this.onTouched();
+    }
   }
 
   onRangeToChange(value: any): void {
     this.rangeTo = value;
-    this.onChange({ from: this.rangeFrom, to: this.rangeTo });
-    this.onTouched();
+    if (!this.validateOnBlur) {
+      this.onChange({ from: this.rangeFrom, to: this.rangeTo });
+      this.onTouched();
+    }
+  }
+
+  onRangeToBlur(): void {
+    if (this.validateOnBlur) {
+      this.onChange({ from: this.rangeFrom, to: this.rangeTo });
+      this.onTouched();
+    }
   }
 
   onMultiselectChange(option: FilterOption, event: Event): void {

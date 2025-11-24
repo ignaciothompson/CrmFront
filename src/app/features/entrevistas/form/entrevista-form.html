@@ -1,37 +1,75 @@
 <div class="frame">
 	<div class="frame-title">
-		<h4>Nueva Entrevista</h4>
+		<h4>{{ entrevistaId ? 'Editar Entrevista' : 'Nueva Entrevista' }}</h4>
+		@if (activeModal) {
+			<button type="button" class="btn-close" (click)="cancel()" aria-label="Close">
+				<i class="fa fa-times"></i>
+			</button>
+		}
 	</div>
 	<div class="frame-body">
 		<div class="row m-b-sm">
 			<div class="col-xs-12 col-sm-3">
-				<label class="c-label">Contacto</label>
-				<typeahead [(ngModel)]="contactoId" name="contactoId" [items]="contactoItems" idKey="id" labelKey="label" placeholder="Buscar contacto..."></typeahead>
+				<app-filter
+					id="contacto"
+					type="typeahead"
+					label="Contacto"
+					[placeholder]="'Buscar contacto...'"
+					[items]="contactoItems"
+					idKey="id"
+					labelKey="label"
+					[required]="true"
+					[ngModel]="contactoId"
+					(ngModelChange)="contactoId = $event"
+				></app-filter>
 			</div>
 			<div class="col-xs-12 col-sm-3">
-				<label class="c-label">Unidad</label>
-				<input class="form-control c-input" [(ngModel)]="unidadNombre" name="unidadNombre" placeholder="Nombre de unidad" />
+				<app-filter
+					id="unidad"
+					type="text"
+					label="Unidad"
+					[placeholder]="'Nombre de unidad'"
+					[required]="true"
+					[ngModel]="unidadNombre"
+					(ngModelChange)="unidadNombre = $event"
+				></app-filter>
 			</div>
 			<div class="col-xs-12 col-sm-6">
-				<label class="c-label">Ubicación</label>
-				<input class="form-control c-input" [(ngModel)]="location" name="location" placeholder="Lugar del meet" />
+				<app-filter
+					id="location"
+					type="text"
+					label="Ubicación"
+					[placeholder]="'Lugar del meet'"
+					[ngModel]="location"
+					(ngModelChange)="location = $event"
+				></app-filter>
 			</div>
 		</div>
 		<div class="row m-b-lg">
 			<div class="col-xs-12 col-sm-3">
-				<label class="c-label">Fecha</label>
-                <input type="date" class="form-control c-input" [(ngModel)]="fechaInput" name="fecha" (ngModelChange)="onFechaChange()">
+				<app-filter
+					id="fecha"
+					type="date"
+					label="Fecha"
+					[required]="true"
+					[ngModel]="fechaInput"
+					(ngModelChange)="fechaInput = $event; onFechaChange()"
+				></app-filter>
 			</div>
 			<div class="col-xs-12 col-sm-3">
-				<label class="c-label">Hora</label>
-				<div class="input-group input-range">
-                    <input type="number" min="0" max="23" class="form-control c-input" [(ngModel)]="horaHour" name="horaHour" placeholder="HH" (ngModelChange)="onHoraChange()">
-                    <input type="number" min="0" max="59" class="form-control c-input" [(ngModel)]="horaMinute" name="horaMinute" placeholder="mm" (ngModelChange)="onHoraChange()">
-				</div>
+				<label class="c-label">Hora <span class="text-danger">*</span></label>
+				<input 
+					type="time" 
+					class="form-control c-input" 
+					[(ngModel)]="horaInput" 
+					name="hora" 
+					required
+					(ngModelChange)="onHoraChange()"
+				/>
 			</div>
 			<div class="col-xs-12 col-sm-6">
 				<label class="c-label">Comentario / Nota</label>
-				<textarea class="form-control c-input" rows="4" [(ngModel)]="comentario" name="comentario"></textarea>
+				<textarea class="form-control c-input" rows="4" [(ngModel)]="comentario" name="comentario" placeholder="Notas adicionales..."></textarea>
 			</div>
 		</div>
 		<div class="col-xs-12 m-b-md" style="height: calc(100vh - 360px);">
@@ -39,7 +77,7 @@
 		</div>
 	</div>
 	<div class="frame-footer">
-		<button routerLink="/entrevistas" class="btn c-btn btn-default">Cancelar</button>
+		<button class="btn c-btn btn-default" (click)="cancel()">Cancelar</button>
 		<button class="btn c-btn btn-primary" (click)="save()">Guardar</button>
 	</div>
 </div>

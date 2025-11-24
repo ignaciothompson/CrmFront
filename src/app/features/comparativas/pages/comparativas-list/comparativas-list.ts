@@ -3,13 +3,12 @@ import { Component } from '@angular/core';
 import { ComparativaService } from '../../../../core/services/comparativa';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TypeaheadComponent } from '../../../../shared/components/typeahead/typeahead';
 import { SubheaderComponent, FilterConfig } from '../../../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-comparativas-list',
   standalone: true,
-  imports: [FormsModule, TypeaheadComponent, SubheaderComponent],
+  imports: [FormsModule, SubheaderComponent],
   templateUrl: './comparativas-list.html',
   styleUrl: './comparativas-list.css'
 })

@@ -1,0 +1,14 @@
+<div class="toast-container">
+  @for (message of messages; track message.id) {
+    <div class="toast toast-{{ message.type }}" [@slideInOut]>
+      <div class="toast-icon">
+        <i class="fa {{ getIconClass(message.type) }}"></i>
+      </div>
+      <div class="toast-message">{{ message.message }}</div>
+      <button class="toast-close" (click)="remove(message.id)" aria-label="Close">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  }
+</div>
+

@@ -5,6 +5,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { TypeaheadComponent } from '../../../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../../../core/services/contacto';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-compare-modal',
@@ -14,7 +15,11 @@ import { ContactoService } from '../../../../core/services/contacto';
   styleUrl: './compare-modal.css'
 })
 export class CompareModal {
-  constructor(public activeModal: NgbActiveModal, private contactoService: ContactoService) {}
+  constructor(
+    public activeModal: NgbActiveModal,
+    private contactoService: ContactoService,
+    private toastService: ToastService
+  ) {}
 
   @Input() unidades: any[] = [];
 
@@ -35,7 +40,17 @@ export class CompareModal {
   }
 
   confirm(): void {
-    const contacto = this.contactos.find(c => String(c.id) === String(this.selectedContactoId));
+    // Note: Contacto is optional, so no validation needed
+    // But we can validate that unidades are still present
+    if (!this.unidades || this.unidades.length < 2) {
+      this.toastService.warning('Debe tener al menos 2 unidades seleccionadas');
+      return;
+    }
+
+    const contacto = this.selectedContactoId 
+      ? this.contactos.find(c => String(c.id) === String(this.selectedContactoId))
+      : null;
+    
     this.activeModal.close({ contacto });
   }
 }

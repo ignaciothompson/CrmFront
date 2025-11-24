@@ -8,11 +8,15 @@ import { Router } from '@angular/router';
 import { UnidadService } from '../../../../core/services/unidad';
 import { ProyectoService } from '../../../../core/services/proyecto';
 import { EXTRAS_CATALOG } from '../../../../core/extras-catalog';
+import { BreakpointService } from '../../../../core/services/breakpoint.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { FormValidationService } from '../../../../core/services/form-validation.service';
+import { FilterSidebarComponent, FilterSidebarConfig } from '../../../../shared/components/filter-sidebar/filter-sidebar';
 
 @Component({
   selector: 'app-comparativas',
   standalone: true,
-  imports: [CommonModule, FormsModule, TypeaheadComponent],
+  imports: [CommonModule, FormsModule, FilterSidebarComponent],
   templateUrl: './comparativas.html',
   styleUrl: './comparativas.css'
 })
@@ -22,8 +26,14 @@ export class Comparativas {
     private proyectoService: ProyectoService,
     private modalService: NgbModal,
     private comparativaService: ComparativaService,
-    private router: Router
+    private router: Router,
+    public breakpointService: BreakpointService,
+    private toastService: ToastService,
+    private validationService: FormValidationService
   ) {}
+
+  // Mobile filters overlay state
+  filtersOpen = false;
 
   // UI helpers
   defaultImg: string = 'assets/img/placeholder.jpg';
@@ -98,6 +108,10 @@ export class Comparativas {
   // Compare selection state
   private selectedIdSet: Set<string> = new Set<string>();
 
+  // Filter sidebar configuration
+  filterConfigs: FilterSidebarConfig[] = [];
+  filterValues: Record<string, any> = {};
+
   ngOnInit(): void {
     this.unidadService.getUnidades().subscribe(us => {
       const mapped = (us || []).map(u => this.compatMap(u));
@@ -106,10 +120,171 @@ export class Comparativas {
       this.cities = Array.from(new Set(this.all.map(u => u.ciudad).filter(Boolean))).sort();
       this.barrios = Array.from(new Set(this.all.map(u => u.barrio).filter(Boolean))).sort();
       this.nameItems = this.all.map(u => ({ id: String(u.id), label: String(u.nombre || 'Unidad') })).filter(x => !!x.label);
+      // Initialize filters after data is loaded
+      this.initializeFilterConfigs();
     });
     this.proyectoService.getProyectos().subscribe(ps => {
       this.projectItems = (ps || []).map(p => ({ id: String(p.id), label: String(p.nombre) }));
     });
+  }
+
+  initializeFilterConfigs(): void {
+    // Initialize filter configs
+    this.filterConfigs = [
+        {
+          id: 'f-name',
+          label: 'Nombre',
+          type: 'typeahead',
+          placeholder: 'Buscar unidad...',
+          items: this.nameItems,
+          idKey: 'id',
+          labelKey: 'label'
+        },
+        {
+          id: 'f-location',
+          label: 'Localidad',
+          type: 'checkbox',
+          values: this.cities.map(c => ({ value: c, label: c })),
+          getSelectedLabel: (value: string[]) => {
+            if (!Array.isArray(value) || value.length === 0) return '';
+            return value.join(', ');
+          }
+        },
+        {
+          id: 'f-barrio',
+          label: 'Barrio',
+          type: 'checkbox',
+          values: this.barrios.map(b => ({ value: b, label: b })),
+          getSelectedLabel: (value: string[]) => {
+            if (!Array.isArray(value) || value.length === 0) return '';
+            return value.join(', ');
+          }
+        },
+      {
+        id: 'f-tipo',
+        label: 'Tipo de residencia',
+        type: 'checkbox',
+        values: this.tiposResidencia.map(t => ({ value: t, label: t })),
+        getSelectedLabel: (value: string[]) => {
+          if (!Array.isArray(value) || value.length === 0) return '';
+          return value.join(', ');
+        }
+      },
+      {
+        id: 'f-vis',
+        label: 'Ver',
+        type: 'checkbox',
+        values: this.visibilidadOpts.map(v => ({ value: v, label: v })),
+        getSelectedLabel: (value: string[]) => {
+          if (!Array.isArray(value) || value.length === 0) return '';
+          return value.join(', ');
+        }
+      },
+      {
+        id: 'f-disp',
+        label: 'Disponibilidad',
+        type: 'checkbox',
+        values: this.disponibilidadOpts.map(d => ({ value: d, label: d })),
+        getSelectedLabel: (value: string[]) => {
+          if (!Array.isArray(value) || value.length === 0) return '';
+          return value.join(', ');
+        }
+      },
+      {
+        id: 'f-rooms',
+        label: 'Cuartos',
+        type: 'checkbox',
+        values: [1, 2, 3, 4].map(n => ({ value: n, label: n === 4 ? '4+' : String(n) })),
+        getSelectedLabel: (value: number[]) => {
+          if (!Array.isArray(value) || value.length === 0) return '';
+          return value.map(n => n === 4 ? '4+' : String(n)).join(', ');
+        }
+      },
+      {
+        id: 'f-size',
+        label: 'Tamaño',
+        type: 'range',
+        placeholder: 'Min',
+        validateOnBlur: true,
+        getSelectedLabel: (value: any) => {
+          if (!value || typeof value !== 'object') return '';
+          const from = value.from || value.from === 0 ? value.from : '';
+          const to = value.to || value.to === 0 ? value.to : '';
+          if (from || to) {
+            return `${from || 0} - ${to || '∞'}`;
+          }
+          return '';
+        }
+      },
+      {
+        id: 'f-price',
+        label: 'Precio',
+        type: 'range',
+        placeholder: 'Min',
+        validateOnBlur: true,
+        getSelectedLabel: (value: any) => {
+          if (!value || typeof value !== 'object') return '';
+          const from = value.from || value.from === 0 ? value.from : '';
+          const to = value.to || value.to === 0 ? value.to : '';
+          if (from || to) {
+            return `$${from || 0} - $${to || '∞'}`;
+          }
+          return '';
+        }
+      },
+      {
+        id: 'f-exp',
+        label: 'Expensas',
+        type: 'range',
+        placeholder: 'Min',
+        validateOnBlur: true,
+        getSelectedLabel: (value: any) => {
+          if (!value || typeof value !== 'object') return '';
+          const from = value.from || value.from === 0 ? value.from : '';
+          const to = value.to || value.to === 0 ? value.to : '';
+          if (from || to) {
+            return `$${from || 0} - $${to || '∞'}`;
+          }
+          return '';
+        }
+      },
+      {
+        id: 'f-extras',
+        label: 'Extras',
+        type: 'checkbox',
+        values: this.extrasCatalog.map(e => ({ value: e, label: e })),
+        getSelectedLabel: (value: string[]) => {
+          if (!Array.isArray(value) || value.length === 0) return '';
+          return value.join(', ');
+        }
+      },
+      {
+        id: 'f-venta',
+        label: 'Tipo de venta',
+        type: 'checkbox',
+        values: this.ventaOpts.map(v => ({ value: v, label: v })),
+        getSelectedLabel: (value: string[]) => {
+          if (!Array.isArray(value) || value.length === 0) return '';
+          return value.join(', ');
+        }
+      }
+    ];
+
+    // Initialize filter values
+    this.filterValues = {
+      'f-name': null,
+      'f-location': [],
+      'f-barrio': [],
+      'f-tipo': [],
+      'f-vis': [],
+      'f-disp': [],
+      'f-rooms': [],
+      'f-size': { from: null, to: null },
+      'f-price': { from: null, to: null },
+      'f-exp': { from: null, to: null },
+      'f-extras': [],
+      'f-venta': []
+    };
   }
 
   onImgError(event: Event): void {
@@ -123,65 +298,118 @@ export class Comparativas {
     this.openBlocks[id] = !this.openBlocks[id];
   }
 
+  toggleFilters(): void {
+    this.filtersOpen = !this.filtersOpen;
+  }
+
+  closeFilters(): void {
+    this.filtersOpen = false;
+  }
+
+  get isMobile(): boolean {
+    return this.breakpointService.isMobile();
+  }
+
+  onFilterChange(event: { id: string; value: any }): void {
+    this.filterValues[event.id] = event.value;
+    this.validateAndApplyFilters();
+  }
+
+  validateAndApplyFilters(): void {
+    // Validate range filters
+    const rangeErrors: string[] = [];
+    
+    const sizeRange = this.filterValues['f-size'];
+    if (sizeRange && sizeRange.from !== null && sizeRange.to !== null && sizeRange.from > sizeRange.to) {
+      rangeErrors.push('El tamaño mínimo no puede ser mayor que el máximo');
+    }
+    
+    const priceRange = this.filterValues['f-price'];
+    if (priceRange && priceRange.from !== null && priceRange.to !== null && priceRange.from > priceRange.to) {
+      rangeErrors.push('El precio mínimo no puede ser mayor que el máximo');
+    }
+    
+    const expRange = this.filterValues['f-exp'];
+    if (expRange && expRange.from !== null && expRange.to !== null && expRange.from > expRange.to) {
+      rangeErrors.push('Las expensas mínimas no pueden ser mayores que las máximas');
+    }
+    
+    if (rangeErrors.length > 0) {
+      rangeErrors.forEach(error => this.toastService.warning(error));
+      return;
+    }
+
+    this.applyFilters();
+  }
+
   applyFilters(): void {
     let res = this.all.slice();
-    if (this.nameSelectedId) res = res.filter(u => String(u.id) === String(this.nameSelectedId));
-    if (this.projectSelectedId) res = res.filter(u => String(u.proyectoId) === String(this.projectSelectedId));
+    
+    // Name filter (typeahead)
+    const nameId = this.filterValues['f-name'];
+    if (nameId) res = res.filter(u => String(u.id) === String(nameId));
 
-    const activeLocs = Object.keys(this.filterLocations).filter(k => this.filterLocations[k]);
+    // Location filter (checkbox array)
+    const activeLocs = Array.isArray(this.filterValues['f-location']) ? this.filterValues['f-location'] : [];
     if (activeLocs.length) res = res.filter(u => activeLocs.includes(String(u.ciudad)));
 
-    const activeBarrios = Object.keys(this.filterBarrios).filter(k => this.filterBarrios[k]);
+    // Barrio filter (checkbox array)
+    const activeBarrios = Array.isArray(this.filterValues['f-barrio']) ? this.filterValues['f-barrio'] : [];
     if (activeBarrios.length) res = res.filter(u => activeBarrios.includes(String(u.barrio)));
 
-    const activeTipos = Object.keys(this.filterTipos).filter(k => this.filterTipos[k]);
+    // Tipo filter (checkbox array)
+    const activeTipos = Array.isArray(this.filterValues['f-tipo']) ? this.filterValues['f-tipo'] : [];
     if (activeTipos.length) res = res.filter(u => activeTipos.includes(String(u.tipo)));
 
-    const activeVis = Object.keys(this.filterVisibilidad).filter(k => this.filterVisibilidad[k]);
+    // Visibilidad filter (checkbox array)
+    const activeVis = Array.isArray(this.filterValues['f-vis']) ? this.filterValues['f-vis'] : [];
     if (activeVis.length) res = res.filter(u => activeVis.includes(String(u.visibilidad)));
 
-    const activeInterna = Object.keys(this.filterInterna).filter(k => this.filterInterna[k]);
-    if (activeInterna.length) res = res.filter(u => (u.visibilidad === 'No publicado') && activeInterna.includes(String(u.publicacionInterna)));
-
-    const activeDisp = Object.keys(this.filterDisponibilidad).filter(k => this.filterDisponibilidad[k]);
+    // Disponibilidad filter (checkbox array)
+    const activeDisp = Array.isArray(this.filterValues['f-disp']) ? this.filterValues['f-disp'] : [];
     if (activeDisp.length) res = res.filter(u => activeDisp.includes(String(u.disponibilidad)));
 
-    const activeOri = Object.keys(this.filterOrientaciones).filter(k => this.filterOrientaciones[k]);
-    if (activeOri.length) res = res.filter(u => activeOri.includes(String(u.orientacion)));
-
-    const activeDist = Object.keys(this.filterDistribuciones).filter(k => this.filterDistribuciones[k]);
-    if (activeDist.length) res = res.filter(u => activeDist.includes(String(u.distribucion)));
-
-    const activePisos = Object.keys(this.filterPisos).filter(k => this.filterPisos[k]);
-    if (activePisos.length) res = res.filter(u => activePisos.includes(String(u.pisoCategoria)));
-
-    const activeExtras = Object.keys(this.filterExtras).filter(k => this.filterExtras[k]);
-    if (activeExtras.length) res = res.filter(u => {
-      const extras: string[] = Array.isArray(u.extras) ? u.extras : [];
-      return activeExtras.every(label => extras.includes(label));
-    });
-
-    const activeCuartos = Object.keys(this.filterCuartos).filter(k => this.filterCuartos[k]).map(Number);
+    // Cuartos filter (checkbox array)
+    const activeCuartos = Array.isArray(this.filterValues['f-rooms']) ? this.filterValues['f-rooms'].map(Number) : [];
     if (activeCuartos.length) res = res.filter(u => {
       const d = Number(u?.dormitorios ?? u?.cuartos);
       return activeCuartos.some(n => (n === 4 ? d >= 4 : d === n));
     });
 
-    const activeBanos = Object.keys(this.filterBanos).filter(k => this.filterBanos[k]).map(Number);
-    if (activeBanos.length) res = res.filter(u => {
-      const b = Number(u?.banos);
-      return activeBanos.some(n => (n === 4 ? b >= 4 : b === n));
+    // Size range filter
+    const sizeRange = this.filterValues['f-size'];
+    if (sizeRange) {
+      if (sizeRange.from !== null) res = res.filter(u => Number(u?.tamanoM2) >= sizeRange.from);
+      if (sizeRange.to !== null) res = res.filter(u => Number(u?.tamanoM2) <= sizeRange.to);
+    }
+
+    // Price range filter
+    const priceRange = this.filterValues['f-price'];
+    if (priceRange) {
+      if (priceRange.from !== null) res = res.filter(u => Number(u?.precioUSD) >= priceRange.from);
+      if (priceRange.to !== null) res = res.filter(u => Number(u?.precioUSD) <= priceRange.to);
+    }
+
+    // Expensas range filter
+    const expRange = this.filterValues['f-exp'];
+    if (expRange) {
+      if (expRange.from !== null) res = res.filter(u => Number(u?.expensasUSD) >= expRange.from);
+      if (expRange.to !== null) res = res.filter(u => Number(u?.expensasUSD) <= expRange.to);
+    }
+
+    // Extras filter (checkbox array)
+    const activeExtras = Array.isArray(this.filterValues['f-extras']) ? this.filterValues['f-extras'] : [];
+    if (activeExtras.length) res = res.filter(u => {
+      const extras: string[] = Array.isArray(u.extras) ? u.extras : [];
+      return activeExtras.every(label => extras.includes(label));
     });
 
-    const activeOcup = Object.keys(this.filterOcupacion).filter(k => this.filterOcupacion[k]);
-    if (activeOcup.length) res = res.filter(u => activeOcup.includes(String(u.ocupacion)));
-
-    if (this.sizeMin != null) res = res.filter(u => Number(u?.tamanoM2) >= this.sizeMin!);
-    if (this.sizeMax != null) res = res.filter(u => Number(u?.tamanoM2) <= this.sizeMax!);
-    if (this.priceMin != null) res = res.filter(u => Number(u?.precioUSD) >= this.priceMin!);
-    if (this.priceMax != null) res = res.filter(u => Number(u?.precioUSD) <= this.priceMax!);
-    if (this.expMin != null) res = res.filter(u => Number(u?.expensasUSD) >= this.expMin!);
-    if (this.expMax != null) res = res.filter(u => Number(u?.expensasUSD) <= this.expMax!);
+    // Venta tipo filter (checkbox array)
+    const activeVenta = Array.isArray(this.filterValues['f-venta']) ? this.filterValues['f-venta'] : [];
+    if (activeVenta.length) {
+      // This would need to be implemented based on your data structure
+      // res = res.filter(u => activeVenta.includes(String(u.tipoVenta)));
+    }
 
     this.items = res;
   }
@@ -279,7 +507,12 @@ export class Comparativas {
   openCompareModal(event: MouseEvent): void {
     event.stopPropagation();
     const selectedUnits = this.items.filter(u => this.selectedIdSet.has(String(u.id)));
-    if (selectedUnits.length < 2) return;
+    
+    // Validate that at least 2 units are selected
+    if (selectedUnits.length < 2) {
+      this.toastService.warning('Debe seleccionar al menos 2 unidades para comparar');
+      return;
+    }
 
     // Lazy import modal component to avoid circular refs
     import('../../components/compare-modal/compare-modal').then(m => {
@@ -320,7 +553,11 @@ export class Comparativas {
         this.comparativaService.addComparativa(payload).then(ref => {
           this.selectedIdSet.clear();
           const id = (ref as any)?.id;
+          this.toastService.success('Comparativa creada exitosamente');
           if (id) this.router.navigate(['/comparacion', id]);
+        }).catch((error: any) => {
+          console.error('Error al crear comparativa:', error);
+          this.toastService.error('Error al crear la comparativa. Por favor, intente nuevamente.');
         });
       }).catch(() => {});
     });

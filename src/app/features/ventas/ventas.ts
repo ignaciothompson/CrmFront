@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TypeaheadComponent } from '../../shared/components/typeahead/typeahead';
 import { VentaService, VentaRecord } from '../../core/services/venta';
 import { ContactoService } from '../../core/services/contacto';
 import { UnidadService } from '../../core/services/unidad';
@@ -12,7 +11,7 @@ import { SubheaderComponent, FilterConfig } from '../../shared/components/subhea
 @Component({
   selector: 'app-ventas',
   standalone: true,
-  imports: [CommonModule, FormsModule, TypeaheadComponent, SubheaderComponent],
+  imports: [CommonModule, FormsModule, SubheaderComponent],
   templateUrl: './ventas.html',
   styleUrl: './ventas.css'
 })

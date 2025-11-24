@@ -41,9 +41,13 @@ export class Dashboard {
   unidadesDisponibles = 0;
   entrevistasPendientes = 0;
 
+  // Upcoming meetings for mobile cards
+  upcomingMeetings: any[] = [];
+
   // Collapsible frames (start collapsed on mobile)
   calendarCollapsed = true;
   activityCollapsed = true;
+  meetingsCollapsed = true;
 
   // Calendar
   calendarOptions: any = {
@@ -97,6 +101,10 @@ export class Dashboard {
     }
   }
 
+  toggleMeetings(): void {
+    this.meetingsCollapsed = !this.meetingsCollapsed;
+  }
+
   ngOnInit(): void {
     this.unidadService.getUnidades().subscribe(us => {
       const list = us || [];
@@ -121,6 +129,27 @@ export class Dashboard {
         }))
         .filter((ev: any) => !!ev.start);
       this.calendarOptions = { ...this.calendarOptions, events };
+
+      // Filter upcoming meetings for mobile cards
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      this.upcomingMeetings = entrevistas
+        .filter((e: any) => {
+          if (!e?.fecha) return false;
+          const meetingDate = this.parseDate(e.fecha);
+          if (!meetingDate) return false;
+          meetingDate.setHours(0, 0, 0, 0);
+          return meetingDate >= now;
+        })
+        .sort((a: any, b: any) => {
+          const dateA = this.parseDate(a?.fecha);
+          const dateB = this.parseDate(b?.fecha);
+          if (!dateA || !dateB) return 0;
+          const timeA = dateA.getTime() + (this.parseTime(a?.hora) || 0);
+          const timeB = dateB.getTime() + (this.parseTime(b?.hora) || 0);
+          return timeA - timeB;
+        })
+        .slice(0, 10); // Limit to 10 upcoming meetings
     });
 
     // Today's activity from eventos
@@ -145,11 +174,63 @@ export class Dashboard {
   }
 
   private onEventClick(info: any): void {
-    const contacto = info?.event?.extendedProps?.contacto;
-    const meet = info?.event?.extendedProps?.meet;
-    const ref = this.modal.open(MeetModal, { size: 'md' });
-    ref.componentInstance.contacto = contacto;
-    ref.componentInstance.meet = meet || null;
+    const entrevista = info?.event?.extendedProps?.entrevista;
+    if (entrevista) {
+      this.openEntrevistaModal(entrevista);
+    } else {
+      const contacto = info?.event?.extendedProps?.contacto;
+      const meet = info?.event?.extendedProps?.meet;
+      const ref = this.modal.open(MeetModal, { size: 'md' });
+      ref.componentInstance.contacto = contacto;
+      ref.componentInstance.meet = meet || null;
+    }
+  }
+
+  openEntrevistaModal(entrevista: any): void {
+    // Get contacto if contactoId exists
+    if (entrevista?.contactoId) {
+      this.contactoService.getContactoById(entrevista.contactoId).subscribe(contacto => {
+        const ref = this.modal.open(MeetModal, { size: 'md' });
+        ref.componentInstance.contacto = contacto || {
+          Nombre: entrevista?.contactoNombre || '',
+          Apellido: entrevista?.contactoApellido || '',
+          Celular: '',
+          Mail: ''
+        };
+        ref.componentInstance.meet = {
+          Fecha: entrevista?.fecha || '',
+          Hora: entrevista?.hora || '',
+          Comentario: entrevista?.comentario || '',
+          Unidad: entrevista?.unidad || null,
+          Location: entrevista?.location || ''
+        };
+      });
+    } else {
+      // Fallback if no contactoId
+      const ref = this.modal.open(MeetModal, { size: 'md' });
+      ref.componentInstance.contacto = {
+        Nombre: entrevista?.contactoNombre || '',
+        Apellido: entrevista?.contactoApellido || '',
+        Celular: '',
+        Mail: ''
+      };
+      ref.componentInstance.meet = {
+        Fecha: entrevista?.fecha || '',
+        Hora: entrevista?.hora || '',
+        Comentario: entrevista?.comentario || '',
+        Unidad: entrevista?.unidad || null,
+        Location: entrevista?.location || ''
+      };
+    }
+  }
+
+  private parseTime(timeStr: string | undefined): number {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    if (parts.length !== 2) return 0;
+    const hours = parseInt(parts[0], 10) || 0;
+    const minutes = parseInt(parts[1], 10) || 0;
+    return (hours * 60 + minutes) * 60 * 1000; // Convert to milliseconds
   }
 
   private parseDate(v: any): Date | null {

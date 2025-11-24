@@ -1,0 +1,25 @@
+.frame-title {
+    position: relative;
+}
+
+.frame-title .btn-close {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.frame-title .btn-close:hover {
+    color: var(--primary-color);
+}
+

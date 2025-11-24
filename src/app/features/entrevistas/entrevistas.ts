@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContactoService } from '../../core/services/contacto';
 import { EntrevistaService } from '../../core/services/entrevista';
 import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
@@ -14,7 +15,11 @@ import { SubheaderComponent, FilterConfig } from '../../shared/components/subhea
   styleUrl: './entrevistas.css'
 })
 export class Entrevistas {
-  constructor(private contactoService: ContactoService, private entrevistaService: EntrevistaService) {}
+  constructor(
+    private contactoService: ContactoService,
+    private entrevistaService: EntrevistaService,
+    private modal: NgbModal
+  ) {}
   // Filter configurations for subheader
   subheaderFilters: FilterConfig[] = [];
 
@@ -79,6 +84,23 @@ export class Entrevistas {
       filtered = filtered.filter(e => String(e?.fecha) === String(this.selectedDate));
     }
     this.items = filtered;
+  }
+
+  goNuevo(): void {
+    import('./form/entrevista-form').then(m => {
+      const modalRef = this.modal.open(m.EntrevistaForm, { size: 'xl', backdrop: 'static', keyboard: false });
+      modalRef.result.then((result: any) => {
+        // Reload entrevistas if saved successfully
+        if (result === true) {
+          this.entrevistaService.getEntrevistas().subscribe(es => {
+            this.all = es || [];
+            this.applyFilters();
+          });
+        }
+      }).catch(() => {
+        // Modal closed without saving
+      });
+    });
   }
 }
 

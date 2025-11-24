@@ -142,3 +142,129 @@
 .compare-floating .btn {
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
+
+/* Mobile filter button */
+.mobile-filter-button {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .mobile-filter-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        margin-bottom: 15px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: background-color 0.2s;
+    }
+
+    .mobile-filter-button:hover {
+        background: var(--primary-hover-color);
+    }
+
+    .mobile-filter-button i {
+        font-size: 16px;
+    }
+}
+
+/* Mobile filters overlay */
+.mobile-filters-overlay {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .mobile-filters-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .mobile-filters-overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .mobile-filters-container {
+        background: var(--surface-1);
+        width: 100%;
+        max-height: 100vh;
+        overflow-y: auto;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .mobile-filters-overlay.open .mobile-filters-container {
+        transform: translateY(0);
+    }
+
+    .mobile-filters-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-1);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .mobile-filters-header h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .mobile-filters-header .close-button {
+        background: transparent;
+        border: none;
+        color: var(--text-color);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+    }
+
+    .mobile-filters-header .close-button:hover {
+        color: var(--primary-color);
+    }
+
+    .mobile-filters-content {
+        padding: 0;
+    }
+
+    .mobile-filters {
+        padding: 15px;
+        background: var(--surface-1);
+    }
+
+    .mobile-filters .filters-sidebar {
+        background: transparent;
+        padding: 0;
+        position: relative;
+        top: 0;
+        min-height: auto;
+    }
+}

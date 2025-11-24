@@ -1,3 +1,30 @@
+<!-- Mobile filter button -->
+<div class="mobile-filter-button" *ngIf="isMobile" (click)="toggleFilters()">
+  <i class="fa fa-filter"></i>
+  <span>Filtros</span>
+</div>
+
+<!-- Mobile filters overlay -->
+<div class="mobile-filters-overlay" *ngIf="isMobile" [class.open]="filtersOpen" (click)="closeFilters()">
+  <div class="mobile-filters-container" (click)="$event.stopPropagation()">
+    <div class="mobile-filters-header">
+      <h4>Filtros</h4>
+      <button class="close-button" (click)="closeFilters()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    <div class="mobile-filters-content">
+      <div class="mobile-filters">
+        <app-filter-sidebar
+          [filters]="filterConfigs"
+          [filterValues]="filterValues"
+          (filterChange)="onFilterChange($event)"
+        ></app-filter-sidebar>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-xs-12 col-sm-9">
     <div class="cards-container-3">
@@ -26,264 +53,11 @@
       </div>
     }
   </div>
-  <div class="col-xs-12 col-sm-3">
-    <div class="filters-sidebar">
-      <div class="filter-block">
-        <div class="filter-header" (click)="toggleOpen('f-name')" [class.open]="openBlocks['f-name']">
-          <b>Nombre</b>
-          <i class="fa fa-chevron-down chevron"></i>
-        </div>
-        <div id="f-name" class="collapse" [class.show]="openBlocks['f-name']">
-          <typeahead [(ngModel)]="nameSelectedId" name="nameSelectedId" [items]="nameItems" idKey="id" labelKey="label" placeholder="Buscar unidad..." (ngModelChange)="applyFilters()"></typeahead>
-        </div>
-      </div>
-
-      <!-- <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-proyecto')" [class.open]="openBlocks['f-proyecto']">
-        <b>Proyecto</b>
-        <div>
-          <small *ngIf="projectSelectedId">{{ projectSelectedLabel() }}</small>
-          <i class="fa fa-chevron-down chevron"></i>
-        </div>
-      </div>
-      <div id="f-proyecto" class="collapse" [class.show]="openBlocks['f-proyecto']">
-        <typeahead [(ngModel)]="projectSelectedId" name="projectSelectedId" [items]="projectItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="applyFilters()"></typeahead>
-      </div>
-    </div> -->
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-location')" [class.open]="openBlocks['f-location']">
-        <div class="filter-info">
-          <b>Localidad</b>
-          @if (selectedLocations()) {
-            <small>({{ selectedLocations() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-location" class="collapse" [class.show]="openBlocks['f-location']">
-        <div class="checkbox-grid">
-          @for (c of cities; track c) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterLocations[c]" (ngModelChange)="applyFilters()"> {{ c }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-barrio')" [class.open]="openBlocks['f-barrio']">
-        <div class="filter-info">
-          <b>Barrio</b>
-          @if (selectedBarrios()) {
-            <small>({{ selectedBarrios() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-barrio" class="collapse" [class.show]="openBlocks['f-barrio']">
-        <div class="checkbox-grid">
-          @for (b of barrios; track b) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterBarrios[b]" (ngModelChange)="applyFilters()"> {{ b }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-tipo')" [class.open]="openBlocks['f-tipo']">
-        <div class="filter-info">
-          <b>Tipo de residencia</b>
-          @if (selectedTipos()) {
-            <small>({{ selectedTipos() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-tipo" class="collapse" [class.show]="openBlocks['f-tipo']">
-        <div class="checkbox-grid">
-          @for (t of tiposResidencia; track t) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterTipos[t]" (ngModelChange)="applyFilters()"> {{ t }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-vis')" [class.open]="openBlocks['f-vis']">
-        <div class="filter-info">
-          <b>Ver</b>
-          @if (selectedVisibilidad()) {
-            <small>({{ selectedVisibilidad() }})</small>
-          }
-          @if (internaOpts.length && filterVisibilidad['No publicado']) {
-            <small class="m-l-sm">{{ selectedInterna() }}</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-vis" class="collapse" [class.show]="openBlocks['f-vis']">
-        <div class="checkbox-grid">
-          @for (v of visibilidadOpts; track v) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterVisibilidad[v]" (ngModelChange)="applyFilters()"> {{ v }}</label>
-            </div>
-          }
-        </div>
-        @if (filterVisibilidad['No publicado']) {
-          <div class="checkbox-grid">
-            @for (i of internaOpts; track i) {
-              <div class="checkbox">
-                <label><input type="checkbox" [(ngModel)]="filterInterna[i]" (ngModelChange)="applyFilters()"> {{ i }}</label>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-disp')" [class.open]="openBlocks['f-disp']">
-        <div class="filter-info">
-          <b>Disponibilidad</b>
-          @if (selectedDisponibilidad()) {
-            <small>({{ selectedDisponibilidad() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-disp" class="collapse" [class.show]="openBlocks['f-disp']">
-        <div class="checkbox-grid">
-          @for (d of disponibilidadOpts; track d) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterDisponibilidad[d]" (ngModelChange)="applyFilters()"> {{ d }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-rooms')" [class.open]="openBlocks['f-rooms']">
-        <div class="filter-info">
-          <b>Cuartos</b>
-          @if (selectedRooms()) {
-            <small>({{ selectedRooms() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-rooms" class="collapse" [class.show]="openBlocks['f-rooms']">
-        <div class="checkbox-grid">
-          @for (n of [1,2,3,4]; track n) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterCuartos[n]" (ngModelChange)="applyFilters()"> {{ n === 4 ? '4+' : n }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-size')" [class.open]="openBlocks['f-size']">
-        <div class="filter-info">
-          <b>Tamaño</b>
-          @if ((sizeMin || sizeMax)) {
-            <small>({{ sizeMin || 0 }} - {{ sizeMax || '∞' }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-size" class="collapse" [class.show]="openBlocks['f-size']">
-        <div class="input-group input-range">
-          <input class="form-control c-input" type="number" [(ngModel)]="sizeMin" (ngModelChange)="applyFilters()" placeholder="Min" />
-          <input class="form-control c-input" type="number" [(ngModel)]="sizeMax" (ngModelChange)="applyFilters()" placeholder="Max" />
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-price')" [class.open]="openBlocks['f-price']">
-        <div class="filter-info">
-          <b>Precio</b>
-          @if ((priceMin || priceMax)) {
-            <small>({{ (priceMin || 0) | currency:'USD' }} - {{ priceMax || '∞' }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-price" class="collapse" [class.show]="openBlocks['f-price']">
-        <div class="input-group input-range">
-          <input class="form-control c-input" type="number" [(ngModel)]="priceMin" (ngModelChange)="applyFilters()" placeholder="Min" />
-          <input class="form-control c-input" type="number" [(ngModel)]="priceMax" (ngModelChange)="applyFilters()" placeholder="Max" />
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-exp')" [class.open]="openBlocks['f-exp']">
-        <div class="filter-info">
-          <b>Expensas</b>
-          @if ((expMin || expMax)) {
-            <small>({{ (expMin || 0) | currency:'USD' }} - {{ expMax || '∞' }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-exp" class="collapse" [class.show]="openBlocks['f-exp']">
-        <div class="input-group input-range">
-          <input class="form-control c-input" type="number" [(ngModel)]="expMin" (ngModelChange)="applyFilters()" placeholder="Min" />
-          <input class="form-control c-input" type="number" [(ngModel)]="expMax" (ngModelChange)="applyFilters()" placeholder="Max" />
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-extras')" [class.open]="openBlocks['f-extras']">
-        <div class="filter-info">
-          <b>Extras</b>
-          @if (selectedExtras()) {
-            <small>({{ selectedExtras() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-extras" class="collapse" [class.show]="openBlocks['f-extras']">
-        <div class="checkbox-grid">
-          @for (e of extrasCatalog; track e) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterExtras[e]" (ngModelChange)="applyFilters()"> {{ e }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-block">
-      <div class="filter-header" (click)="toggleOpen('f-venta')" [class.open]="openBlocks['f-venta']">
-        <div class="filter-info">
-          <b>Tipo de venta</b>
-          @if (selectedVenta()) {
-            <small>({{ selectedVenta() }})</small>
-          }
-        </div>
-        <i class="fa fa-chevron-down chevron"></i>
-      </div>
-      <div id="f-venta" class="collapse" [class.show]="openBlocks['f-venta']">
-        <div class="checkbox-grid">
-          @for (v of ventaOpts; track v) {
-            <div class="checkbox">
-              <label><input type="checkbox" [(ngModel)]="filterVentaTipo[v]" (ngModelChange)="applyFilters()"> {{ v }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
+  <div class="col-xs-12 col-sm-3" *ngIf="!isMobile">
+    <app-filter-sidebar
+      [filters]="filterConfigs"
+      [filterValues]="filterValues"
+      (filterChange)="onFilterChange($event)"
+    ></app-filter-sidebar>
   </div>
-</div>
 </div>

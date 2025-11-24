@@ -1,0 +1,74 @@
+.filters-sidebar {
+    background: var(--surface-1);
+    padding: 15px;
+    position: relative;
+    top: -15px;
+    height: 100%;
+    min-height: calc(100vh - 60px);
+}
+
+/* Smooth collapse animation for sidebar filters */
+.filters-sidebar .collapse {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .25s ease, margin-top .25s ease;
+    margin-top: 0;
+}
+
+.filters-sidebar .collapse.show {
+    max-height: 1000px;
+    margin-top: 10px;
+}
+
+.filters-sidebar .filter-block {
+    border-bottom: 1px solid var(--border-color-grey);
+    padding: 10px 0;
+}
+
+.filters-sidebar .filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filters-sidebar .filter-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.filters-sidebar .filter-info small {
+    font-style: italic;
+    font-size: 12px;
+    color: var(--text-light-color);
+}
+
+.filters-sidebar .filter-header .chevron {
+    transition: transform .25s ease;
+    flex-shrink: 0;
+}
+
+.filters-sidebar .filter-header.open .chevron {
+    transform: rotate(180deg);
+}
+
+.filters-sidebar .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+    row-gap: 4px;
+}
+
+.filters-sidebar .input-group.input-range {
+    display: flex;
+    gap: 10px;
+}
+
+.filters-sidebar .input-group.input-range .form-control {
+    flex: 1;
+}
+

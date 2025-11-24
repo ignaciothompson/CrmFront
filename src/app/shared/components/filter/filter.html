@@ -1,7 +1,12 @@
 @if (type === 'range') {
   <div class="filter-wrapper">
     @if (label) {
-      <label [for]="id + '-from'" class="c-label">{{ label }}</label>
+      <label [for]="id + '-from'" class="c-label">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger">*</span>
+        }
+      </label>
     }
     <div class="input-group input-range">
       <div class="range-item">
@@ -12,6 +17,7 @@
           [placeholder]="placeholder || 'Desde'"
           [ngModel]="rangeFrom"
           (ngModelChange)="onRangeFromChange($event)"
+          (blur)="onRangeFromBlur()"
           [disabled]="disabled"
           [required]="required"
           [min]="minDate ? minDate : min"
@@ -27,6 +33,7 @@
           placeholder="Hasta"
           [ngModel]="rangeTo"
           (ngModelChange)="onRangeToChange($event)"
+          (blur)="onRangeToBlur()"
           [disabled]="disabled"
           [required]="required"
           [min]="minDate ? minDate : min"
@@ -39,7 +46,12 @@
 } @else if (type === 'multiselect') {
   <div class="filter-wrapper">
     @if (label) {
-      <label class="c-label">{{ label }}</label>
+      <label class="c-label">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger">*</span>
+        }
+      </label>
     }
     <div class="multiselect-wrapper">
       @for (option of values; track option.value) {
@@ -62,7 +74,12 @@
 } @else if (type === 'select') {
   <div class="filter-wrapper">
     @if (label) {
-      <label [for]="id" class="c-label">{{ label }}</label>
+      <label [for]="id" class="c-label">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger">*</span>
+        }
+      </label>
     }
     <select
       [id]="id"
@@ -83,7 +100,12 @@
 } @else if (type === 'typeahead') {
   <div class="filter-wrapper">
     @if (label) {
-      <label [for]="id" class="c-label">{{ label }}</label>
+      <label [for]="id" class="c-label">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger">*</span>
+        }
+      </label>
     }
     <typeahead
       [items]="items"
@@ -98,7 +120,12 @@
 } @else if (type === 'radio') {
   <div class="filter-wrapper">
     @if (label) {
-      <label class="c-label">{{ label }}</label>
+      <label class="c-label">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger">*</span>
+        }
+      </label>
     }
     <div class="radio-wrapper">
       @for (option of values; track option.value) {
@@ -125,7 +152,12 @@
     <!-- Multiple checkboxes (checkbox group) -->
     <div class="filter-wrapper">
       @if (label) {
-        <label class="c-label">{{ label }}</label>
+        <label class="c-label">
+          {{ label }}
+          @if (required) {
+            <span class="text-danger">*</span>
+          }
+        </label>
       }
       <div class="checkbox-wrapper">
         @for (option of values; track option.value) {
@@ -166,7 +198,12 @@
 } @else {
   <div class="filter-wrapper">
     @if (label) {
-      <label [for]="id" class="c-label">{{ label }}</label>
+      <label [for]="id" class="c-label">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger">*</span>
+        }
+      </label>
     }
     <input
       [id]="id"
@@ -175,6 +212,7 @@
       [placeholder]="placeholder"
       [ngModel]="value"
       (ngModelChange)="onInputChange($event)"
+      (blur)="onInputBlur()"
       [disabled]="disabled"
       [required]="required"
       [min]="type === 'date' ? minDate : min"

@@ -67,3 +67,55 @@
 .activity-card.warning .icon {
     color: var(--warning-color);
 }
+
+/* Mobile meeting cards */
+.meetings-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.meeting-card {
+    padding: 10px;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-wrap: nowrap;
+}
+
+.meeting-card:hover {
+    background-color: var(--surface-3);
+}
+
+.meeting-card .meeting-contact {
+    font-weight: 500;
+    color: var(--text-color);
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.meeting-card .meeting-date {
+    color: var(--text-color);
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.meeting-card .meeting-time {
+    color: var(--text-color);
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.meeting-card-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-light-color);
+    font-style: italic;
+}

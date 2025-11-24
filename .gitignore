@@ -58,3 +58,5 @@ TASKS.md
 *.todo
 TODO.md
 
+/testcases
+

@@ -39,7 +39,32 @@
 
 <div class="row m-t-md">
   <div class="col-xs-12 col-sm-12 col-md-8" [ngClass]="{'m-b-md': isMobile}">
-    <div class="frame collapsable" [class.collapsed]="calendarCollapsed">
+    <!-- Mobile: Cards view -->
+    <div class="frame collapsable" [class.collapsed]="meetingsCollapsed" *ngIf="isMobile">
+      <div class="frame-title" (click)="toggleMeetings()">
+        <h4>Entrevistas ({{ upcomingMeetings.length }})</h4>
+        <span class="frame-chevron">
+          <i class="fa fa-chevron-down"></i>
+        </span>
+      </div>
+      <div class="frame-body">
+        <div class="meetings-cards">
+          @if (upcomingMeetings.length === 0) {
+            <div class="meeting-card-empty">No hay entrevistas programadas</div>
+          } @else {
+            @for (meeting of upcomingMeetings; track meeting.id) {
+              <div class="meeting-card" (click)="openEntrevistaModal(meeting)">
+                <span class="meeting-contact">{{ meeting.contactoNombre || 'Sin contacto' }}</span>
+                <span class="meeting-date">{{ meeting.fecha || '-' }}</span>
+                <span class="meeting-time">{{ meeting.hora || '-' }}</span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+    <!-- Desktop: Calendar view -->
+    <div class="frame collapsable" [class.collapsed]="calendarCollapsed" *ngIf="!isMobile">
       <div class="frame-title" (click)="toggleCalendar()">
         <h4>Calendario de entrevistas</h4>
         <span class="frame-chevron" *ngIf="breakpointService.isMobile()">

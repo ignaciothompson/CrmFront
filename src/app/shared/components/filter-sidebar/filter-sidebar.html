@@ -1,0 +1,49 @@
+<div class="filters-sidebar">
+  @for (filter of filters; track filter.id) {
+    <div class="filter-block">
+      <div class="filter-header" (click)="toggleOpen(filter.id)" [class.open]="openBlocks[filter.id]">
+        <div class="filter-info">
+          <b>{{ filter.label }}</b>
+          @if (hasSelection(filter)) {
+            <small>({{ getSelectedLabel(filter) }})</small>
+          }
+        </div>
+        <i class="fa fa-chevron-down chevron"></i>
+      </div>
+      <div id="{{ filter.id }}" class="collapse" [class.show]="openBlocks[filter.id]">
+        @if (filter.type === 'typeahead') {
+          <typeahead
+            [(ngModel)]="filterValues[filter.id]"
+            [name]="filter.id"
+            [items]="filter.items || []"
+            [idKey]="filter.idKey || 'id'"
+            [labelKey]="filter.labelKey || 'label'"
+            [placeholder]="filter.placeholder || 'Buscar...'"
+            (ngModelChange)="onFilterChange(filter.id, $event)"
+          ></typeahead>
+        } @else {
+          <app-filter
+            [id]="filter.id"
+            [type]="filter.type"
+            [label]="''"
+            [placeholder]="filter.placeholder || ''"
+            [values]="filter.values || []"
+            [items]="filter.items || []"
+            [idKey]="filter.idKey || 'id'"
+            [labelKey]="filter.labelKey || 'label'"
+            [min]="filter.min"
+            [max]="filter.max"
+            [step]="filter.step"
+            [minDate]="filter.minDate"
+            [maxDate]="filter.maxDate"
+            [multiple]="filter.multiple || false"
+            [validateOnBlur]="filter.validateOnBlur || false"
+            [ngModel]="filterValues[filter.id]"
+            (ngModelChange)="onFilterChange(filter.id, $event)"
+          ></app-filter>
+        }
+      </div>
+    </div>
+  }
+</div>
+
