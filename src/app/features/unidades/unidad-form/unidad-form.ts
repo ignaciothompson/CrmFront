@@ -4,14 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
+import { FilterComponent } from '../../../shared/components/filter/filter';
 import { UnidadService } from '../../../core/services/unidad';
 import { ProyectoService } from '../../../core/services/proyecto';
+import { ConfirmService } from '../../../shared/services/confirm.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
 
 @Component({
   selector: 'app-unidad-form',
   standalone: true,
-  imports: [FormsModule, RouterModule, TypeaheadComponent],
+  imports: [FormsModule, RouterModule, TypeaheadComponent, FilterComponent],
   templateUrl: './unidad-form.html',
   styleUrl: './unidad-form.css'
 })
@@ -24,6 +27,8 @@ export class UnidadForm {
     private router: Router, 
     private unidadService: UnidadService, 
     private proyectoService: ProyectoService,
+    private confirmService: ConfirmService,
+    private toastService: ToastService,
     public activeModal?: NgbActiveModal
   ) {}
 
@@ -34,14 +39,14 @@ export class UnidadForm {
     descripcion: '',
     entrega: '',
     ubicacion: '',
-    city: '',
-    barrio: '',
+    city: null,
+    barrio: null,
     responsable: '',
     comision: null,
     // Link to proyecto (when alcance === 'proyecto')
     proyectoId: '',
     // Dynamic typing for units
-    tipoUnidad: '', // 'Apartamento' | 'Casa' | 'Chacra' | 'Campo'
+    tipoUnidad: null, // 'Apartamento' | 'Casa' | 'Chacra' | 'Campo'
     estadoComercial: 'En venta', // En venta | En alquiler | Reservada | Vendida
     // Apartment specifics
     dormitorios: null,
@@ -49,12 +54,12 @@ export class UnidadForm {
     m2Internos: null,
     m2Totales: null,
     piso: null,
-    orientacion: '',
+    orientacion: null,
     // Casa specifics
     superficieEdificada: null,
     superficieTerreno: null,
     antiguedad: null,
-    condicion: '', // A estrenar | Reciclado | A reciclar
+    condicion: null, // A estrenar | Reciclado | A reciclar
     // Chacra / Rural specifics
     hectareas: null, // shared with Campo
     m2Edificados: null,
@@ -65,7 +70,7 @@ export class UnidadForm {
     agua: false,
     internet: false,
     // Campo specifics
-    aptitudSuelo: '',
+    aptitudSuelo: null,
     indiceProductividad: null,
     mejorasTrabajo: '',
     infraestructuraHabitacional: '',
@@ -86,11 +91,11 @@ export class UnidadForm {
   // Flow control
   alcance: 'proyecto' | 'unica' = 'proyecto';
   proyectoModo: 'existente' | 'nuevo' = 'existente';
-  nuevoProyecto: { nombre: string; desarrollador: string; localidad: string; barrio: string; direccion: string; entrega: string } = {
+  nuevoProyecto: { nombre: string; desarrollador: string; localidad: string | null; barrio: string | null; direccion: string; entrega: string } = {
     nombre: '',
     desarrollador: '',
-    localidad: '',
-    barrio: '',
+    localidad: null,
+    barrio: null,
     direccion: '',
     entrega: ''
   };
@@ -98,16 +103,59 @@ export class UnidadForm {
   estadoComercialOptions = ['En venta', 'En alquiler', 'Reservada', 'Vendida', 'Pre-venta', 'En Pozo'];
   condicionCasaOptions = ['A estrenar', 'Reciclado', 'A reciclar'];
   orientaciones = ['Norte', 'Sur', 'Este', 'Oeste'];
-  // Session units added during the current flow (for table rendering)
-  sessionUnits: any[] = [];
-  busy = false;
-  projectLocked = false;
-  editingProyecto = false;
+  
+  // Options for filter components
+  alcanceOptions = [
+    { value: 'proyecto', label: 'Es parte de un Proyecto' },
+    { value: 'unica', label: 'Es una Unidad Única' }
+  ];
+  proyectoModoOptions = [
+    { value: 'existente', label: 'Existente' },
+    { value: 'nuevo', label: 'Nuevo' }
+  ];
+  tipoUnidadFilterOptions = [
+    { value: 'Apartamento', label: 'Apartamento' },
+    { value: 'Casa', label: 'Casa' },
+    { value: 'Chacra', label: 'Chacra' },
+    { value: 'Campo', label: 'Campo' }
+  ];
+  estadoComercialFilterOptions = this.estadoComercialOptions.map(s => ({ value: s, label: s }));
   ciudades = [
     { value: 'norte', label: 'Montevideo' },
     { value: 'sur', label: 'Canelones' },
     { value: 'este', label: 'Maldonado' }
   ];
+  
+  condicionCasaFilterOptions = this.condicionCasaOptions.map(c => ({ value: c, label: c }));
+  orientacionFilterOptions = this.orientaciones.map(o => ({ value: o, label: o }));
+  aptitudSueloOptions = [
+    { value: 'Ganadera', label: 'Ganadera' },
+    { value: 'Agrícola', label: 'Agrícola' },
+    { value: 'Forestal', label: 'Forestal' },
+    { value: 'Mixta', label: 'Mixta' }
+  ];
+  ciudadFilterOptions = this.ciudades.map(c => ({ value: c.value, label: c.label }));
+  
+  get barrioFilterOptions() {
+    if (!this.barrios || this.barrios.length === 0) {
+      return [];
+    }
+    return this.barrios.map(b => ({ value: b, label: b }));
+  }
+  
+  get nuevoProyectoBarrioFilterOptions() {
+    if (!this.nuevoProyectoBarrios || this.nuevoProyectoBarrios.length === 0) {
+      return [];
+    }
+    return this.nuevoProyectoBarrios.map(b => ({ value: b, label: b }));
+  }
+  // Session units added during the current flow (for table rendering)
+  sessionUnits: any[] = [];
+  busy = false;
+  projectLocked = false;
+  editingProyecto = false;
+  barrios: string[] = [];
+  nuevoProyectoBarrios: string[] = [];
   private barriosCatalog: Record<string, string[]> = {
     norte: [
       'Centro', 'Cordón', 'Parque Rodó', 'Pocitos', 'Punta Carretas', 'Ciudad Vieja', 'Malvín', 'Carrasco'
@@ -119,7 +167,6 @@ export class UnidadForm {
       'Punta del Este', 'Maldonado Nuevo', 'San Rafael', 'La Barra', 'Pinares'
     ]
   };
-  barrios: string[] = [];
 
   ngOnInit(): void {
     // Siempre abrimos como modal - si no hay activeModal, redirigir a unidades
@@ -144,13 +191,14 @@ export class UnidadForm {
           this.nuevoProyecto = {
             nombre: p.nombre || '',
             desarrollador: p.desarrollador || '',
-            localidad: p.ciudad || p.localidad || '',
-            barrio: p.barrio || '',
+            localidad: p.ciudad || p.localidad || null,
+            barrio: p.barrio || null,
             direccion: p.direccion || '',
             entrega: p.entrega || ''
           };
           this.editingProyecto = editProyectoInput;
           this.projectLocked = false;
+          this.recomputeNuevoProyectoBarrios();
           this.reloadSessionUnits();
         }
       }
@@ -168,11 +216,34 @@ export class UnidadForm {
   }
 
   onCityChange(): void {
-    this.model.barrio = '';
+    this.model.barrio = null;
     this.recomputeBarrios();
   }
 
+  onNuevoProyectoLocalidadChange(): void {
+    this.nuevoProyecto.barrio = null;
+    this.recomputeNuevoProyectoBarrios();
+  }
+
+  private recomputeNuevoProyectoBarrios(): void {
+    if (!this.nuevoProyecto.localidad) {
+      this.nuevoProyectoBarrios = [];
+      return;
+    }
+    const curated = this.barriosCatalog[this.nuevoProyecto.localidad] || [];
+    this.unidadService.getUnidades().subscribe(list => {
+      const byCity = list.filter(u => (u.city || u.localidad) === this.nuevoProyecto.localidad);
+      const fromData = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
+      const merged = Array.from(new Set<string>([...curated, ...Array.from(fromData)])).sort();
+      this.nuevoProyectoBarrios = merged;
+    });
+  }
+
   private recomputeBarrios(): void {
+    if (!this.model.city) {
+      this.barrios = [];
+      return;
+    }
     this.unidadService.getUnidades().subscribe(list => {
       const byCity = list.filter(u => (u.city || u.localidad) === this.model.city);
       const fromData = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
@@ -183,27 +254,45 @@ export class UnidadForm {
   }
 
   async save(): Promise<void> {
-    const payload = await this.buildPayloadWithProjectInheritance();
-    if (this.alcance === 'proyecto' && this.id) {
-      await this.unidadService.updateUnidad(this.id, payload);
-      const updated = { id: this.id, ...payload };
-      this.upsertSessionUnit(updated);
-      this.id = undefined;
-      this.prepareNextCloned();
+    // Validate before saving
+    if (!this.validateRequiredFields()) {
       return;
     }
-    if (this.alcance === 'proyecto' && !this.id) {
-      await this.ensureProyectoId();
-    }
-    if (this.id) {
-      await this.unidadService.updateUnidad(this.id, payload);
-    } else {
-      await this.unidadService.addUnidad(payload);
-    }
-    
-    // Siempre es modal, cerrarlo con éxito
-    if (this.activeModal) {
-      this.activeModal.close(true);
+
+    try {
+      this.busy = true;
+      const payload = await this.buildPayloadWithProjectInheritance();
+      const isEdit = !!this.id;
+      
+      if (this.alcance === 'proyecto' && this.id) {
+        await this.unidadService.updateUnidad(this.id, payload);
+        const updated = { id: this.id, ...payload };
+        this.upsertSessionUnit(updated);
+        this.id = undefined;
+        this.prepareNextCloned();
+        this.toastService.success(`Unidad "${payload.nombre}" actualizada exitosamente`);
+        return;
+      }
+      if (this.alcance === 'proyecto' && !this.id) {
+        await this.ensureProyectoId();
+      }
+      if (this.id) {
+        await this.unidadService.updateUnidad(this.id, payload);
+        this.toastService.success(`Unidad "${payload.nombre}" actualizada exitosamente`);
+      } else {
+        await this.unidadService.addUnidad(payload);
+        this.toastService.success(`Unidad "${payload.nombre}" creada exitosamente`);
+      }
+      
+      // Siempre es modal, cerrarlo con éxito
+      if (this.activeModal) {
+        this.activeModal.close(true);
+      }
+    } catch (error) {
+      console.error('Error saving unidad:', error);
+      this.toastService.error('Error al guardar la unidad. Por favor, verifique los datos e intente nuevamente.');
+    } finally {
+      this.busy = false;
     }
   }
 
@@ -223,8 +312,8 @@ export class UnidadForm {
     const p = this.proyectosAll.find(x => String(x.id) === String(this.model.proyectoId));
     if (!p) return;
     // Denormalize values from proyecto into unidad model for fast filters
-    this.model.city = p.ciudad || p.city || this.model.city;
-    this.model.barrio = p.barrio || this.model.barrio;
+    this.model.city = p.ciudad || p.city || this.model.city || null;
+    this.model.barrio = p.barrio || this.model.barrio || null;
     // If unit type is empty, default from proyecto.tipo when present
     if (!this.model.tipo && p.tipo) this.model.tipo = p.tipo;
     this.recomputeBarrios();
@@ -234,7 +323,7 @@ export class UnidadForm {
   // Project flow: add current unit, then prepare the next one cloning configuration
   async addAndRepeat(): Promise<void> {
     if (this.busy) return;
-    if (!this.validateRequiredForAdd()) return;
+    if (!this.validateRequiredFields()) return;
     try {
       this.busy = true;
       await this.ensureProyectoId();
@@ -244,6 +333,10 @@ export class UnidadForm {
       this.upsertSessionUnit(saved);
       this.prepareNextCloned();
       this.projectLocked = true;
+      this.toastService.success(`Unidad "${payload.nombre}" agregada exitosamente`);
+    } catch (error) {
+      console.error('Error adding unidad:', error);
+      this.toastService.error('Error al agregar la unidad. Por favor, intente nuevamente.');
     } finally {
       this.busy = false;
     }
@@ -263,10 +356,26 @@ export class UnidadForm {
 
   async deleteFromTable(row: any): Promise<void> {
     if (!row?.id) return;
-    const ok = typeof window !== 'undefined' ? window.confirm('¿Eliminar la unidad seleccionada?') : true;
-    if (!ok) return;
-    await this.unidadService.deleteUnidad(row.id);
-    this.sessionUnits = this.sessionUnits.filter(x => x.id !== row.id);
+    const nombre = row.nombre || 'la unidad seleccionada';
+    
+    const confirmed = await this.confirmService.confirm({
+      title: 'Confirmar eliminación',
+      message: `¿Está seguro que desea eliminar "${nombre}"?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      confirmButtonClass: 'btn-danger'
+    });
+    
+    if (!confirmed) return;
+    
+    try {
+      await this.unidadService.deleteUnidad(row.id);
+      this.sessionUnits = this.sessionUnits.filter(x => x.id !== row.id);
+      this.toastService.error(`Unidad "${nombre}" eliminada exitosamente`);
+    } catch (error) {
+      console.error('Error deleting unidad:', error);
+      this.toastService.error('Error al eliminar la unidad. Por favor, intente nuevamente.');
+    }
   }
 
   private validateRequiredForAdd(): boolean {
@@ -278,6 +387,117 @@ export class UnidadForm {
     if (!this.model.tipoUnidad) return false;
     if (!this.model.nombre) return false;
     if (this.model.comision === null || this.model.comision === undefined || this.model.comision === '') return false;
+    return true;
+  }
+
+  private validateRequiredFields(): boolean {
+    const errors: string[] = [];
+
+    // Validate based on alcance
+    if (this.alcance === 'unica') {
+      // Unidad Única - campos obligatorios según requerimientos
+      if (!this.model.tipoUnidad) errors.push('El tipo de unidad es obligatorio');
+      if (!this.model.nombre || this.model.nombre.trim() === '') errors.push('El nombre es obligatorio');
+      if (!this.model.estadoComercial) errors.push('El estado es obligatorio');
+      if (!this.model.responsable || this.model.responsable.trim() === '') errors.push('El responsable es obligatorio');
+      // Disponibilidad/Entrega es obligatoria si no está vendida o en venta
+      if (this.model.estadoComercial !== 'Vendida' && this.model.estadoComercial !== 'En Venta') {
+        if (!this.model.entrega) errors.push('La disponibilidad/entrega es obligatoria');
+      }
+      if (!this.model.city) errors.push('La ciudad es obligatoria');
+      if (!this.model.barrio) errors.push('El barrio es obligatorio');
+      if (!this.model.ubicacion || this.model.ubicacion.trim() === '') errors.push('La ubicación general es obligatoria');
+      if (this.model.comision === null || this.model.comision === undefined || this.model.comision === '') {
+        errors.push('La comisión es obligatoria');
+      }
+      
+      // Validate type-specific fields
+      if (this.model.tipoUnidad === 'Apartamento') {
+        if (this.model.m2Internos === null && this.model.m2Totales === null) {
+          errors.push('Debe ingresar al menos m² Internos o m² Totales para Apartamento');
+        }
+      } else if (this.model.tipoUnidad === 'Casa') {
+        if (this.model.superficieEdificada === null && this.model.superficieTerreno === null) {
+          errors.push('Debe ingresar al menos Superficie Edificada o Superficie Terreno para Casa');
+        }
+      } else if (this.model.tipoUnidad === 'Chacra') {
+        if (this.model.hectareas === null || this.model.hectareas === undefined) {
+          errors.push('Las hectáreas son obligatorias para Chacra');
+        }
+      } else if (this.model.tipoUnidad === 'Campo') {
+        if (this.model.hectareas === null || this.model.hectareas === undefined) {
+          errors.push('Las hectáreas son obligatorias para Campo');
+        }
+      }
+    } else if (this.alcance === 'proyecto') {
+      // Proyecto - validar proyecto primero
+      if (this.proyectoModo === 'existente') {
+        if (!this.model.proyectoId) errors.push('Debe seleccionar un proyecto');
+      } else if (this.proyectoModo === 'nuevo') {
+        if (!this.nuevoProyecto.nombre || this.nuevoProyecto.nombre.trim() === '') {
+          errors.push('El nombre del proyecto es obligatorio');
+        }
+        if (!this.nuevoProyecto.desarrollador || this.nuevoProyecto.desarrollador.trim() === '') {
+          errors.push('El desarrollador es obligatorio');
+        }
+        if (!this.nuevoProyecto.localidad) {
+          errors.push('La localidad es obligatoria');
+        }
+        if (!this.nuevoProyecto.barrio) {
+          errors.push('El barrio es obligatorio');
+        }
+        if (!this.nuevoProyecto.direccion || this.nuevoProyecto.direccion.trim() === '') {
+          errors.push('La dirección es obligatoria');
+        }
+        if (!this.nuevoProyecto.entrega) {
+          errors.push('La fecha de entrega es obligatoria');
+        }
+      }
+      
+      // Validar unidad en proyecto
+      if (!this.model.tipoUnidad) errors.push('El tipo de unidad es obligatorio');
+      if (!this.model.nombre || this.model.nombre.trim() === '') errors.push('El nombre es obligatorio');
+      if (!this.model.estadoComercial) errors.push('El estado es obligatorio');
+      if (!this.model.responsable || this.model.responsable.trim() === '') errors.push('El responsable es obligatorio');
+      if (this.model.comision === null || this.model.comision === undefined || this.model.comision === '') {
+        errors.push('La comisión es obligatoria');
+      }
+      
+      // Validate type-specific fields
+      if (this.model.tipoUnidad === 'Apartamento') {
+        if (this.model.m2Internos === null && this.model.m2Totales === null) {
+          errors.push('Debe ingresar al menos m² Internos o m² Totales para Apartamento');
+        }
+      } else if (this.model.tipoUnidad === 'Casa') {
+        if (this.model.superficieEdificada === null && this.model.superficieTerreno === null) {
+          errors.push('Debe ingresar al menos Superficie Edificada o Superficie Terreno para Casa');
+        }
+      } else if (this.model.tipoUnidad === 'Chacra') {
+        if (this.model.hectareas === null || this.model.hectareas === undefined) {
+          errors.push('Las hectáreas son obligatorias para Chacra');
+        }
+      } else if (this.model.tipoUnidad === 'Campo') {
+        if (this.model.hectareas === null || this.model.hectareas === undefined) {
+          errors.push('Las hectáreas son obligatorias para Campo');
+        }
+      }
+    }
+
+    // Check if unit is completely empty
+    const hasAnyData = this.model.tipoUnidad || this.model.nombre || this.model.estadoComercial || 
+                       this.model.responsable || this.model.city || this.model.barrio || 
+                       (this.model.comision !== null && this.model.comision !== undefined && this.model.comision !== '');
+    
+    if (!hasAnyData) {
+      errors.push('No se puede guardar una unidad completamente vacía');
+    }
+
+    if (errors.length > 0) {
+      // Mostrar cada error como un toast
+      errors.forEach(error => this.toastService.error(error));
+      return false;
+    }
+
     return true;
   }
 
@@ -366,8 +586,8 @@ export class UnidadForm {
     };
     const added = await this.proyectoService.addProyecto(pPayload);
     this.model.proyectoId = added.id;
-    this.model.city = pPayload.ciudad || this.model.city;
-    this.model.barrio = pPayload.barrio || this.model.barrio;
+    this.model.city = pPayload.ciudad || this.model.city || null;
+    this.model.barrio = pPayload.barrio || this.model.barrio || null;
     this.recomputeBarrios();
   }
 }

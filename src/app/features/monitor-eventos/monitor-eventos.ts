@@ -20,8 +20,7 @@ export class MonitorEventosComponent {
   subheaderFilters: FilterConfig[] = [];
   initialFilterValues: Record<string, any> = {};
 
-  startDateStr: string | null = null;
-  endDateStr: string | null = null;
+  selectedDate: string | null = null;
   categoria: '' | 'Contactos' | 'Unidades' | 'Entrevistas' | 'ListaNegra' = '';
   tipo: '' | 'Nuevo' | 'Editado' | 'Eliminado' = '';
 
@@ -29,21 +28,13 @@ export class MonitorEventosComponent {
   items: any[] = [];
 
   ngOnInit(): void {
-    // Set default date range: 7 days ago to today
+    // Por defecto mostrar eventos del día actual
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
-    
-    this.startDateStr = sevenDaysAgo.toISOString().slice(0, 10);
-    this.endDateStr = today.toISOString().slice(0, 10);
+    this.selectedDate = today.toISOString().slice(0, 10);
     
     this.initialFilterValues = {
-      dateRange: {
-        from: this.startDateStr,
-        to: this.endDateStr
-      }
+      selectedDate: this.selectedDate
     };
     
     this.updateFilterConfigs();
@@ -51,12 +42,17 @@ export class MonitorEventosComponent {
   }
 
   private updateFilterConfigs(): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().slice(0, 10);
+    
     this.subheaderFilters = [
       {
-        id: 'dateRange',
-        type: 'range',
-        label: 'Rango de fechas',
-        placeholder: 'Rango',
+        id: 'selectedDate',
+        type: 'date',
+        label: 'Fecha',
+        placeholder: 'Seleccionar fecha',
+        maxDate: todayStr,
         columnClass: 'col-xs-12 col-sm-3 col-md-3'
       },
       {
@@ -88,13 +84,7 @@ export class MonitorEventosComponent {
   }
 
   onFilterSubmit(values: Record<string, any>): void {
-    if (values['dateRange']) {
-      this.startDateStr = values['dateRange']?.from || null;
-      this.endDateStr = values['dateRange']?.to || null;
-    } else {
-      this.startDateStr = null;
-      this.endDateStr = null;
-    }
+    this.selectedDate = values['selectedDate'] || null;
     this.categoria = (values['categoria'] || '') as '' | 'Contactos' | 'Unidades' | 'Entrevistas' | 'ListaNegra';
     this.tipo = (values['tipo'] || '') as '' | 'Nuevo' | 'Editado' | 'Eliminado';
     this.load();
@@ -105,20 +95,48 @@ export class MonitorEventosComponent {
     // Client-side filtering (simple and fast to implement). Can be moved to server query later.
     collectionData(ref, { idField: 'id' }).subscribe((rows: any[]) => {
       let data = rows || [];
-      // Inclusive date range: [start 00:00, end+1day 00:00)
-      const s = this.startDateStr ? new Date(this.startDateStr) : null;
-      if (s) s.setHours(0,0,0,0);
-      const eExclusive = this.endDateStr ? new Date(this.endDateStr) : null;
-      if (eExclusive) { eExclusive.setHours(0,0,0,0); eExclusive.setDate(eExclusive.getDate() + 1); }
-      if (s || eExclusive) {
-        data = data.filter(r => {
-          const dt = this.parseDateLike(r?.fecha);
-          if (!dt) return false;
-          if (s && dt < s) return false;
-          if (eExclusive && dt >= eExclusive) return false;
-          return true;
-        });
+      
+      // Ensure we have data
+      if (!data || data.length === 0) {
+        this.items = [];
+        this.computeStats();
+        return;
       }
+      
+      // Filtrar por fecha seleccionada (día específico)
+      let filterDateStart: Date;
+      let filterDateEnd: Date;
+      
+      if (this.selectedDate) {
+        // Parsear la fecha en formato YYYY-MM-DD como fecha local (no UTC)
+        const [year, month, day] = this.selectedDate.split('-').map(Number);
+        filterDateStart = new Date(year, month - 1, day, 0, 0, 0, 0);
+        filterDateEnd = new Date(year, month - 1, day, 23, 59, 59, 999);
+      } else {
+        // Si no hay fecha seleccionada, usar el día actual
+        const today = new Date();
+        filterDateStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
+        filterDateEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+      }
+      
+      console.log('Filtering eventos for date range:', {
+        start: filterDateStart.toISOString(),
+        end: filterDateEnd.toISOString(),
+        selectedDate: this.selectedDate
+      });
+      
+      data = data.filter(r => {
+        const dt = this.parseDateLike(r?.fecha);
+        if (!dt) {
+          return false;
+        }
+        // Comparar fechas - incluir todo el día (desde 00:00:00 hasta 23:59:59)
+        const eventTime = dt.getTime();
+        const isInRange = eventTime >= filterDateStart.getTime() && eventTime <= filterDateEnd.getTime();
+        return isInRange;
+      });
+      
+      console.log('Filtered eventos count:', data.length);
       if (this.categoria) data = data.filter(r => r?.categoria === this.categoria);
       if (this.tipo) data = data.filter(r => r?.tipo === this.tipo);
       // Map detalle: only show primitive changes for Editado in format: Campo: "old" a "new"
@@ -143,6 +161,10 @@ export class MonitorEventosComponent {
         return db - da;
       });
       this.computeStats();
+    }, error => {
+      console.error('Error loading eventos:', error);
+      this.items = [];
+      this.computeStats();
     });
   }
 
@@ -156,10 +178,25 @@ export class MonitorEventosComponent {
 
   private parseDateLike(v: any): Date | null {
     if (!v) return null;
+    // Handle Firestore Timestamp
     if (v && typeof v.toDate === 'function') {
-      const d = v.toDate();
-      return d instanceof Date ? d : null;
+      try {
+        const d = v.toDate();
+        return d instanceof Date ? d : null;
+      } catch (e) {
+        console.warn('Error converting Firestore timestamp:', e);
+      }
     }
+    // Handle ISO string dates
+    if (typeof v === 'string') {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    // Handle Date objects
+    if (v instanceof Date) {
+      return isNaN(v.getTime()) ? null : v;
+    }
+    // Try to parse as date
     const d = new Date(v);
     return isNaN(d.getTime()) ? null : d;
   }

@@ -19,12 +19,18 @@ bootstrapApplication(App, {
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => {
       const auth = getAuth();
-      if (isDevMode()) connectAuthEmulator(auth, 'http://localhost:9099');
+      // Only connect to emulator if explicitly enabled in environment
+      if (isDevMode() && environment.useEmulators) {
+        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+      }
       return auth;
     }),
     provideFirestore(() => {
       const db = getFirestore();
-      if (isDevMode()) connectFirestoreEmulator(db, 'localhost', 8090);
+      // Only connect to emulator if explicitly enabled in environment
+      if (isDevMode() && environment.useEmulators) {
+        connectFirestoreEmulator(db, 'localhost', 8090);
+      }
       return db;
     })
   ]

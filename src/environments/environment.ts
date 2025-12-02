@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  useEmulators: false, // Always false in production
   firebase: {
     apiKey: "AIzaSyBvjhBVetXMzy4TL49Ayj2klsDfi-mGByk",
     authDomain: "crmdashboard-f4c86.firebaseapp.com",

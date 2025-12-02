@@ -5,18 +5,6 @@
   [submitLabel]="'Aplicar'">
 </app-subheader>
 
-<div class="frame m-b-md">
-  <div class="frame-title">
-    <h4>Filtros adicionales</h4>
-  </div>
-  <div class="frame-body">
-    <div class="form-check">
-      <input type="checkbox" id="mostrar-vendidas" class="form-check-input" [(ngModel)]="mostrarVendidas" (ngModelChange)="recomputeFilters()">
-      <label class="form-check-label" for="mostrar-vendidas">Mostrar vendidas/rentadas</label>
-    </div>
-  </div>
-</div>
-
 <!-- Tabs Navigation -->
 <div class="frame m-b-md">
   <div class="frame-body">
@@ -168,10 +156,10 @@
         <table class="table c-table table-fixed table-striped">
           <thead>
             <tr>
+              <th>Unidad</th>
               <th>Proyecto</th>
               <th>Localidad</th>
               <th>Tamaño</th>
-              <th>Precio</th>
               <th>Fecha entrega</th>
               <th></th>
             </tr>
@@ -180,14 +168,14 @@
             @for (it of filteredUnidades; track it) {
               <tr>
                 <td>{{ it.nombre || it.name }}</td>
+                <td>{{ getProyectoNombre(it.proyectoId) }}</td>
                 <td>{{ labelForCity(it.city || it.localidad) }}</td>
-                <td>{{ it.tamano || it.size }}</td>
-                <td>{{ it.precio | currency:'USD':'symbol':'1.0-0' }}</td>
+                <td>{{ getPrimarySize(it) }}</td>
                 <td>{{ it.entrega || it.fechaEntrega }}</td>
                 <td class="text-end">
-                  <a href="javascript:;" (click)="goEditar(it.id)" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
+                  <a href="javascript:;" (click)="goEditar(it.id); $event.stopPropagation()" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
                   <a href="javascript:;" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                  <a href="javascript:;" (click)="eliminar(it.id)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                  <a href="javascript:;" (click)="eliminar(it.id, $event)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
                 </td>
               </tr>
             }
@@ -209,7 +197,7 @@
               <span class="d-flex align-items-center gap-2"> 
                 <a href="javascript:;" (click)="goEditar(it.id); $event.stopPropagation()" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
                 <a href="javascript:;" (click)="$event.stopPropagation()" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-                <a href="javascript:;" (click)="eliminar(it.id); $event.stopPropagation()" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+                <a href="javascript:;" (click)="eliminar(it.id, $event)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
               </span>
             </div>
             <div class="clickable-card-body">
@@ -222,19 +210,17 @@
               </div>
               <div class="clickable-card-row">
                 <div class="clickable-card-label">
-                  <i class="fa fa-ruler"></i>
-                  <span>Tamaño</span>
+                  <i class="fa fa-building"></i>
+                  <span>Proyecto</span>
                 </div>
-                <div class="clickable-card-value">{{ it.tamano || it.size || '-' }}</div>
+                <div class="clickable-card-value">{{ getProyectoNombre(it.proyectoId) || '-' }}</div>
               </div>
               <div class="clickable-card-row">
                 <div class="clickable-card-label">
-                  <i class="fa fa-dollar-sign"></i>
-                  <span>Precio</span>
+                  <i class="fa fa-ruler"></i>
+                  <span>Tamaño</span>
                 </div>
-                <div class="clickable-card-value highlight">
-                  {{ it.precio ? (it.precio | currency:'USD':'symbol':'1.0-0') : '-' }}
-                </div>
+                <div class="clickable-card-value">{{ getPrimarySize(it) || '-' }}</div>
               </div>
               <div class="clickable-card-row">
                 <div class="clickable-card-label">
@@ -247,7 +233,7 @@
             <div class="clickable-card-footer">
               <a href="javascript:;" (click)="goEditar(it.id); $event.stopPropagation()" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
               <a href="javascript:;" (click)="$event.stopPropagation()" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
-              <a href="javascript:;" (click)="eliminar(it.id); $event.stopPropagation()" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
+              <a href="javascript:;" (click)="eliminar(it.id, $event)" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
             </div>
           </div>
         }

@@ -119,14 +119,6 @@
   </div>
 } @else if (type === 'radio') {
   <div class="filter-wrapper">
-    @if (label) {
-      <label class="c-label">
-        {{ label }}
-        @if (required) {
-          <span class="text-danger">*</span>
-        }
-      </label>
-    }
     <div class="radio-wrapper">
       @for (option of values; track option.value) {
         <div class="form-check">
@@ -142,6 +134,9 @@
           />
           <label class="form-check-label" [for]="id + '-' + option.value">
             {{ option.label }}
+            @if (required && $first) {
+              <span class="text-danger">*</span>
+            }
           </label>
         </div>
       }
@@ -151,14 +146,6 @@
   @if (values.length > 0) {
     <!-- Multiple checkboxes (checkbox group) -->
     <div class="filter-wrapper">
-      @if (label) {
-        <label class="c-label">
-          {{ label }}
-          @if (required) {
-            <span class="text-danger">*</span>
-          }
-        </label>
-      }
       <div class="checkbox-wrapper">
         @for (option of values; track option.value) {
           <div class="form-check">
@@ -172,6 +159,9 @@
             />
             <label class="form-check-label" [for]="id + '-' + option.value">
               {{ option.label }}
+              @if (required && $first) {
+                <span class="text-danger">*</span>
+              }
             </label>
           </div>
         }

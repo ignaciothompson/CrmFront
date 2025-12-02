@@ -8,6 +8,8 @@ import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DeleteModal } from './delete-modal/delete-modal';
 import { UnidadForm } from './unidad-form/unidad-form';
+import { ConfirmService } from '../../shared/services/confirm.service';
+import { ToastService } from '../../core/services/toast.service';
 import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 
 @Component({
@@ -18,7 +20,13 @@ import { SubheaderComponent, FilterConfig } from '../../shared/components/subhea
   styleUrl: './unidades.css'
 })
 export class Unidades implements OnInit, OnDestroy {
-  constructor(private unidadService: UnidadService, private proyectoService: ProyectoService, private modal: NgbModal) {}
+  constructor(
+    private unidadService: UnidadService, 
+    private proyectoService: ProyectoService, 
+    private modal: NgbModal,
+    private confirmService: ConfirmService,
+    private toastService: ToastService
+  ) {}
 
   // Filter configurations for subheader
   subheaderFilters: FilterConfig[] = [];
@@ -28,8 +36,6 @@ export class Unidades implements OnInit, OnDestroy {
   activeTab: 'proyectos' | 'unidades' = 'proyectos';
 
   // Filters
-  dateFrom: string | null = null;
-  dateTo: string | null = null;
   localidad: string = '';
   barrios: string[] = [];
   selectedBarrio: string = '';
@@ -49,19 +55,8 @@ export class Unidades implements OnInit, OnDestroy {
   private readonly cityLabelMap: Record<string, string> = { norte: 'Montevideo', sur: 'Canelones', este: 'Maldonado' };
 
   ngOnInit(): void {
-    // Set default date range: 7 days ago to today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
-    
-    this.dateFrom = sevenDaysAgo.toISOString().slice(0, 10);
-    this.dateTo = today.toISOString().slice(0, 10);
-    
     this.initialFilterValues = {
-      dateFrom: this.dateFrom,
-      dateTo: this.dateTo
+      mostrarVendidas: false
     };
     
     this.sub = this.unidadService.getUnidades().subscribe(list => {
@@ -76,18 +71,6 @@ export class Unidades implements OnInit, OnDestroy {
 
   private updateFilterConfigs(): void {
     this.subheaderFilters = [
-      {
-        id: 'dateFrom',
-        type: 'date',
-        label: 'Desde',
-        columnClass: 'col-xs-12 col-sm-6 col-md-2'
-      },
-      {
-        id: 'dateTo',
-        type: 'date',
-        label: 'Hasta',
-        columnClass: 'col-xs-12 col-sm-6 col-md-2'
-      },
       {
         id: 'localidad',
         type: 'select',
@@ -126,14 +109,21 @@ export class Unidades implements OnInit, OnDestroy {
         label: 'Precio',
         placeholder: 'Precio',
         columnClass: 'col-xs-12 col-sm-6 col-md-3'
+      },
+      {
+        id: 'mostrarVendidas',
+        type: 'checkbox',
+        label: 'Mostrar vendidas/rentadas',
+        values: [
+          { value: true, label: 'Mostrar vendidas/rentadas' }
+        ],
+        columnClass: 'col-xs-12 col-sm-6 col-md-2'
       }
     ];
   }
 
   onFilterSubmit(values: Record<string, any>): void {
     // Update local filter variables from subheader values
-    this.dateFrom = values['dateFrom'] || null;
-    this.dateTo = values['dateTo'] || null;
     this.localidad = values['localidad'] || '';
     this.selectedBarrio = values['barrio'] || '';
     this.tamano = values['tamano'] || '';
@@ -145,6 +135,15 @@ export class Unidades implements OnInit, OnDestroy {
     } else {
       this.precioMin = null;
       this.precioMax = null;
+    }
+    
+    // Handle mostrarVendidas checkbox
+    if (values['mostrarVendidas']) {
+      this.mostrarVendidas = Array.isArray(values['mostrarVendidas']) 
+        ? values['mostrarVendidas'].includes(true)
+        : values['mostrarVendidas'] === true;
+    } else {
+      this.mostrarVendidas = false;
     }
     
     // Update barrios list when ciudad changes
@@ -211,26 +210,6 @@ export class Unidades implements OnInit, OnDestroy {
       });
     }
 
-    // Filtrar por fecha (si hay filtros de fecha)
-    if (this.dateFrom) {
-      const from = new Date(this.dateFrom + 'T00:00:00').getTime();
-      unidades = unidades.filter(u => {
-        const fechaEntrega = u.entrega || u.fechaEntrega;
-        if (!fechaEntrega) return false;
-        const fecha = new Date(fechaEntrega).getTime();
-        return fecha >= from;
-      });
-    }
-    if (this.dateTo) {
-      const to = new Date(this.dateTo + 'T23:59:59').getTime();
-      unidades = unidades.filter(u => {
-        const fechaEntrega = u.entrega || u.fechaEntrega;
-        if (!fechaEntrega) return false;
-        const fecha = new Date(fechaEntrega).getTime();
-        return fecha <= to;
-      });
-    }
-
     this.filteredUnidades = unidades;
   }
 
@@ -291,16 +270,47 @@ export class Unidades implements OnInit, OnDestroy {
     (ref.componentInstance as DeleteModal).unidades = unidades;
     ref.result.then(async (ok: boolean) => {
       if (!ok) return;
-      for (const u of unidades) await this.unidadService.deleteUnidad(String(u.id));
-      await this.proyectoService.deleteProyecto(String(p.id));
+      try {
+        for (const u of unidades) await this.unidadService.deleteUnidad(String(u.id));
+        await this.proyectoService.deleteProyecto(String(p.id));
+        this.toastService.error(`Proyecto "${p.nombre}" y sus unidades eliminados exitosamente`);
+        this.recomputeFilters();
+      } catch (error) {
+        console.error('Error deleting proyecto:', error);
+        this.toastService.error('Error al eliminar el proyecto. Por favor, intente nuevamente.');
+      }
     }).catch(() => {});
   }
 
-  async eliminar(id: string): Promise<void> {
+  async eliminar(id: string, event?: Event): Promise<void> {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (!id) return;
-    const ok = confirm('¿Eliminar esta unidad?');
-    if (!ok) return;
-    await this.unidadService.deleteUnidad(String(id));
+    
+    const unidad = this.allUnidades.find(u => String(u.id) === String(id));
+    const nombre = unidad?.nombre || 'esta unidad';
+    
+    const confirmed = await this.confirmService.confirm({
+      title: 'Confirmar eliminación',
+      message: `¿Está seguro que desea eliminar "${nombre}"?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      confirmButtonClass: 'btn-danger'
+    });
+    
+    if (!confirmed) return;
+    
+    try {
+      await this.unidadService.deleteUnidad(String(id));
+      // Recargar las unidades después de eliminar
+      this.recomputeFilters();
+      this.toastService.error(`Unidad "${nombre}" eliminada exitosamente`);
+    } catch (error) {
+      console.error('Error deleting unidad:', error);
+      this.toastService.error('Error al eliminar la unidad. Por favor, intente nuevamente.');
+    }
   }
 
   private countUnitsForProject(projectId: string): number {
@@ -319,5 +329,20 @@ export class Unidades implements OnInit, OnDestroy {
 
   verUnidad(u: any): void {
     this.goEditar(u.id);
+  }
+
+  getProyectoNombre(proyectoId: string | number | undefined): string {
+    if (!proyectoId) return '';
+    const proyecto = this.proyectos.find(p => String(p.id) === String(proyectoId));
+    return proyecto?.nombre || '';
+  }
+
+  getPrimarySize(u: any): string {
+    if (!u) return '';
+    if (u.tipoUnidad === 'Apartamento') return (u.m2Totales ?? u.m2Internos ?? '') + (u.m2Totales || u.m2Internos ? ' m²' : '');
+    if (u.tipoUnidad === 'Casa') return (u.superficieEdificada ?? u.superficieTerreno ?? '') + (u.superficieEdificada || u.superficieTerreno ? ' m²' : '');
+    if (u.tipoUnidad?.startsWith('Chacra')) return (u.hectareas ?? '') + (u.hectareas ? ' ha' : '');
+    if (u.tipoUnidad?.startsWith('Campo')) return (u.hectareas ?? '') + (u.hectareas ? ' ha' : '');
+    return u.tamano || u.size || '';
   }
 }

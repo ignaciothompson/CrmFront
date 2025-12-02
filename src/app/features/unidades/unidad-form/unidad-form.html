@@ -6,24 +6,43 @@
 		<div class="row">
 			<!-- Paso 1: Alcance -->
             <div class="col-xs-12 col-sm-4">
-				<label class="c-label" for="alcanceSelect">Tipo de Unidad</label>
-                <select id="alcanceSelect" class="form-control c-input" [(ngModel)]="alcance" name="alcance" [disabled]="projectLocked">
-					<option value="proyecto">Es parte de un Proyecto</option>
-					<option value="unica">Es una Unidad Única</option>
-				</select>
+				<app-filter 
+					id="alcance"
+					type="select"
+					label="Tipo de Unidad"
+					[values]="alcanceOptions"
+					[(ngModel)]="alcance"
+					name="alcance"
+					[disabled]="projectLocked">
+				</app-filter>
 			</div>
 			@if (alcance === 'proyecto') {
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="proyectoModo">Proyecto</label>
-                    <select id="proyectoModo" class="form-control c-input" [(ngModel)]="proyectoModo" name="proyectoModo" [disabled]="projectLocked">
-						<option value="existente">Existente</option>
-						<option value="nuevo">Nuevo</option>
-					</select>
+					<app-filter 
+						id="proyectoModo"
+						type="select"
+						label="Proyecto"
+						[values]="proyectoModoOptions"
+						[(ngModel)]="proyectoModo"
+						name="proyectoModo"
+						[disabled]="projectLocked">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
 					@if (proyectoModo === 'existente') {
-						<label class="c-label" for="proyecto">Seleccionar Proyecto</label>
-                        <typeahead id="proyecto" [(ngModel)]="model.proyectoId" name="proyectoId" [items]="proyectoItems" idKey="id" labelKey="label" placeholder="Buscar proyecto..." (ngModelChange)="onProyectoChange()" [disabled]="projectLocked"></typeahead>
+						<app-filter 
+							id="proyecto"
+							type="typeahead"
+							label="Buscar Proyecto"
+							placeholder="Buscar proyecto..."
+							[items]="proyectoItems"
+							idKey="id"
+							labelKey="label"
+							[(ngModel)]="model.proyectoId"
+							name="proyectoId"
+							(ngModelChange)="onProyectoChange()"
+							[disabled]="projectLocked">
+						</app-filter>
 					}
 				</div>
 			}
@@ -34,30 +53,72 @@
 			<div class="separator"><span>Nuevo Proyecto</span><hr></div>
 			<div class="row">
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="npNombre">Nombre</label>
-                    <input id="npNombre" class="form-control c-input" [(ngModel)]="nuevoProyecto.nombre" name="npNombre" placeholder="Nombre del proyecto" [disabled]="projectLocked" />
+					<app-filter 
+						id="npNombre"
+						type="text"
+						label="Nombre"
+						placeholder="Nombre del proyecto"
+						[(ngModel)]="nuevoProyecto.nombre"
+						name="npNombre"
+						[disabled]="projectLocked">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="npDev">Desarrollador</label>
-                    <input id="npDev" class="form-control c-input" [(ngModel)]="nuevoProyecto.desarrollador" name="npDesarrollador" placeholder="Empresa / Desarrollador" [disabled]="projectLocked" />
+					<app-filter 
+						id="npDev"
+						type="text"
+						label="Desarrollador"
+						placeholder="Empresa / Desarrollador"
+						[(ngModel)]="nuevoProyecto.desarrollador"
+						name="npDesarrollador"
+						[disabled]="projectLocked">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="npLoc">Localidad</label>
-                    <input id="npLoc" class="form-control c-input" [(ngModel)]="nuevoProyecto.localidad" name="npLocalidad" placeholder="Ciudad / Localidad" [disabled]="projectLocked" />
+					<app-filter 
+						id="npLoc"
+						type="select"
+						label="Localidad"
+						[values]="ciudadFilterOptions"
+						[(ngModel)]="nuevoProyecto.localidad"
+						name="npLocalidad"
+						[disabled]="projectLocked"
+						(ngModelChange)="onNuevoProyectoLocalidadChange()">
+					</app-filter>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="npBarrio">Barrio</label>
-                    <input id="npBarrio" class="form-control c-input" [(ngModel)]="nuevoProyecto.barrio" name="npBarrio" placeholder="Barrio / Zona" [disabled]="projectLocked" />
+					<app-filter 
+						id="npBarrio"
+						type="select"
+						label="Barrio"
+						[values]="nuevoProyectoBarrioFilterOptions"
+						[(ngModel)]="nuevoProyecto.barrio"
+						name="npBarrio"
+						[disabled]="projectLocked || !nuevoProyecto.localidad">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="npDir">Dirección</label>
-                    <input id="npDir" class="form-control c-input" [(ngModel)]="nuevoProyecto.direccion" name="npDireccion" placeholder="Dirección" [disabled]="projectLocked" />
+					<app-filter 
+						id="npDir"
+						type="text"
+						label="Dirección"
+						placeholder="Dirección"
+						[(ngModel)]="nuevoProyecto.direccion"
+						name="npDireccion"
+						[disabled]="projectLocked">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="npEnt">Fecha Entrega</label>
-                    <input type="date" id="npEnt" class="form-control c-input" [(ngModel)]="nuevoProyecto.entrega" name="npEntrega" [disabled]="projectLocked" />
+					<app-filter 
+						id="npEnt"
+						type="date"
+						label="Fecha Entrega"
+						[(ngModel)]="nuevoProyecto.entrega"
+						name="npEntrega"
+						[disabled]="projectLocked">
+					</app-filter>
 				</div>
 			</div>
 		}
@@ -66,66 +127,107 @@
 		<div class="row">
 			<!-- Paso 2: Tipo de Unidad -->
 			<div class="col-xs-12 col-sm-4">
-				<label class="c-label" for="tipoUnidad">Tipo</label>
-                <select id="tipoUnidad" class="form-control c-input" [(ngModel)]="model.tipoUnidad" name="tipoUnidad" [disabled]="editingProyecto && !id">
-					<option value="">Seleccione</option>
-					<option value="Apartamento">Apartamento</option>
-					<option value="Casa">Casa</option>
-					<option value="Chacra">Chacra</option>
-					<option value="Campo">Campo</option>
-				</select>
+				<app-filter 
+					id="tipoUnidad"
+					type="select"
+					label="Tipo"
+					[values]="tipoUnidadFilterOptions"
+					[(ngModel)]="model.tipoUnidad"
+					name="tipoUnidad"
+					[disabled]="editingProyecto && !id">
+				</app-filter>
 			</div>
 
 			<!-- Datos Comunes -->
 			<div class="col-xs-12 col-sm-4">
-				<label class="c-label" for="nombre">Nombre / Referencia</label>
-                <input id="nombre" class="form-control c-input" [(ngModel)]="model.nombre" name="nombre" placeholder="Ej: Unidad 101" [disabled]="editingProyecto && !id" />
+				<app-filter 
+					id="nombre"
+					type="text"
+					label="Nombre / Referencia"
+					placeholder="Ej: Unidad 101"
+					[(ngModel)]="model.nombre"
+					name="nombre"
+					[disabled]="editingProyecto && !id">
+				</app-filter>
 			</div>
 			<div class="col-xs-12 col-sm-4">
-				<label class="c-label" for="estadoComercial">Estado</label>
-                <select id="estadoComercial" class="form-control c-input" [(ngModel)]="model.estadoComercial" name="estadoComercial" [disabled]="editingProyecto && !id">
-					@for (s of estadoComercialOptions; track s) {
-						<option [value]="s">{{ s }}</option>
-					}
-				</select>
+				<app-filter 
+					id="estadoComercial"
+					type="select"
+					label="Estado"
+					[values]="estadoComercialFilterOptions"
+					[(ngModel)]="model.estadoComercial"
+					name="estadoComercial"
+					[disabled]="editingProyecto && !id">
+				</app-filter>
 			</div>
 			<div class="col-xs-12 col-sm-4">
-				<label class="c-label" for="responsable">Responsable</label>
-                <input id="responsable" class="form-control c-input" [(ngModel)]="model.responsable" name="responsable" placeholder="Agente o responsable" [disabled]="editingProyecto && !id" />
+				<app-filter 
+					id="responsable"
+					type="text"
+					label="Responsable"
+					placeholder="Agente o responsable"
+					[(ngModel)]="model.responsable"
+					name="responsable"
+					[disabled]="editingProyecto && !id">
+				</app-filter>
 			</div>
             @if (alcance === 'unica' && (model.estadoComercial !== 'Vendida' && model.estadoComercial !== 'En Venta')) {
                 <div class="col-xs-12 col-sm-4">
-                    <label class="c-label" for="entrega">Disponibilidad / Entrega (Est.)</label>
-                    <input type="date" id="entrega" class="form-control c-input" [(ngModel)]="model.entrega" name="entrega" />
+					<app-filter 
+						id="entrega"
+						type="date"
+						label="Disponibilidad / Entrega (Est.)"
+						[(ngModel)]="model.entrega"
+						name="entrega">
+					</app-filter>
                 </div>
             }
             @if (alcance === 'unica') {
                     <div class="col-xs-12 col-sm-4">
-                        <label class="c-label" for="ubicacion">Ubicación</label>
-                        <input id="ubicacion" class="form-control c-input" [(ngModel)]="model.ubicacion" name="ubicacion" placeholder="Dirección" />
+						<app-filter 
+							id="ubicacion"
+							type="text"
+							label="Ubicación"
+							placeholder="Dirección"
+							[(ngModel)]="model.ubicacion"
+							name="ubicacion">
+						</app-filter>
                     </div>
                     <div class="col-xs-12 col-sm-4">
-                        <label class="c-label" for="city">Ciudad</label>
-                        <select id="city" class="form-control c-input" [(ngModel)]="model.city" name="city" (ngModelChange)="onCityChange()">
-                            <option value="">Seleccione</option>
-                            @for (c of ciudades; track c) {
-                                <option [value]="c.value">{{ c.label }}</option>
-                            }
-                        </select>
+						<app-filter 
+							id="city"
+							type="select"
+							label="Ciudad"
+							[values]="ciudadFilterOptions"
+							[(ngModel)]="model.city"
+							name="city"
+							(ngModelChange)="onCityChange()">
+						</app-filter>
                     </div>
                     <div class="col-xs-12 col-sm-4">
-                        <label class="c-label" for="barrio">Barrio / Zona</label>
-                        <select id="barrio" class="form-control c-input" [(ngModel)]="model.barrio" name="barrio" [disabled]="!model.city">
-                            <option value="">Seleccione</option>
-                            @for (b of barrios; track b) {
-                                <option [value]="b">{{ b }}</option>
-                            }
-                        </select>
+						<app-filter 
+							id="barrio"
+							type="select"
+							label="Barrio / Zona"
+							[values]="barrioFilterOptions"
+							[(ngModel)]="model.barrio"
+							name="barrio"
+							[disabled]="!model.city">
+						</app-filter>
                     </div>
             }
 			<div class="col-xs-12 col-sm-4">
-				<label class="c-label" for="comision">Comisión (%)</label>
-                <input id="comision" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.comision" name="comision" placeholder="Ej: 3" [disabled]="editingProyecto && !id" />
+				<app-filter 
+					id="comision"
+					type="number"
+					label="Comisión (%)"
+					placeholder="Ej: 3"
+					[step]="0.01"
+					[(ngModel)]="model.comision"
+					name="comision"
+					[disabled]="editingProyecto && !id">
+				</app-filter>
 			</div>
 		</div>
         @if (model.tipoUnidad) {
@@ -134,31 +236,65 @@
 			<!-- Específicos: Apartamento -->
 			@if (model.tipoUnidad === 'Apartamento') {
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="dormitorios">Dormitorios</label>
-                <input id="dormitorios" type="number" class="form-control c-input" [(ngModel)]="model.dormitorios" name="dormitorios" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="dormitorios"
+						type="number"
+						label="Dormitorios"
+						[(ngModel)]="model.dormitorios"
+						name="dormitorios"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="banos">Baños</label>
-                <input id="banos" type="number" class="form-control c-input" [(ngModel)]="model.banos" name="banos" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="banos"
+						type="number"
+						label="Baños"
+						[(ngModel)]="model.banos"
+						name="banos"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="m2i">m² Internos</label>
-                <input id="m2i" type="number" class="form-control c-input" [(ngModel)]="model.m2Internos" name="m2Internos" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="m2i"
+						type="number"
+						label="m² Internos"
+						[(ngModel)]="model.m2Internos"
+						name="m2Internos"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="m2t">m² Totales</label>
-                <input id="m2t" type="number" class="form-control c-input" [(ngModel)]="model.m2Totales" name="m2Totales" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="m2t"
+						type="number"
+						label="m² Totales"
+						[(ngModel)]="model.m2Totales"
+						name="m2Totales"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="piso">Piso</label>
-                <input id="piso" type="number" class="form-control c-input" [(ngModel)]="model.piso" name="piso" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="piso"
+						type="number"
+						label="Piso"
+						[(ngModel)]="model.piso"
+						name="piso"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="orientacion">Orientación</label>
-                <select id="orientacion" class="form-control c-input" [(ngModel)]="model.orientacion" name="orientacion" [disabled]="editingProyecto && !id">
-						<option value="">Seleccione</option>
-						@for (o of orientaciones; track o) { <option [value]="o">{{ o }}</option> }
-					</select>
+					<app-filter 
+						id="orientacion"
+						type="select"
+						label="Orientación"
+						[values]="orientacionFilterOptions"
+						[(ngModel)]="model.orientacion"
+						name="orientacion"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12">
 					<label class="c-label">Extras y Características</label>
@@ -179,31 +315,65 @@
 			<!-- Específicos: Casa -->
 			@if (model.tipoUnidad === 'Casa') {
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="dormitoriosC">Dormitorios</label>
-                <input id="dormitoriosC" type="number" class="form-control c-input" [(ngModel)]="model.dormitorios" name="dormitoriosCasa" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="dormitoriosC"
+						type="number"
+						label="Dormitorios"
+						[(ngModel)]="model.dormitorios"
+						name="dormitoriosCasa"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="banosC">Baños</label>
-                <input id="banosC" type="number" class="form-control c-input" [(ngModel)]="model.banos" name="banosCasa" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="banosC"
+						type="number"
+						label="Baños"
+						[(ngModel)]="model.banos"
+						name="banosCasa"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="m2e">Sup. Edificada (m²)</label>
-                <input id="m2e" type="number" class="form-control c-input" [(ngModel)]="model.superficieEdificada" name="superficieEdificada" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="m2e"
+						type="number"
+						label="Sup. Edificada (m²)"
+						[(ngModel)]="model.superficieEdificada"
+						name="superficieEdificada"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="m2st">Sup. Terreno (m²)</label>
-                <input id="m2st" type="number" class="form-control c-input" [(ngModel)]="model.superficieTerreno" name="superficieTerreno" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="m2st"
+						type="number"
+						label="Sup. Terreno (m²)"
+						[(ngModel)]="model.superficieTerreno"
+						name="superficieTerreno"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="antiguedad">Antigüedad (Años)</label>
-                <input id="antiguedad" type="number" class="form-control c-input" [(ngModel)]="model.antiguedad" name="antiguedad" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="antiguedad"
+						type="number"
+						label="Antigüedad (Años)"
+						[(ngModel)]="model.antiguedad"
+						name="antiguedad"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-2">
-					<label class="c-label" for="condicion">Condición</label>
-                <select id="condicion" class="form-control c-input" [(ngModel)]="model.condicion" name="condicion" [disabled]="editingProyecto && !id">
-						<option value="">Seleccione</option>
-						@for (c of condicionCasaOptions; track c) { <option [value]="c">{{ c }}</option> }
-					</select>
+					<app-filter 
+						id="condicion"
+						type="select"
+						label="Condición"
+						[values]="condicionCasaFilterOptions"
+						[(ngModel)]="model.condicion"
+						name="condicion"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12">
 					<label class="c-label">Extras y Características</label>
@@ -224,32 +394,76 @@
 			<!-- Específicos: Chacra -->
 			@if (model.tipoUnidad === 'Chacra') {
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="hectareasC">Hectáreas de Tierra</label>
-                    <input id="hectareasC" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.hectareas" name="hectareasC" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="hectareasC"
+						type="number"
+						label="Hectáreas de Tierra"
+						[step]="0.01"
+						[(ngModel)]="model.hectareas"
+						name="hectareasC"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="m2edif">m² Edificados</label>
-                    <input id="m2edif" type="number" class="form-control c-input" [(ngModel)]="model.m2Edificados" name="m2Edificados" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="m2edif"
+						type="number"
+						label="m² Edificados"
+						[(ngModel)]="model.m2Edificados"
+						name="m2Edificados"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="dormR">Dormitorios (Casa)</label>
-                    <input id="dormR" type="number" class="form-control c-input" [(ngModel)]="model.dormitorios" name="dormitoriosR" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="dormR"
+						type="number"
+						label="Dormitorios (Casa)"
+						[(ngModel)]="model.dormitorios"
+						name="dormitoriosR"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="banosR">Baños (Casa)</label>
-                    <input id="banosR" type="number" class="form-control c-input" [(ngModel)]="model.banos" name="banosR" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="banosR"
+						type="number"
+						label="Baños (Casa)"
+						[(ngModel)]="model.banos"
+						name="banosR"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="tipoConst">Tipo de Construcción</label>
-                    <input id="tipoConst" class="form-control c-input" [(ngModel)]="model.tipoConstruccion" name="tipoConstruccion" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="tipoConst"
+						type="text"
+						label="Tipo de Construcción"
+						[(ngModel)]="model.tipoConstruccion"
+						name="tipoConstruccion"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="acceso">Acceso</label>
-                    <input id="acceso" class="form-control c-input" [(ngModel)]="model.acceso" name="acceso" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="acceso"
+						type="text"
+						label="Acceso"
+						[(ngModel)]="model.acceso"
+						name="acceso"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="infra">Infraestructura</label>
-                    <input id="infra" class="form-control c-input" [(ngModel)]="model.infraestructura" name="infraestructura" placeholder="Galpones, corrales, etc." [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="infra"
+						type="text"
+						label="Infraestructura"
+						placeholder="Galpones, corrales, etc."
+						[(ngModel)]="model.infraestructura"
+						name="infraestructura"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12">
 					<label class="c-label">Servicios Básicos</label>
@@ -270,26 +484,47 @@
 			<!-- Específicos: Campo -->
 			@if (model.tipoUnidad === 'Campo') {
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="hectareasF">Hectáreas de Tierra</label>
-                    <input id="hectareasF" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.hectareas" name="hectareasF" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="hectareasF"
+						type="number"
+						label="Hectáreas de Tierra"
+						[step]="0.01"
+						[(ngModel)]="model.hectareas"
+						name="hectareasF"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="aptitud">Aptitud del Suelo</label>
-                    <select id="aptitud" class="form-control c-input" [(ngModel)]="model.aptitudSuelo" name="aptitudSuelo" [disabled]="editingProyecto && !id">
-						<option value="">Seleccione</option>
-						<option>Ganadera</option>
-						<option>Agrícola</option>
-						<option>Forestal</option>
-						<option>Mixta</option>
-					</select>
+					<app-filter 
+						id="aptitud"
+						type="select"
+						label="Aptitud del Suelo"
+						[values]="aptitudSueloOptions"
+						[(ngModel)]="model.aptitudSuelo"
+						name="aptitudSuelo"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="indice">Índice de Productividad</label>
-                    <input id="indice" type="number" step="0.01" class="form-control c-input" [(ngModel)]="model.indiceProductividad" name="indiceProductividad" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="indice"
+						type="number"
+						label="Índice de Productividad"
+						[step]="0.01"
+						[(ngModel)]="model.indiceProductividad"
+						name="indiceProductividad"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-3">
-					<label class="c-label" for="accesoF">Acceso</label>
-                    <input id="accesoF" class="form-control c-input" [(ngModel)]="model.acceso" name="accesoF" [disabled]="editingProyecto && !id" />
+					<app-filter 
+						id="accesoF"
+						type="text"
+						label="Acceso"
+						[(ngModel)]="model.acceso"
+						name="accesoF"
+						[disabled]="editingProyecto && !id">
+					</app-filter>
 				</div>
 				<div class="col-xs-12 col-sm-4">
 					<label class="c-label" for="mejoras">Mejoras de Trabajo</label>
