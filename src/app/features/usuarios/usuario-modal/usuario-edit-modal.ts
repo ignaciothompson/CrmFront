@@ -2,7 +2,7 @@ import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { UsuarioService, UsuarioData } from '../../core/services/usuario';
+import { UsuarioService, UsuarioData } from '../../../core/services/usuario';
 
 @Component({
   selector: 'app-usuario-edit-modal',

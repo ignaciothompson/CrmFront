@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Auth, onAuthStateChanged, User, Unsubscribe } from '@angular/fire/auth';
-import { UsuarioService } from '../../core/services/usuario';
+import { UsuarioService } from '../../../core/services/usuario';
 import { firstValueFrom } from 'rxjs';
 
 @Component({

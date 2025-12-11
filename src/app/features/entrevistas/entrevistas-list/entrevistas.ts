@@ -3,9 +3,9 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ContactoService } from '../../core/services/contacto';
-import { EntrevistaService } from '../../core/services/entrevista';
-import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
+import { ContactoService } from '../../../core/services/contacto';
+import { EntrevistaService } from '../../../core/services/entrevista';
+import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-entrevistas',
@@ -87,7 +87,7 @@ export class Entrevistas {
   }
 
   goNuevo(): void {
-    import('./form/entrevista-form').then(m => {
+    import('../form/entrevista-form').then(m => {
       const modalRef = this.modal.open(m.EntrevistaForm, { size: 'xl', backdrop: 'static', keyboard: false });
       modalRef.result.then((result: any) => {
         // Reload entrevistas if saved successfully

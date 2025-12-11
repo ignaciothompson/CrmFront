@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { VentaService, VentaRecord } from '../../core/services/venta';
-import { ContactoService } from '../../core/services/contacto';
-import { UnidadService } from '../../core/services/unidad';
-import { VentaInfoModal } from './venta-info-modal/venta-info-modal';
-import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
+import { VentaService, VentaRecord } from '../../../core/services/venta';
+import { ContactoService } from '../../../core/services/contacto';
+import { UnidadService } from '../../../core/services/unidad';
+import { VentaInfoModal } from '../venta-info-modal/venta-info-modal';
+import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-ventas',

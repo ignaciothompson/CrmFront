@@ -2,15 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { UnidadService } from '../../core/services/unidad';
-import { ProyectoService } from '../../core/services/proyecto';
+import { UnidadService } from '../../../core/services/unidad';
+import { ProyectoService } from '../../../core/services/proyecto';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DeleteModal } from './delete-modal/delete-modal';
-import { UnidadForm } from './unidad-form/unidad-form';
-import { ConfirmService } from '../../shared/services/confirm.service';
-import { ToastService } from '../../core/services/toast.service';
-import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
+import { DeleteModal } from '../delete-modal/delete-modal';
+import { UnidadForm } from '../unidad-form/unidad-form';
+import { ConfirmService } from '../../../shared/services/confirm.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
 
 @Component({
   selector: 'app-unidades',

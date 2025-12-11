@@ -2,11 +2,11 @@ import { Component, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ContactoService } from '../../core/services/contacto';
+import { ContactoService } from '../../../core/services/contacto';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
-import { ContactoForm } from './contacto-form/contacto-form';
+import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
+import { ContactoForm } from '../contacto-form/contacto-form';
 
 @Component({
   selector: 'app-contactos',

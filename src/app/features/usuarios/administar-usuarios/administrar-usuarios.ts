@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsuarioService, UsuarioData } from '../../core/services/usuario';
+import { UsuarioService, UsuarioData } from '../../../core/services/usuario';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { UsuarioEditModal } from './usuario-edit-modal';
+import { UsuarioEditModal } from '../usuario-modal/usuario-edit-modal';
 
 @Component({
   selector: 'app-administrar-usuarios',
