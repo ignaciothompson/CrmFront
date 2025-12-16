@@ -5,148 +5,13 @@
   [submitLabel]="'Aplicar'">
 </app-subheader>
 
-<!-- Tabs Navigation -->
-<div class="frame m-b-md">
-  <div class="frame-body">
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'proyectos'" (click)="setActiveTab('proyectos')" href="javascript:;">
-          Proyectos
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'unidades'" (click)="setActiveTab('unidades')" href="javascript:;">
-          Unidades ({{ filteredUnidades.length }})
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>
-
-<!-- Proyectos Tab Content -->
-@if (activeTab === 'proyectos') {
-  <div class="frame">
-    <div class="frame-title">
-      <h4>Proyectos</h4>
-    </div>
-    <div class="frame-body">
-      <!-- Desktop Table View -->
-      <div class="d-none d-md-block scroll-table">
-        <table class="table c-table table-striped">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Desarrollador</th>
-              <th>Localidad</th>
-              <th>Barrio</th>
-              <th>Dirección</th>
-              <th>Fecha entrega</th>
-              <th>Unidades</th>
-              <th style="width:140px;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (p of proyectos; track p) {
-              <tr>
-                <td>{{ p.nombre }}</td>
-                <td>{{ p.desarrollador }}</td>
-                <td>{{ labelForCity(p.ciudad || p.localidad) }}</td>
-                <td>{{ p.barrio }}</td>
-                <td>{{ p.direccion }}</td>
-                <td>{{ p.entrega }}</td>
-                <td class="text-end">{{ p.unidadesCount || 0 }}</td>
-                <td class="text-end">
-                  <a href="javascript:;" class="btn-table" (click)="goEditarProyecto(p)" aria-label="Editar Proyecto"><i class="fas fa-pen"></i></a>
-                  <a href="javascript:;" class="btn-table" (click)="shareProyecto(p)" aria-label="Compartir"><i class="fa fa-external-link"></i></a>
-                  <a href="javascript:;" class="btn-table eliminar" (click)="confirmDeleteProyecto(p)" aria-label="Eliminar Proyecto"><i class="fa fa-trash"></i></a>
-                </td>
-              </tr>
-            }
-            @if (!proyectos.length) {
-              <tr>
-                <td colspan="8" class="text-center">Sin proyectos</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile Card View -->
-      <div class="clickable-cards-container d-md-none">
-        @for (p of proyectos; track p) {
-          <div class="clickable-card" (click)="verProyecto(p)">
-            <div class="clickable-card-header d-flex align-items-center justify-content-between gap-2">
-              <span class="clickable-card-value highlight ">{{ p.nombre }}</span>
-              <span class="d-flex align-items-center gap-2"> 
-                  <a href="javascript:;" (click)="shareProyecto(p); $event.stopPropagation()" class="btn-table" aria-label="Compartir"><i class="fa fa-external-link"></i></a>
-                  <a href="javascript:;" (click)="verProyecto(p); $event.stopPropagation()" class="btn-table" aria-label="Ver"><i class="fa fa-eye"></i></a>
-                  <a href="javascript:;" (click)="goEditarProyecto(p); $event.stopPropagation()" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
-                  <a href="javascript:;" (click)="confirmDeleteProyecto(p); $event.stopPropagation()" class="btn-table eliminar" aria-label="Eliminar"><i class="fa fa-trash"></i></a>
-              </span>
-            </div>
-            <div class="clickable-card-body">
-              <div class="clickable-card-row">
-                <div class="clickable-card-label">
-                  <i class="fa fa-building"></i>
-                  <span>Desarrollador</span>
-                </div>
-                <div class="clickable-card-value">{{ p.desarrollador || '-' }}</div>
-              </div>
-              <div class="clickable-card-row">
-                <div class="clickable-card-label">
-                  <i class="fa fa-map-marker-alt"></i>
-                  <span>Localidad</span>
-                </div>
-                <div class="clickable-card-value">{{ labelForCity(p.ciudad || p.localidad) }}</div>
-              </div>
-              <div class="clickable-card-row">
-                <div class="clickable-card-label">
-                  <i class="fa fa-map-pin"></i>
-                  <span>Barrio</span>
-                </div>
-                <div class="clickable-card-value">{{ p.barrio || '-' }}</div>
-              </div>
-              <div class="clickable-card-row">
-                <div class="clickable-card-label">
-                  <i class="fa fa-home"></i>
-                  <span>Dirección</span>
-                </div>
-                <div class="clickable-card-value">{{ p.direccion || '-' }}</div>
-              </div>
-              <div class="clickable-card-row">
-                <div class="clickable-card-label">
-                  <i class="fa fa-calendar"></i>
-                  <span>Fecha entrega</span>
-                </div>
-                <div class="clickable-card-value">{{ p.entrega || '-' }}</div>
-              </div>
-              <div class="clickable-card-row">
-                <div class="clickable-card-label">
-                  <i class="fa fa-cube"></i>
-                  <span>Unidades</span>
-                </div>
-                <div class="clickable-card-value highlight">{{ p.unidadesCount || 0 }}</div>
-              </div>
-            </div>
-          </div>
-        }
-        @if (!proyectos.length) {
-          <div class="clickable-card-empty">
-            <i class="fa fa-building"></i>
-            <p>Sin proyectos</p>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Unidades Tab Content -->
-@if (activeTab === 'unidades') {
   <div class="frame">
     <div class="frame-title">
       <h4>Unidades ({{ filteredUnidades.length }})</h4>
       <div class="frame-actions">
+      @if (selectedUnidades.size > 0) {
+        <button (click)="clearSelection()" class="btn c-btn btn-default pull-end m-r-sm">Limpiar selección ({{ selectedUnidades.size }})</button>
+      }
         <button (click)="goNuevo()" class="btn c-btn btn-primary pull-end">Nuevo</button>
       </div>
     </div>
@@ -156,6 +21,14 @@
         <table class="table c-table table-fixed table-striped">
           <thead>
             <tr>
+            <th style="width: 40px;">
+              <input 
+                type="checkbox" 
+                [checked]="isAllSelected()" 
+                [indeterminate]="isIndeterminate()"
+                (change)="toggleSelectAll($event)"
+                aria-label="Seleccionar todas">
+            </th>
               <th>Unidad</th>
               <th>Proyecto</th>
               <th>Localidad</th>
@@ -167,8 +40,16 @@
           <tbody>
             @for (it of filteredUnidades; track it) {
               <tr>
+              <td style="width: 40px;">
+                <input 
+                  type="checkbox" 
+                  [checked]="isSelected(it.id)" 
+                  (change)="toggleSelection(it.id, $event)"
+                  (click)="$event.stopPropagation()"
+                  aria-label="Seleccionar unidad">
+              </td>
                 <td>{{ it.nombre || it.name }}</td>
-                <td>{{ getProyectoNombre(it.proyectoId) }}</td>
+              <td>{{ getProyectoNombre(it) || '-' }}</td>
                 <td>{{ labelForCity(it.city || it.localidad) }}</td>
                 <td>{{ getPrimarySize(it) }}</td>
                 <td>{{ it.entrega || it.fechaEntrega }}</td>
@@ -181,7 +62,7 @@
             }
             @if (!filteredUnidades.length) {
               <tr>
-                <td colspan="6" class="text-center">Sin resultados</td>
+              <td colspan="7" class="text-center">Sin resultados</td>
               </tr>
             }
           </tbody>
@@ -193,7 +74,15 @@
         @for (it of filteredUnidades; track it) {
           <div class="clickable-card" (click)="verUnidad(it)">
             <div class="clickable-card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <input 
+                type="checkbox" 
+                [checked]="isSelected(it.id)" 
+                (change)="toggleSelection(it.id, $event)"
+                (click)="$event.stopPropagation()"
+                aria-label="Seleccionar unidad">
               <span class="clickable-card-value highlight">{{ it.nombre || it.name }}</span>
+            </div>
               <span class="d-flex align-items-center gap-2"> 
                 <a href="javascript:;" (click)="goEditar(it.id); $event.stopPropagation()" class="btn-table" aria-label="Editar"><i class="fas fa-pen"></i></a>
                 <a href="javascript:;" (click)="$event.stopPropagation()" class="btn-table" aria-label="Visitar"><i class="fa fa-external-link"></i></a>
@@ -213,7 +102,7 @@
                   <i class="fa fa-building"></i>
                   <span>Proyecto</span>
                 </div>
-                <div class="clickable-card-value">{{ getProyectoNombre(it.proyectoId) || '-' }}</div>
+              <div class="clickable-card-value">{{ getProyectoNombre(it) || '-' }}</div>
               </div>
               <div class="clickable-card-row">
                 <div class="clickable-card-label">
@@ -246,5 +135,4 @@
       </div>
     </div>
   </div>
-}
 
