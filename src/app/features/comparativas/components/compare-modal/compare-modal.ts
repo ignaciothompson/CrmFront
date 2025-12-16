@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { TypeaheadComponent } from '../../../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../../../core/services/contacto';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -10,7 +9,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
   selector: 'app-compare-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbTypeaheadModule, TypeaheadComponent],
+  imports: [CommonModule, FormsModule, TypeaheadComponent],
   templateUrl: './compare-modal.html',
   styleUrl: './compare-modal.css'
 })

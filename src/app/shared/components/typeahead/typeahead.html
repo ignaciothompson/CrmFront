@@ -1,12 +1,15 @@
-<input type="text"
-       class="form-control c-input"
-       [ngbTypeahead]="search"
-       [resultFormatter]="formatter"
-       [inputFormatter]="formatter"
-       [placeholder]="placeholder"
-       [disabled]="disabled"
-       [(ngModel)]="inputText"
-       (ngModelChange)="onInputChanged($event)"
-       (selectItem)="onSelect($event)" />
-
+<ng-select
+  [items]="transformedItems"
+  bindValue="id"
+  bindLabel="label"
+  [searchFn]="searchFn"
+  [placeholder]="placeholder"
+  [disabled]="disabled"
+  [clearable]="true"
+  [searchable]="true"
+  [minTermLength]="0"
+  [(ngModel)]="valueId"
+  (ngModelChange)="onSelectionChange($event)"
+  class="ng-select-bootstrap">
+</ng-select>
 

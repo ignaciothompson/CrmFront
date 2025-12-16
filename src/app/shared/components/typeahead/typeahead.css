@@ -1,3 +1,32 @@
-/* Inherit input styling from global classes */
+/* ng-select Bootstrap theme customization */
+:host ::ng-deep .ng-select.ng-select-bootstrap {
+  width: 100%;
+}
+
+:host ::ng-deep .ng-select.ng-select-bootstrap .ng-select-container {
+  min-height: 32px;
+  border-radius: 0.375rem;
+  height: 32px;
+  border-color: var(--border);
+}
+
+:host ::ng-deep .ng-select.ng-select-bootstrap .ng-placeholder {
+  color: #6c757d;
+  font-size: var(--medium-font);
+}
+
+:host ::ng-deep .ng-select.ng-select-bootstrap.ng-select-focused .ng-select-container {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
 
 
+:host ::ng-deep .ng-dropdown-panel-items .ng-option {
+    font-size: var(--medium-font);
+    color: var(--text-color);
+    border-left: 2px solid transparent;
+}
+
+:host ::ng-deep .ng-dropdown-panel-items .ng-option.ng-option-marked {
+    border-left: 2px solid var(--primary-color);
+}

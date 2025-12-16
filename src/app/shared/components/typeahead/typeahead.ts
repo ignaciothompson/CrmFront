@@ -1,14 +1,12 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
-import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'typeahead',
   standalone: true,
-  imports: [FormsModule, NgbTypeaheadModule],
+  imports: [FormsModule, NgSelectModule],
   templateUrl: './typeahead.html',
   styleUrl: './typeahead.css',
   providers: [
@@ -19,61 +17,80 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
     }
   ]
 })
-export class TypeaheadComponent implements ControlValueAccessor {
+export class TypeaheadComponent implements ControlValueAccessor, OnInit, OnChanges {
   @Input() items: any[] = [];
   @Input() idKey: string = 'id';
   @Input() labelKey: string = 'label';
   @Input() placeholder: string = 'Buscar...';
   @Input() disabled: boolean = false;
 
-  inputText: string = '';
-  private valueId: string | null = null;
+  valueId: string | null = null;
   private onChange: (value: string | null) => void = () => {};
   private onTouched: () => void = () => {};
 
-  search = (text$: Observable<string>) =>
-    text$.pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      map(term => this.filterItems(term))
-    );
+  // Transformed items for ng-select (ensures idKey and labelKey are properly set)
+  transformedItems: any[] = [];
 
-  formatter = (x: any) => (x && x[this.labelKey]) ? x[this.labelKey] : '';
+  ngOnInit(): void {
+    this.transformItems();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['items'] || changes['idKey'] || changes['labelKey']) {
+      this.transformItems();
+    }
+  }
+
+  private transformItems(): void {
+    // Transform items to ensure they have 'id' and 'label' properties for ng-select
+    // while preserving original structure
+    this.transformedItems = (this.items || []).map(item => ({
+      ...item,
+      id: String(item[this.idKey] || ''),
+      label: String(item[this.labelKey] || '')
+    }));
+  }
+
+  // Custom search function for ng-select - filters items
+  searchFn = (term: string, item: any): boolean => {
+    const searchTerm = (term || '').toLowerCase();
+    
+    // Special case: %%%% returns first 10 items
+    if (searchTerm === '%%%%') {
+      return true;
+    }
+    
+    if (!searchTerm) {
+      return true;
+    }
+    
+    const label = String(item[this.labelKey] || item.label || '').toLowerCase();
+    return label.includes(searchTerm);
+  };
 
   writeValue(value: string | null): void {
     this.valueId = value || null;
-    const found = this.items.find(it => String(it[this.idKey]) === String(this.valueId));
-    this.inputText = found ? (found[this.labelKey] ?? '') : '';
   }
 
-  registerOnChange(fn: (value: string | null) => void): void { this.onChange = fn; }
-  registerOnTouched(fn: () => void): void { this.onTouched = fn; }
-
-  onSelect($event: any): void {
-    const item = $event.item;
-    const id = item ? String(item[this.idKey]) : null;
-    this.valueId = id;
-    this.inputText = item ? (item[this.labelKey] ?? '') : '';
-    this.onChange(this.valueId);
+  registerOnChange(fn: (value: string | null) => void): void { 
+    this.onChange = fn; 
   }
 
-  onInputChanged(text: string): void {
-    if (!text) {
-      this.valueId = null;
-      this.onChange(this.valueId);
-    }
+  registerOnTouched(fn: () => void): void { 
+    this.onTouched = fn; 
   }
 
-  private filterItems(term: string): any[] {
-    const t = term || '';
-    // Si el término es %%%%, devolver los últimos 10 items (ya están ordenados por fecha)
-    if (t === '%%%%') {
-      return this.items.slice(0, 10);
-    }
-    const tLower = t.toLowerCase();
-    if (!tLower) return this.items.slice(0, 10);
-    return this.items.filter(it => String(it[this.labelKey] || '').toLowerCase().includes(tLower)).slice(0, 10);
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
   }
+
+  onSelectionChange(value: string | null): void {
+    // ng-select with bindValue returns the value directly (the id)
+    this.valueId = value;
+    this.onChange(value);
+    this.onTouched();
+  }
+
 }
 
 
