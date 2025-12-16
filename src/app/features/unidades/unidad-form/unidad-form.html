@@ -3,198 +3,307 @@
         <h4>{{ id ? 'Editar Unidad' : 'Nueva Unidad' }}</h4>
     </div>
 	<div class="frame-body">
-		<div class="row">
-			<!-- Paso 1: Alcance -->
-            <div class="col-xs-12 col-sm-4">
-				<app-filter 
-					id="alcance"
-					type="select"
-					label="Tipo de Unidad"
-					[values]="alcanceOptions"
-					[(ngModel)]="alcance"
-					name="alcance"
-					[disabled]="projectLocked">
-				</app-filter>
-			</div>
-			@if (alcance === 'proyecto') {
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="proyectoModo"
-						type="select"
-						label="Proyecto"
-						[values]="proyectoModoOptions"
-						[(ngModel)]="proyectoModo"
-						name="proyectoModo"
-						[disabled]="projectLocked">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					@if (proyectoModo === 'existente') {
-						<app-filter 
-							id="proyecto"
-							type="typeahead"
-							label="Buscar Proyecto"
-							placeholder="Buscar proyecto..."
-							[items]="proyectoItems"
-							idKey="id"
-							labelKey="label"
-							[(ngModel)]="model.proyectoId"
-							name="proyectoId"
-							(ngModelChange)="onProyectoChange()"
-							[disabled]="projectLocked">
-						</app-filter>
-					}
-				</div>
-			}
+		<!-- Tabs Navigation -->
+		<div class="tabs-container">
+			<ul class="nav nav-tabs">
+				<li class="nav-item">
+					<a class="nav-link" [class.active]="activeFormTab === 'basicos'" (click)="activeFormTab = 'basicos'" href="javascript:;">
+						Datos Básicos
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" [class.active]="activeFormTab === 'proyecto'" (click)="activeFormTab = 'proyecto'" href="javascript:;">
+						Proyecto / Ubicación
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" [class.active]="activeFormTab === 'extras'" (click)="activeFormTab = 'extras'" href="javascript:;">
+						Extras y Equipamiento
+					</a>
+				</li>
+			</ul>
 		</div>
 
-        <!-- Nuevo Proyecto -->
-        @if (alcance === 'proyecto' && proyectoModo === 'nuevo') {
-			<div class="separator"><span>Nuevo Proyecto</span><hr></div>
-			<div class="row">
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="npNombre"
-						type="text"
-						label="Nombre"
-						placeholder="Nombre del proyecto"
-						[(ngModel)]="nuevoProyecto.nombre"
-						name="npNombre"
-						[disabled]="projectLocked">
-					</app-filter>
+		<!-- Tab 1: Datos Básicos de la Unidad -->
+		@if (activeFormTab === 'basicos') {
+			<div class="tab-content">
+				<!-- Primera fila: Tipo, Nombre, Piso (Solo si es apartamento) -->
+				<div class="row">
+					<div class="col-xs-12 col-sm-4">
+						<app-filter 
+							id="tipoUnidad"
+							type="select"
+							label="Tipo de Propiedad"
+							[values]="tipoUnidadFilterOptions"
+							[(ngModel)]="model.tipoUnidad"
+							name="tipoUnidad"
+							[required]="true"
+							(ngModelChange)="onTipoPropiedadChange()">
+						</app-filter>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<app-filter 
+							id="nombre"
+							type="text"
+							label="Nombre"
+							placeholder="Ej: Unidad 101"
+							[(ngModel)]="model.nombre"
+							name="nombre"
+							[required]="true">
+						</app-filter>
+					</div>
+					@if (model.tipoUnidad === 'Apartamento') {
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="piso"
+								type="number"
+								label="Piso"
+								[(ngModel)]="model.piso"
+								name="piso"
+								[required]="true">
+							</app-filter>
+						</div>
+					}
 				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="npDev"
-						type="text"
-						label="Desarrollador"
-						placeholder="Empresa / Desarrollador"
-						[(ngModel)]="nuevoProyecto.desarrollador"
-						name="npDesarrollador"
-						[disabled]="projectLocked">
-					</app-filter>
+				<!-- Segunda fila: Dormitorios, Baños, Tamaño, Tamaño Total -->
+				<div class="row">
+					<div class="col-xs-12 col-sm-2">
+						<app-filter 
+							id="dormitorios"
+							type="number"
+							label="Dormitorios"
+							[(ngModel)]="model.dormitorios"
+							name="dormitorios"
+							[required]="true">
+						</app-filter>
+					</div>
+					<div class="col-xs-12 col-sm-2">
+						<app-filter 
+							id="banos"
+							type="number"
+							label="Baños"
+							[(ngModel)]="model.banos"
+							name="banos"
+							[required]="true">
+						</app-filter>
+					</div>
+                    <!-- Campos específicos para Apartamento -->
+                    @if (model.tipoUnidad === 'Apartamento') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="m2Internos"
+                                type="number"
+                                label="Tamaño Interior (m²)"
+                                [(ngModel)]="model.m2Internos"
+                                name="m2Internos"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="m2Totales"
+                                type="number"
+                                label="Tamaño Total (m²)"
+                                [(ngModel)]="model.m2Totales"
+                                name="m2Totales"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+							<app-filter 
+								id="altura"
+								type="text"
+								label="Altura"
+								placeholder="Ej: 2,40m"
+								[(ngModel)]="model.altura"
+								name="altura"
+								[required]="true">
+							</app-filter>
+						</div>
+                    }
+                    <!-- Campos específicos para Casa, Campo o Chacra -->
+                    @if (model.tipoUnidad === 'Casa' || model.tipoUnidad === 'Campo' || model.tipoUnidad === 'Chacra') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="superficieTerreno"
+                                type="number"
+                                label="Metros Totales (m²)"
+                                [(ngModel)]="model.superficieTerreno"
+                                name="superficieTerreno"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="superficieEdificada"
+                                type="number"
+                                label="Metros Edificados (m²)"
+                                [(ngModel)]="model.superficieEdificada"
+                                name="superficieEdificada"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="plantas"
+                                type="number"
+                                label="Plantas"
+                                [(ngModel)]="model.plantas"
+                                name="plantas"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                    }
 				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="npLoc"
-						type="select"
-						label="Localidad"
-						[values]="ciudadFilterOptions"
-						[(ngModel)]="nuevoProyecto.localidad"
-						name="npLocalidad"
-						[disabled]="projectLocked"
-						(ngModelChange)="onNuevoProyectoLocalidadChange()">
-					</app-filter>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="npBarrio"
-						type="select"
-						label="Barrio"
-						[values]="nuevoProyectoBarrioFilterOptions"
-						[(ngModel)]="nuevoProyecto.barrio"
-						name="npBarrio"
-						[disabled]="projectLocked || !nuevoProyecto.localidad">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="npDir"
-						type="text"
-						label="Dirección"
-						placeholder="Dirección"
-						[(ngModel)]="nuevoProyecto.direccion"
-						name="npDireccion"
-						[disabled]="projectLocked">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="npEnt"
-						type="date"
-						label="Fecha Entrega"
-						[(ngModel)]="nuevoProyecto.entrega"
-						name="npEntrega"
-						[disabled]="projectLocked">
-					</app-filter>
+				<!-- Tercera fila (si es apartamento): Orientación, Distribución, Altura -->
+                <div class="row">
+				    @if (model.tipoUnidad === 'Apartamento') {
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="orientacion"
+								type="select"
+								label="Orientación"
+								[values]="orientacionFilterOptions"
+								[(ngModel)]="model.orientacion"
+								name="orientacion"
+								[required]="true">
+							</app-filter>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="distribucion"
+								type="select"
+								label="Distribución"
+								[values]="distribucionFilterOptions"
+								[(ngModel)]="model.distribucion"
+								name="distribucion"
+								[required]="true">
+							</app-filter>
+						</div>
+                    }
+                    <div class="col-xs-12 col-sm-4">
+                        <app-filter 
+                            id="estado"
+                            type="select"
+                            label="Estado"
+                            [values]="estadoFilterOptions"
+                            [(ngModel)]="model.estado"
+                            name="estado"
+                            [required]="true">
+                        </app-filter>
+                    </div>
+                </div>
+				<!-- Cuarta fila: Responsable, Precio, Comisión -->
+				<div class="row">
+					<div class="col-xs-12 col-sm-4">
+						<app-filter 
+							id="responsable"
+							type="text"
+							label="Responsable"
+							placeholder="Agente o responsable"
+							[(ngModel)]="model.responsable"
+							name="responsable"
+							[required]="true">
+						</app-filter>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<app-filter 
+							id="precio"
+							type="number"
+							label="Precio (USD)"
+							placeholder="Ej: 150000"
+							[(ngModel)]="model.precioUSD"
+							name="precioUSD"
+							[required]="true">
+						</app-filter>
+					</div>
+                    <div class="col-xs-12 col-sm-4">
+                        <app-filter 
+                            id="comision"
+                            type="number"
+                            label="Comisión (%)"
+                            placeholder="Ej: 3"
+                            [step]="0.01"
+                            [(ngModel)]="model.comision"
+                            name="comision"
+                            [required]="true">
+                        </app-filter>
+                    </div>
 				</div>
 			</div>
 		}
 
-		<div class="separator"><span>Datos Comunes</span><hr></div>
-		<div class="row">
-			<!-- Paso 2: Tipo de Unidad -->
-			<div class="col-xs-12 col-sm-4">
-				<app-filter 
-					id="tipoUnidad"
-					type="select"
-					label="Tipo"
-					[values]="tipoUnidadFilterOptions"
-					[(ngModel)]="model.tipoUnidad"
-					name="tipoUnidad"
-					[disabled]="editingProyecto && !id">
-				</app-filter>
-			</div>
-
-			<!-- Datos Comunes -->
-			<div class="col-xs-12 col-sm-4">
-				<app-filter 
-					id="nombre"
-					type="text"
-					label="Nombre / Referencia"
-					placeholder="Ej: Unidad 101"
-					[(ngModel)]="model.nombre"
-					name="nombre"
-					[disabled]="editingProyecto && !id">
-				</app-filter>
-			</div>
-			<div class="col-xs-12 col-sm-4">
-				<app-filter 
-					id="estadoComercial"
-					type="select"
-					label="Estado"
-					[values]="estadoComercialFilterOptions"
-					[(ngModel)]="model.estadoComercial"
-					name="estadoComercial"
-					[disabled]="editingProyecto && !id">
-				</app-filter>
-			</div>
-			<div class="col-xs-12 col-sm-4">
-				<app-filter 
-					id="responsable"
-					type="text"
-					label="Responsable"
-					placeholder="Agente o responsable"
-					[(ngModel)]="model.responsable"
-					name="responsable"
-					[disabled]="editingProyecto && !id">
-				</app-filter>
-			</div>
-            @if (alcance === 'unica' && (model.estadoComercial !== 'Vendida' && model.estadoComercial !== 'En Venta')) {
-                <div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="entrega"
-						type="date"
-						label="Disponibilidad / Entrega (Est.)"
-						[(ngModel)]="model.entrega"
-						name="entrega">
-					</app-filter>
-                </div>
-            }
-            @if (alcance === 'unica') {
-                    <div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="ubicacion"
-							type="text"
-							label="Ubicación"
-							placeholder="Dirección"
-							[(ngModel)]="model.ubicacion"
-							name="ubicacion">
-						</app-filter>
-                    </div>
-                    <div class="col-xs-12 col-sm-4">
+		<!-- Tab 2: Datos del Proyecto o Ubicación -->
+		@if (activeFormTab === 'proyecto') {
+			<div class="tab-content">
+				<!-- Solo mostrar estos campos si NO es Casa o Campo -->
+				@if (!isCasaOrCampoType()) {
+					<div class="row">
+						<div class="col-xs-12 col-sm-4">
+							<label class="c-label">Asociar a Proyecto Existente (Opcional)</label>
+							<app-filter 
+								id="proyectoId"
+								type="typeahead"
+								label=""
+								placeholder="Buscar proyecto existente..."
+								[items]="proyectoItems"
+								idKey="id"
+								labelKey="label"
+								[(ngModel)]="model.proyectoId"
+								name="proyectoId"
+								(ngModelChange)="onProyectoChange()">
+							</app-filter>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="tipoPropiedad"
+								type="select"
+								label="Tipo de Proyecto"
+								[values]="tipoProyectoFilterOptions"
+								[(ngModel)]="model.tipoPropiedad"
+								name="tipoPropiedad"
+								(ngModelChange)="onTipoPropiedadChange()">
+							</app-filter>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="proyectoNombre"
+								type="text"
+								label="Nombre del Proyecto"
+								placeholder="Nombre del proyecto"
+								[(ngModel)]="model.proyectoNombre"
+								name="proyectoNombre"
+								[disabled]="!!model.proyectoId">
+							</app-filter>
+						</div>
+					</div>
+					<!-- Campos solo para Edificio -->
+					@if (model.tipoPropiedad === 'Edificio') {
+						<div class="row">
+							<div class="col-xs-12 col-sm-4">
+								<app-filter 
+									id="pisoProyecto"
+									type="number"
+									label="Pisos (Proyecto)"
+									[(ngModel)]="model.pisoProyecto"
+									name="pisoProyecto">
+								</app-filter>
+							</div>
+							<div class="col-xs-12 col-sm-4">
+								<app-filter 
+									id="unidadesTotales"
+									type="number"
+									label="Unidades (Totales)"
+									[(ngModel)]="model.unidadesTotales"
+									name="unidadesTotales">
+								</app-filter>
+							</div>
+						</div>
+					}
+				}
+				<!-- Campos siempre visibles: Ciudad, Barrio, Dirección -->
+				<div class="row">
+					<div class="col-xs-12 col-sm-4">
 						<app-filter 
 							id="city"
 							type="select"
@@ -202,381 +311,205 @@
 							[values]="ciudadFilterOptions"
 							[(ngModel)]="model.city"
 							name="city"
+							[required]="isCasaOrCampoType()"
 							(ngModelChange)="onCityChange()">
 						</app-filter>
-                    </div>
-                    <div class="col-xs-12 col-sm-4">
+					</div>
+					<div class="col-xs-12 col-sm-4">
 						<app-filter 
 							id="barrio"
 							type="select"
-							label="Barrio / Zona"
+							label="Barrio"
 							[values]="barrioFilterOptions"
 							[(ngModel)]="model.barrio"
 							name="barrio"
+							[required]="isCasaOrCampoType()"
 							[disabled]="!model.city">
 						</app-filter>
-                    </div>
-            }
-			<div class="col-xs-12 col-sm-4">
-				<app-filter 
-					id="comision"
-					type="number"
-					label="Comisión (%)"
-					placeholder="Ej: 3"
-					[step]="0.01"
-					[(ngModel)]="model.comision"
-					name="comision"
-					[disabled]="editingProyecto && !id">
-				</app-filter>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<app-filter 
+							id="ubicacion"
+							type="text"
+							label="Dirección"
+							placeholder="Dirección"
+							[(ngModel)]="model.ubicacion"
+							name="ubicacion"
+							[required]="isCasaOrCampoType()">
+						</app-filter>
+					</div>
+				</div>
+				<!-- Fecha de Entrega - siempre visible -->
+				<div class="row">
+					<div class="col-xs-12 col-sm-4">
+						<app-filter 
+							id="entrega"
+							type="date"
+							label="Fecha de Entrega"
+							[(ngModel)]="model.entrega"
+							name="entrega"
+							[disabled]="isApartamentoWithProyecto()">
+						</app-filter>
+						@if (isApartamentoWithProyecto()) {
+							<small class="text-muted">La fecha de entrega se guarda en el proyecto para apartamentos</small>
+						}
+					</div>
+				</div>
 			</div>
-		</div>
-        @if (model.tipoUnidad) {
-        <div class="row">
-			<div class="separator"><span>Específicos</span><hr></div>
-			<!-- Específicos: Apartamento -->
-			@if (model.tipoUnidad === 'Apartamento') {
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="dormitorios"
-						type="number"
-						label="Dormitorios"
-						[(ngModel)]="model.dormitorios"
-						name="dormitorios"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
+		}
+
+		<!-- Tab 3: Datos Extras y Equipamiento -->
+		@if (activeFormTab === 'extras') {
+			<div class="tab-content">
+				<div class="row">
+					<!-- Terraza y Garage en la misma fila, ocupando 1 línea cada uno -->
+					<div class="col-xs-12 col-sm-2">
+						<app-filter 
+							id="terraza"
+							type="select"
+							label="Terraza"
+							[values]="terrazaOptions"
+							[(ngModel)]="model.terraza"
+							name="terraza"
+							(ngModelChange)="onTerrazaChange()">
+						</app-filter>
+					</div>
+                    <!-- Campos condicionales para Terraza -->
+                    @if (model.terraza === 'Si') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="tamanoTerraza"
+                                type="number"
+                                label="Tamaño de Terraza (m²)"
+                                [(ngModel)]="model.tamanoTerraza"
+                                name="tamanoTerraza">
+                            </app-filter>
+                        </div>
+                    }
+					<div class="col-xs-12 col-sm-2">
+						<app-filter 
+							id="garage"
+							type="select"
+							label="Garage"
+							[values]="garageOptions"
+							[(ngModel)]="model.garage"
+							name="garage"
+							(ngModelChange)="onGarageChange()">
+						</app-filter>
+					</div>
+                    <!-- Campos condicionales para Garage -->
+                    @if (model.garage === 'Si' || model.garage === 'Extra') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="tamanoGarage"
+                                type="number"
+                                label="Tamaño de Garage (m²)"
+                                [(ngModel)]="model.tamanoGarage"
+                                name="tamanoGarage">
+                            </app-filter>
+                        </div>
+                        @if (model.garage === 'Extra') {
+                            <div class="col-xs-12 col-sm-2">
+                                <app-filter 
+                                    id="precioGarage"
+                                    type="number"
+                                    label="Precio Garage (USD)"
+                                    placeholder="Ej: 21000"
+                                    [(ngModel)]="model.precioGarage"
+                                    name="precioGarage">
+                                </app-filter>
+                            </div>
+                        }
+                    }
 				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="banos"
-						type="number"
-						label="Baños"
-						[(ngModel)]="model.banos"
-						name="banos"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
+				
+				<div class="row" style="margin-top: 20px;">
+					<div class="col-xs-12 col-sm-6">
+						<app-filter 
+							id="areaComun"
+							type="text"
+							label="Área Común"
+							placeholder="Descripción de áreas comunes"
+							[(ngModel)]="model.areaComun"
+							name="areaComun">
+						</app-filter>
+					</div>
+					<div class="col-xs-12 col-sm-6">
+						<label class="c-label" for="equipamiento">Equipamiento</label>
+						<textarea 
+							id="equipamiento" 
+							class="form-control c-input" 
+							[(ngModel)]="model.equipamiento" 
+							name="equipamiento" 
+							placeholder="Detalles del equipamiento interno"
+							rows="4"></textarea>
+					</div>
 				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="m2i"
-						type="number"
-						label="m² Internos"
-						[(ngModel)]="model.m2Internos"
-						name="m2Internos"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="m2t"
-						type="number"
-						label="m² Totales"
-						[(ngModel)]="model.m2Totales"
-						name="m2Totales"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="piso"
-						type="number"
-						label="Piso"
-						[(ngModel)]="model.piso"
-						name="piso"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="orientacion"
-						type="select"
-						label="Orientación"
-						[values]="orientacionFilterOptions"
-						[(ngModel)]="model.orientacion"
-						name="orientacion"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12">
-					<label class="c-label">Extras y Características</label>
-					<div class="row">
-						@for (e of apartmentExtras; track e) {
-							<div class="col-xs-12 col-sm-4">
-								<div class="checkbox">
-									<label>
-                    <input type="checkbox" [checked]="(model.extras || []).includes(e)" (change)="onExtraChange(e, $event.target.checked)" [disabled]="editingProyecto && !id"> {{ e }}
-									</label>
+				<div class="row" style="margin-top: 20px;">
+					<div class="col-xs-12">
+						<label class="c-label">Amenities del Edificio/Proyecto</label>
+						<div class="row">
+							@for (amenity of amenitiesList; track amenity.key) {
+								<div class="col-xs-12 col-sm-4 col-md-3">
+									<div class="checkbox">
+										<label>
+											<input 
+												type="checkbox" 
+												[checked]="hasAmenity(amenity.key)" 
+												(change)="toggleAmenity(amenity.key, $event)"
+												name="amenity-{{amenity.key}}"> 
+											{{ amenity.label }}
+										</label>
+									</div>
 								</div>
-							</div>
-						}
-					</div>
-				</div>
-			}
-
-			<!-- Específicos: Casa -->
-			@if (model.tipoUnidad === 'Casa') {
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="dormitoriosC"
-						type="number"
-						label="Dormitorios"
-						[(ngModel)]="model.dormitorios"
-						name="dormitoriosCasa"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="banosC"
-						type="number"
-						label="Baños"
-						[(ngModel)]="model.banos"
-						name="banosCasa"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="m2e"
-						type="number"
-						label="Sup. Edificada (m²)"
-						[(ngModel)]="model.superficieEdificada"
-						name="superficieEdificada"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="m2st"
-						type="number"
-						label="Sup. Terreno (m²)"
-						[(ngModel)]="model.superficieTerreno"
-						name="superficieTerreno"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="antiguedad"
-						type="number"
-						label="Antigüedad (Años)"
-						[(ngModel)]="model.antiguedad"
-						name="antiguedad"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-2">
-					<app-filter 
-						id="condicion"
-						type="select"
-						label="Condición"
-						[values]="condicionCasaFilterOptions"
-						[(ngModel)]="model.condicion"
-						name="condicion"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12">
-					<label class="c-label">Extras y Características</label>
-					<div class="row">
-						@for (e of houseExtras; track e) {
-							<div class="col-xs-12 col-sm-4">
-								<div class="checkbox">
-									<label>
-                    <input type="checkbox" [checked]="(model.extras || []).includes(e)" (change)="onExtraChange(e, $event.target.checked)" [disabled]="editingProyecto && !id"> {{ e }}
-									</label>
-								</div>
-							</div>
-						}
-					</div>
-				</div>
-			}
-
-			<!-- Específicos: Chacra -->
-			@if (model.tipoUnidad === 'Chacra') {
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="hectareasC"
-						type="number"
-						label="Hectáreas de Tierra"
-						[step]="0.01"
-						[(ngModel)]="model.hectareas"
-						name="hectareasC"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="m2edif"
-						type="number"
-						label="m² Edificados"
-						[(ngModel)]="model.m2Edificados"
-						name="m2Edificados"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="dormR"
-						type="number"
-						label="Dormitorios (Casa)"
-						[(ngModel)]="model.dormitorios"
-						name="dormitoriosR"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="banosR"
-						type="number"
-						label="Baños (Casa)"
-						[(ngModel)]="model.banos"
-						name="banosR"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="tipoConst"
-						type="text"
-						label="Tipo de Construcción"
-						[(ngModel)]="model.tipoConstruccion"
-						name="tipoConstruccion"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="acceso"
-						type="text"
-						label="Acceso"
-						[(ngModel)]="model.acceso"
-						name="acceso"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<app-filter 
-						id="infra"
-						type="text"
-						label="Infraestructura"
-						placeholder="Galpones, corrales, etc."
-						[(ngModel)]="model.infraestructura"
-						name="infraestructura"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12">
-					<label class="c-label">Servicios Básicos</label>
-					<div class="row">
-						<div class="col-xs-12 col-sm-4">
-                            <label><input type="checkbox" [(ngModel)]="model.luz" name="luz" [disabled]="editingProyecto && !id" /> Luz eléctrica</label>
-						</div>
-						<div class="col-xs-12 col-sm-4">
-                            <label><input type="checkbox" [(ngModel)]="model.agua" name="agua" [disabled]="editingProyecto && !id" /> Agua potable</label>
-						</div>
-						<div class="col-xs-12 col-sm-4">
-                            <label><input type="checkbox" [(ngModel)]="model.internet" name="internet" [disabled]="editingProyecto && !id" /> Internet</label>
+							}
 						</div>
 					</div>
 				</div>
-			}
+			</div>
+		}
 
-			<!-- Específicos: Campo -->
-			@if (model.tipoUnidad === 'Campo') {
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="hectareasF"
-						type="number"
-						label="Hectáreas de Tierra"
-						[step]="0.01"
-						[(ngModel)]="model.hectareas"
-						name="hectareasF"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="aptitud"
-						type="select"
-						label="Aptitud del Suelo"
-						[values]="aptitudSueloOptions"
-						[(ngModel)]="model.aptitudSuelo"
-						name="aptitudSuelo"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="indice"
-						type="number"
-						label="Índice de Productividad"
-						[step]="0.01"
-						[(ngModel)]="model.indiceProductividad"
-						name="indiceProductividad"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-3">
-					<app-filter 
-						id="accesoF"
-						type="text"
-						label="Acceso"
-						[(ngModel)]="model.acceso"
-						name="accesoF"
-						[disabled]="editingProyecto && !id">
-					</app-filter>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="mejoras">Mejoras de Trabajo</label>
-                    <textarea id="mejoras" class="form-control c-input" [(ngModel)]="model.mejorasTrabajo" name="mejorasTrabajo" placeholder="Alambrados, mangas, molinos..." [disabled]="editingProyecto && !id"></textarea>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="infraHab">Infraestructura Habitacional</label>
-                    <textarea id="infraHab" class="form-control c-input" [(ngModel)]="model.infraestructuraHabitacional" name="infraestructuraHabitacional" placeholder="Casa principal/personal" [disabled]="editingProyecto && !id"></textarea>
-				</div>
-				<div class="col-xs-12 col-sm-4">
-					<label class="c-label" for="fuentes">Fuentes de Agua</label>
-                    <textarea id="fuentes" class="form-control c-input" [(ngModel)]="model.fuentesAgua" name="fuentesAgua" placeholder="Arroyos, pozos, tajamares" [disabled]="editingProyecto && !id"></textarea>
-				</div>
-			}
-		</div>
-        }
-
-		<!-- Tabla de Unidades (flujo proyecto) -->
-		@if (alcance === 'proyecto') {
-			<div class="row" style="margin-top: 16px;">
+		<!-- Tabla de Unidades Guardadas -->
+		@if (savedUnidades.length > 0) {
+			<div class="row" style="margin-top: 30px;">
 				<div class="col-xs-12">
-					<div class="separator"><span>Unidades en {{ nuevoProyecto.nombre || 'Proyecto' }}</span><hr></div>
+					<div class="separator"><span>Unidades Agregadas</span><hr></div>
 					<div class="table-responsive">
 						<table class="table c-table table-striped">
 							<thead>
 								<tr>
-									<th>Referencia</th>
-									<th>Tipo</th>
-									<th>M2 / Hectáreas</th>
-									<th>Estado</th>
+									<th>Nombre</th>
+									<th>Piso</th>
+									<th>Tamaño Interior (m²)</th>
+									<th>Tamaño Total (m²)</th>
 									<th style="width: 140px;">Acciones</th>
 								</tr>
 							</thead>
 							<tbody>
-                                @if (sessionUnits.length) {
-                                    @for (u of sessionUnits; track u) {
-                                        <tr [class]="u.id === id ? 'row-editing' : ''">
-                                            <td>{{ u.nombre }}</td>
-                                            <td>{{ u.tipoUnidad }}</td>
-                                            <td>{{ getPrimarySize(u) }}</td>
-                                            <td>{{ u.estadoComercial }}</td>
-                                            <td>
-                                                <a class="btn-table" (click)="editFromTable(u)">Editar</a>
-                                                <a class="btn-table" (click)="deleteFromTable(u)" style="margin-left: 6px;">Eliminar</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                } @else {
-                                    <tr>
-                                        <td colspan="5" class="text-center">No hay unidades en este proyecto</td>
-                                    </tr>
-                                }
+								@for (unidad of savedUnidades; track unidad.id) {
+									<tr>
+										<td>{{ unidad.nombre || '-' }}</td>
+										<td>{{ unidad.piso || '-' }}</td>
+										<td>{{ unidad.m2Internos || '-' }}</td>
+										<td>{{ unidad.m2Totales || '-' }}</td>
+										<td>
+											<a 
+												href="javascript:;" 
+												class="btn-table" 
+												(click)="editSavedUnidad(unidad)"
+												aria-label="Editar">
+												<i class="fas fa-pen"></i>
+											</a>
+											<a 
+												href="javascript:;" 
+												class="btn-table eliminar" 
+												(click)="deleteSavedUnidad(unidad)"
+												aria-label="Eliminar">
+												<i class="fa fa-trash"></i>
+											</a>
+										</td>
+									</tr>
+								}
 							</tbody>
 						</table>
 					</div>
@@ -586,9 +519,16 @@
 	</div>
     <div class="frame-footer">
         <button type="button" class="btn c-btn btn-default" (click)="activeModal?.dismiss()">Cancelar</button>
-        @if (alcance === 'proyecto' && !id) {
-            <button class="btn c-btn btn-white" [disabled]="busy" (click)="addAndRepeat()">Agregar y Repetir</button>
+        @if (!id) {
+            <button 
+                type="button" 
+                class="btn c-btn btn-white" 
+                [disabled]="busy"
+                (click)="addAndRepeatFromBulk()">
+                Agregar y Repetir
+            </button>
         }
         <button type="button" class="btn c-btn btn-primary" [disabled]="busy" (click)="save()">Guardar</button>
     </div>
 </div>
+

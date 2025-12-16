@@ -84,8 +84,8 @@
     <select
       [id]="id"
       class="form-control c-input"
-      [value]="value"
-      (change)="onInputChange($any($event.target).value)"
+      [ngModel]="value"
+      (ngModelChange)="onInputChange($event)"
       [disabled]="disabled"
       [required]="required"
     >
@@ -148,7 +148,7 @@
     <div class="filter-wrapper">
       <div class="checkbox-wrapper">
         @for (option of values; track option.value) {
-          <div class="form-check">
+          <div class="form-check" style="padding-left: 0px; margin: 0px;">
             <input
               class="form-check-input"
               type="checkbox"

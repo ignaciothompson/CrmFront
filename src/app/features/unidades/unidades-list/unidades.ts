@@ -32,8 +32,8 @@ export class Unidades implements OnInit, OnDestroy {
   subheaderFilters: FilterConfig[] = [];
   initialFilterValues: Record<string, any> = {};
 
-  // Tabs
-  activeTab: 'proyectos' | 'unidades' = 'proyectos';
+  // Multi-selection
+  selectedUnidades: Set<string> = new Set();
 
   // Filters
   localidad: string = '';
@@ -117,7 +117,7 @@ export class Unidades implements OnInit, OnDestroy {
         values: [
           { value: true, label: 'Mostrar vendidas/rentadas' }
         ],
-        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
       }
     ];
   }
@@ -317,24 +317,63 @@ export class Unidades implements OnInit, OnDestroy {
     return this.allUnidades.filter(u => String(u.proyectoId) === String(projectId)).length;
   }
 
-  setActiveTab(tab: 'proyectos' | 'unidades'): void {
-    this.activeTab = tab;
+  // Multi-selection methods
+  isSelected(unidadId: string | number): boolean {
+    return this.selectedUnidades.has(String(unidadId));
   }
 
-  verProyecto(p: any): void {
-    // Switch to unidades tab and filter by project
-    this.activeTab = 'unidades';
-    // You could add filtering logic here if needed
+  toggleSelection(unidadId: string | number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    const id = String(unidadId);
+    if (this.selectedUnidades.has(id)) {
+      this.selectedUnidades.delete(id);
+    } else {
+      this.selectedUnidades.add(id);
+    }
+  }
+
+  toggleSelectAll(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
+      this.filteredUnidades.forEach(u => {
+        if (u.id) {
+          this.selectedUnidades.add(String(u.id));
+        }
+      });
+    } else {
+      this.selectedUnidades.clear();
+    }
+  }
+
+  isAllSelected(): boolean {
+    if (this.filteredUnidades.length === 0) return false;
+    return this.filteredUnidades.every(u => !u.id || this.selectedUnidades.has(String(u.id)));
+  }
+
+  isIndeterminate(): boolean {
+    const selectedCount = this.filteredUnidades.filter(u => u.id && this.selectedUnidades.has(String(u.id))).length;
+    return selectedCount > 0 && selectedCount < this.filteredUnidades.length;
+  }
+
+  clearSelection(): void {
+    this.selectedUnidades.clear();
   }
 
   verUnidad(u: any): void {
     this.goEditar(u.id);
   }
 
-  getProyectoNombre(proyectoId: string | number | undefined): string {
-    if (!proyectoId) return '';
-    const proyecto = this.proyectos.find(p => String(p.id) === String(proyectoId));
-    return proyecto?.nombre || '';
+  getProyectoNombre(unidad: any): string {
+    // Si tiene proyectoId, buscar en la lista de proyectos
+    if (unidad?.proyectoId) {
+      const proyecto = this.proyectos.find(p => String(p.id) === String(unidad.proyectoId));
+      if (proyecto?.nombre) return proyecto.nombre;
+    }
+    // Si no tiene proyectoId pero tiene proyectoNombre, usar ese
+    if (unidad?.proyectoNombre) return unidad.proyectoNombre;
+    return '';
   }
 
   getPrimarySize(u: any): string {

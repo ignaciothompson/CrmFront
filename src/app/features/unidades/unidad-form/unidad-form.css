@@ -37,3 +37,63 @@
     color: #fff;
 }
 
+/* Tabs Styles */
+.tabs-container {
+    margin-bottom: 20px;
+}
+
+.tab-content {
+    padding: 20px 0;
+}
+
+.nav-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border, #ddd);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-tabs .nav-item {
+    margin-right: 0;
+}
+
+.nav-tabs .nav-link {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-color, #333);
+    text-decoration: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--link-color, #2c7be5);
+    border-bottom-color: var(--link-color, #2c7be5);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--link-color, #2c7be5);
+    border-bottom-color: var(--link-color, #2c7be5);
+    font-weight: 600;
+}
+
+/* Dark theme adjustments */
+.theme-dark .nav-tabs {
+    border-bottom-color: var(--border, #444);
+}
+
+.theme-dark .nav-tabs .nav-link {
+    color: var(--text-color, #fff);
+}
+
+.theme-dark .nav-tabs .nav-link:hover,
+.theme-dark .nav-tabs .nav-link.active {
+    color: var(--link-color, #5a9);
+    border-bottom-color: var(--link-color, #5a9);
+}
+
