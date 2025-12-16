@@ -48,7 +48,7 @@ export class UnidadForm {
     // Link to proyecto (when alcance === 'proyecto')
     proyectoId: '',
     // Dynamic typing for units
-    tipoUnidad: null, // 'Apartamento' | 'Casa' | 'Chacra' | 'Campo'
+    tipoUnidad: 'Apartamento', // 'Apartamento' | 'Casa' | 'Chacra' | 'Campo' - Default: Apartamento
     tipoPropiedad: null, // 'Edificio' | 'Casa' | 'PH'
     estadoComercial: 'En venta', // En venta | En alquiler | Reservada | Vendida
     // Apartment specifics
@@ -65,7 +65,7 @@ export class UnidadForm {
     proyectoNombre: '',
     pisoProyecto: null,
     unidadesTotales: null,
-    terraza: 'No',
+    terraza: '',
     garage: 'No',
     tamanoTerraza: null,
     tamanoGarage: null,
@@ -173,11 +173,10 @@ export class UnidadForm {
     { value: 'Venta', label: 'Venta' }
   ];
   terrazaOptions = [
-    { value: '', label: 'Seleccione' },
     { value: 'Si', label: 'Si' },
     { value: 'No', label: 'No' }
   ];
-  terrazaGarageOptions = [
+  garageOptions = [
     { value: 'No', label: 'No' },
     { value: 'Si', label: 'Si' },
     { value: 'Extra', label: 'Extra' }
@@ -294,6 +293,11 @@ export class UnidadForm {
           if (this.alcance === 'proyecto') this.projectLocked = true;
         }
       });
+    } else {
+      // Si no hay id, es una nueva unidad - asegurar que tipoUnidad tenga valor por defecto
+      if (!this.model.tipoUnidad) {
+        this.model.tipoUnidad = 'Apartamento';
+      }
     }
   }
 

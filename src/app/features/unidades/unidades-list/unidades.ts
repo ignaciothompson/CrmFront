@@ -117,7 +117,7 @@ export class Unidades implements OnInit, OnDestroy {
         values: [
           { value: true, label: 'Mostrar vendidas/rentadas' }
         ],
-        columnClass: 'col-xs-12 col-sm-6 col-md-2'
+        columnClass: 'col-xs-12 col-sm-6 col-md-3'
       }
     ];
   }

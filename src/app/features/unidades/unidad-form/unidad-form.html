@@ -37,7 +37,7 @@
 							[values]="tipoUnidadFilterOptions"
 							[(ngModel)]="model.tipoUnidad"
 							name="tipoUnidad"
-							required
+							[required]="true"
 							(ngModelChange)="onTipoPropiedadChange()">
 						</app-filter>
 					</div>
@@ -49,7 +49,7 @@
 							placeholder="Ej: Unidad 101"
 							[(ngModel)]="model.nombre"
 							name="nombre"
-							required>
+							[required]="true">
 						</app-filter>
 					</div>
 					@if (model.tipoUnidad === 'Apartamento') {
@@ -60,96 +60,104 @@
 								label="Piso"
 								[(ngModel)]="model.piso"
 								name="piso"
-								required>
+								[required]="true">
 							</app-filter>
 						</div>
 					}
 				</div>
 				<!-- Segunda fila: Dormitorios, Baños, Tamaño, Tamaño Total -->
 				<div class="row">
-					<div class="col-xs-12 col-sm-4">
+					<div class="col-xs-12 col-sm-2">
 						<app-filter 
 							id="dormitorios"
 							type="number"
 							label="Dormitorios"
 							[(ngModel)]="model.dormitorios"
 							name="dormitorios"
-							required>
+							[required]="true">
 						</app-filter>
 					</div>
-					<div class="col-xs-12 col-sm-4">
+					<div class="col-xs-12 col-sm-2">
 						<app-filter 
 							id="banos"
 							type="number"
 							label="Baños"
 							[(ngModel)]="model.banos"
 							name="banos"
-							required>
+							[required]="true">
 						</app-filter>
 					</div>
-					<div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="m2Internos"
-							type="number"
-							label="Tamaño Interior (m²)"
-							[(ngModel)]="model.m2Internos"
-							name="m2Internos"
-							required>
-						</app-filter>
-					</div>
+                    <!-- Campos específicos para Apartamento -->
+                    @if (model.tipoUnidad === 'Apartamento') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="m2Internos"
+                                type="number"
+                                label="Tamaño Interior (m²)"
+                                [(ngModel)]="model.m2Internos"
+                                name="m2Internos"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="m2Totales"
+                                type="number"
+                                label="Tamaño Total (m²)"
+                                [(ngModel)]="model.m2Totales"
+                                name="m2Totales"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+							<app-filter 
+								id="altura"
+								type="text"
+								label="Altura"
+								placeholder="Ej: 2,40m"
+								[(ngModel)]="model.altura"
+								name="altura"
+								[required]="true">
+							</app-filter>
+						</div>
+                    }
+                    <!-- Campos específicos para Casa, Campo o Chacra -->
+                    @if (model.tipoUnidad === 'Casa' || model.tipoUnidad === 'Campo' || model.tipoUnidad === 'Chacra') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="superficieTerreno"
+                                type="number"
+                                label="Metros Totales (m²)"
+                                [(ngModel)]="model.superficieTerreno"
+                                name="superficieTerreno"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="superficieEdificada"
+                                type="number"
+                                label="Metros Edificados (m²)"
+                                [(ngModel)]="model.superficieEdificada"
+                                name="superficieEdificada"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="plantas"
+                                type="number"
+                                label="Plantas"
+                                [(ngModel)]="model.plantas"
+                                name="plantas"
+                                [required]="true">
+                            </app-filter>
+                        </div>
+                    }
 				</div>
-				<div class="row">
-					<div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="m2Totales"
-							type="number"
-							label="Tamaño Total (m²)"
-							[(ngModel)]="model.m2Totales"
-							name="m2Totales"
-							required>
-						</app-filter>
-					</div>
-					<!-- Campos específicos para Casa, Campo o Chacra -->
-					@if (model.tipoUnidad === 'Casa' || model.tipoUnidad === 'Campo' || model.tipoUnidad === 'Chacra') {
-						<div class="col-xs-12 col-sm-4">
-							<app-filter 
-								id="superficieTerreno"
-								type="number"
-								label="Metros Totales (m²)"
-								[(ngModel)]="model.superficieTerreno"
-								name="superficieTerreno"
-								required>
-							</app-filter>
-						</div>
-						<div class="col-xs-12 col-sm-4">
-							<app-filter 
-								id="superficieEdificada"
-								type="number"
-								label="Metros Edificados (m²)"
-								[(ngModel)]="model.superficieEdificada"
-								name="superficieEdificada"
-								required>
-							</app-filter>
-						</div>
-					}
-				</div>
-				@if (model.tipoUnidad === 'Casa' || model.tipoUnidad === 'Campo' || model.tipoUnidad === 'Chacra') {
-					<div class="row">
-						<div class="col-xs-12 col-sm-4">
-							<app-filter 
-								id="plantas"
-								type="number"
-								label="Plantas"
-								[(ngModel)]="model.plantas"
-								name="plantas"
-								required>
-							</app-filter>
-						</div>
-					</div>
-				}
 				<!-- Tercera fila (si es apartamento): Orientación, Distribución, Altura -->
-				@if (model.tipoUnidad === 'Apartamento') {
-					<div class="row">
+                <div class="row">
+				    @if (model.tipoUnidad === 'Apartamento') {
 						<div class="col-xs-12 col-sm-4">
 							<app-filter 
 								id="orientacion"
@@ -158,7 +166,7 @@
 								[values]="orientacionFilterOptions"
 								[(ngModel)]="model.orientacion"
 								name="orientacion"
-								required>
+								[required]="true">
 							</app-filter>
 						</div>
 						<div class="col-xs-12 col-sm-4">
@@ -169,35 +177,24 @@
 								[values]="distribucionFilterOptions"
 								[(ngModel)]="model.distribucion"
 								name="distribucion"
-								required>
+								[required]="true">
 							</app-filter>
 						</div>
-						<div class="col-xs-12 col-sm-4">
-							<app-filter 
-								id="altura"
-								type="text"
-								label="Altura"
-								placeholder="Ej: 2,40m"
-								[(ngModel)]="model.altura"
-								name="altura"
-								required>
-							</app-filter>
-						</div>
-					</div>
-				}
-				<!-- Cuarta fila: Estado, Responsable, Precio, Comisión -->
+                    }
+                    <div class="col-xs-12 col-sm-4">
+                        <app-filter 
+                            id="estado"
+                            type="select"
+                            label="Estado"
+                            [values]="estadoFilterOptions"
+                            [(ngModel)]="model.estado"
+                            name="estado"
+                            [required]="true">
+                        </app-filter>
+                    </div>
+                </div>
+				<!-- Cuarta fila: Responsable, Precio, Comisión -->
 				<div class="row">
-					<div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="estado"
-							type="select"
-							label="Estado"
-							[values]="estadoFilterOptions"
-							[(ngModel)]="model.estado"
-							name="estado"
-							required>
-						</app-filter>
-					</div>
 					<div class="col-xs-12 col-sm-4">
 						<app-filter 
 							id="responsable"
@@ -206,7 +203,7 @@
 							placeholder="Agente o responsable"
 							[(ngModel)]="model.responsable"
 							name="responsable"
-							required>
+							[required]="true">
 						</app-filter>
 					</div>
 					<div class="col-xs-12 col-sm-4">
@@ -217,23 +214,21 @@
 							placeholder="Ej: 150000"
 							[(ngModel)]="model.precioUSD"
 							name="precioUSD"
-							required>
+							[required]="true">
 						</app-filter>
 					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="comision"
-							type="number"
-							label="Comisión (%)"
-							placeholder="Ej: 3"
-							[step]="0.01"
-							[(ngModel)]="model.comision"
-							name="comision"
-							required>
-						</app-filter>
-					</div>
+                    <div class="col-xs-12 col-sm-4">
+                        <app-filter 
+                            id="comision"
+                            type="number"
+                            label="Comisión (%)"
+                            placeholder="Ej: 3"
+                            [step]="0.01"
+                            [(ngModel)]="model.comision"
+                            name="comision"
+                            [required]="true">
+                        </app-filter>
+                    </div>
 				</div>
 			</div>
 		}
@@ -241,45 +236,72 @@
 		<!-- Tab 2: Datos del Proyecto o Ubicación -->
 		@if (activeFormTab === 'proyecto') {
 			<div class="tab-content">
-				<div class="row">
-					<div class="col-xs-12 col-sm-4">
-						<label class="c-label">Asociar a Proyecto Existente (Opcional)</label>
-						<app-filter 
-							id="proyectoId"
-							type="typeahead"
-							label=""
-							placeholder="Buscar proyecto existente... (Escriba %%%% para ver los últimos)"
-							[items]="proyectoItems"
-							idKey="id"
-							labelKey="label"
-							[(ngModel)]="model.proyectoId"
-							name="proyectoId"
-							(ngModelChange)="onProyectoChange()">
-						</app-filter>
+				<!-- Solo mostrar estos campos si NO es Casa o Campo -->
+				@if (!isCasaOrCampoType()) {
+					<div class="row">
+						<div class="col-xs-12 col-sm-4">
+							<label class="c-label">Asociar a Proyecto Existente (Opcional)</label>
+							<app-filter 
+								id="proyectoId"
+								type="typeahead"
+								label=""
+								placeholder="Buscar proyecto existente..."
+								[items]="proyectoItems"
+								idKey="id"
+								labelKey="label"
+								[(ngModel)]="model.proyectoId"
+								name="proyectoId"
+								(ngModelChange)="onProyectoChange()">
+							</app-filter>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="tipoPropiedad"
+								type="select"
+								label="Tipo de Proyecto"
+								[values]="tipoProyectoFilterOptions"
+								[(ngModel)]="model.tipoPropiedad"
+								name="tipoPropiedad"
+								(ngModelChange)="onTipoPropiedadChange()">
+							</app-filter>
+						</div>
+						<div class="col-xs-12 col-sm-4">
+							<app-filter 
+								id="proyectoNombre"
+								type="text"
+								label="Nombre del Proyecto"
+								placeholder="Nombre del proyecto"
+								[(ngModel)]="model.proyectoNombre"
+								name="proyectoNombre"
+								[disabled]="!!model.proyectoId">
+							</app-filter>
+						</div>
 					</div>
-					<div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="tipoPropiedad"
-							type="select"
-							label="Tipo de Proyecto"
-							[values]="tipoProyectoFilterOptions"
-							[(ngModel)]="model.tipoPropiedad"
-							name="tipoPropiedad"
-							(ngModelChange)="onTipoPropiedadChange()">
-						</app-filter>
-					</div>
-					<div class="col-xs-12 col-sm-4">
-						<app-filter 
-							id="proyectoNombre"
-							type="text"
-							label="Nombre del Proyecto"
-							placeholder="Nombre del proyecto"
-							[(ngModel)]="model.proyectoNombre"
-							name="proyectoNombre"
-							[disabled]="isCasaOrCampoType() || !!model.proyectoId">
-						</app-filter>
-					</div>
-				</div>
+					<!-- Campos solo para Edificio -->
+					@if (model.tipoPropiedad === 'Edificio') {
+						<div class="row">
+							<div class="col-xs-12 col-sm-4">
+								<app-filter 
+									id="pisoProyecto"
+									type="number"
+									label="Pisos (Proyecto)"
+									[(ngModel)]="model.pisoProyecto"
+									name="pisoProyecto">
+								</app-filter>
+							</div>
+							<div class="col-xs-12 col-sm-4">
+								<app-filter 
+									id="unidadesTotales"
+									type="number"
+									label="Unidades (Totales)"
+									[(ngModel)]="model.unidadesTotales"
+									name="unidadesTotales">
+								</app-filter>
+							</div>
+						</div>
+					}
+				}
+				<!-- Campos siempre visibles: Ciudad, Barrio, Dirección -->
 				<div class="row">
 					<div class="col-xs-12 col-sm-4">
 						<app-filter 
@@ -317,29 +339,6 @@
 						</app-filter>
 					</div>
 				</div>
-				<!-- Campos solo para Edificio -->
-				@if (model.tipoPropiedad === 'Edificio') {
-					<div class="row">
-						<div class="col-xs-12 col-sm-4">
-							<app-filter 
-								id="pisoProyecto"
-								type="number"
-								label="Pisos (Proyecto)"
-								[(ngModel)]="model.pisoProyecto"
-								name="pisoProyecto">
-							</app-filter>
-						</div>
-						<div class="col-xs-12 col-sm-4">
-							<app-filter 
-								id="unidadesTotales"
-								type="number"
-								label="Unidades (Totales)"
-								[(ngModel)]="model.unidadesTotales"
-								name="unidadesTotales">
-							</app-filter>
-						</div>
-					</div>
-				}
 				<!-- Fecha de Entrega - siempre visible -->
 				<div class="row">
 					<div class="col-xs-12 col-sm-4">
@@ -363,11 +362,8 @@
 		@if (activeFormTab === 'extras') {
 			<div class="tab-content">
 				<div class="row">
-					<div class="col-xs-12">
-						<label class="c-label">Extras</label>
-					</div>
-					<!-- Terraza y Garage en la misma fila -->
-					<div class="col-xs-12 col-sm-6">
+					<!-- Terraza y Garage en la misma fila, ocupando 1 línea cada uno -->
+					<div class="col-xs-12 col-sm-2">
 						<app-filter 
 							id="terraza"
 							type="select"
@@ -377,50 +373,56 @@
 							name="terraza"
 							(ngModelChange)="onTerrazaChange()">
 						</app-filter>
-						@if (model.terraza === 'Si') {
-							<app-filter 
-								id="tamanoTerraza"
-								type="number"
-								label="Tamaño de Terraza (m²)"
-								[(ngModel)]="model.tamanoTerraza"
-								name="tamanoTerraza"
-								style="margin-top: 10px;">
-							</app-filter>
-						}
 					</div>
-					<div class="col-xs-12 col-sm-6">
+                    <!-- Campos condicionales para Terraza -->
+                    @if (model.terraza === 'Si') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="tamanoTerraza"
+                                type="number"
+                                label="Tamaño de Terraza (m²)"
+                                [(ngModel)]="model.tamanoTerraza"
+                                name="tamanoTerraza">
+                            </app-filter>
+                        </div>
+                    }
+					<div class="col-xs-12 col-sm-2">
 						<app-filter 
 							id="garage"
 							type="select"
 							label="Garage"
-							[values]="terrazaGarageOptions"
+							[values]="garageOptions"
 							[(ngModel)]="model.garage"
 							name="garage"
 							(ngModelChange)="onGarageChange()">
 						</app-filter>
-						@if (model.garage === 'Si' || model.garage === 'Extra') {
-							<app-filter 
-								id="tamanoGarage"
-								type="number"
-								label="Tamaño de Garage (m²)"
-								[(ngModel)]="model.tamanoGarage"
-								name="tamanoGarage"
-								style="margin-top: 10px;">
-							</app-filter>
-							@if (model.garage === 'Extra') {
-								<app-filter 
-									id="precioGarage"
-									type="number"
-									label="Precio Garage (USD)"
-									placeholder="Ej: 21000"
-									[(ngModel)]="model.precioGarage"
-									name="precioGarage"
-									style="margin-top: 10px;">
-								</app-filter>
-							}
-						}
 					</div>
+                    <!-- Campos condicionales para Garage -->
+                    @if (model.garage === 'Si' || model.garage === 'Extra') {
+                        <div class="col-xs-12 col-sm-2">
+                            <app-filter 
+                                id="tamanoGarage"
+                                type="number"
+                                label="Tamaño de Garage (m²)"
+                                [(ngModel)]="model.tamanoGarage"
+                                name="tamanoGarage">
+                            </app-filter>
+                        </div>
+                        @if (model.garage === 'Extra') {
+                            <div class="col-xs-12 col-sm-2">
+                                <app-filter 
+                                    id="precioGarage"
+                                    type="number"
+                                    label="Precio Garage (USD)"
+                                    placeholder="Ej: 21000"
+                                    [(ngModel)]="model.precioGarage"
+                                    name="precioGarage">
+                                </app-filter>
+                            </div>
+                        }
+                    }
 				</div>
+				
 				<div class="row" style="margin-top: 20px;">
 					<div class="col-xs-12 col-sm-6">
 						<app-filter 

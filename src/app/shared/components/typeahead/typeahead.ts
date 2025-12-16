@@ -65,13 +65,14 @@ export class TypeaheadComponent implements ControlValueAccessor {
   }
 
   private filterItems(term: string): any[] {
-    const t = (term || '').toLowerCase();
+    const t = term || '';
     // Si el término es %%%%, devolver los últimos 10 items (ya están ordenados por fecha)
     if (t === '%%%%') {
       return this.items.slice(0, 10);
     }
-    if (!t) return this.items.slice(0, 10);
-    return this.items.filter(it => String(it[this.labelKey] || '').toLowerCase().includes(t)).slice(0, 10);
+    const tLower = t.toLowerCase();
+    if (!tLower) return this.items.slice(0, 10);
+    return this.items.filter(it => String(it[this.labelKey] || '').toLowerCase().includes(tLower)).slice(0, 10);
   }
 }
 
