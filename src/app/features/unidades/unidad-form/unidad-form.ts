@@ -347,6 +347,12 @@ export class UnidadForm {
 
     try {
       this.busy = true;
+      
+      // Ensure proyecto exists BEFORE building payload (so proyectoId is available)
+      if (this.alcance === 'proyecto' && !this.id) {
+        await this.ensureProyectoId();
+      }
+      
       const payload = await this.buildPayloadWithProjectInheritance();
       
       if (this.alcance === 'proyecto' && this.id) {
@@ -368,9 +374,6 @@ export class UnidadForm {
         this.prepareNextCloned();
         this.toastService.success(`Unidad "${payload.nombre}" actualizada exitosamente`);
         return;
-      }
-      if (this.alcance === 'proyecto' && !this.id) {
-        await this.ensureProyectoId();
       }
       
       // Si es Apartamento con proyecto, actualizar la fecha de entrega en el proyecto
@@ -614,7 +617,30 @@ export class UnidadForm {
       payload.entrega = undefined; // No guardar en la unidad
     }
     
-    if (this.alcance !== 'proyecto') return payload;
+    if (this.alcance !== 'proyecto') {
+      // If not proyecto scope, ensure proyectoId is not set
+      payload.proyectoId = undefined;
+      return payload;
+    }
+    
+    // If proyectoId is not set, check if proyectoNombre is filled (user wants to create proyecto)
+    // If proyectoNombre is also empty, proyecto is optional - allow saving without it
+    if (!this.model.proyectoId || this.model.proyectoId === '') {
+      const nombreProyecto = this.model.proyectoNombre || this.nuevoProyecto.nombre;
+      if (!nombreProyecto || nombreProyecto.trim() === '') {
+        // No proyectoId and no proyectoNombre - proyecto is optional
+        payload.proyectoId = undefined;
+        return payload;
+      }
+      // proyectoNombre is filled but proyectoId not set - this shouldn't happen if ensureProyectoId() was called
+      // But just in case, set proyectoId to undefined and let ensureProyectoId() handle it
+      payload.proyectoId = undefined;
+      return payload;
+    }
+    
+    // Ensure proyectoId is a string
+    payload.proyectoId = String(this.model.proyectoId);
+    
     let p: any | undefined;
     if (this.model.proyectoId) {
       p = this.proyectosAll.find(x => String(x.id) === String(this.model.proyectoId));
@@ -643,20 +669,55 @@ export class UnidadForm {
 
   private async ensureProyectoId(): Promise<void> {
     if (this.alcance !== 'proyecto') return;
-    if (this.proyectoModo === 'existente') return;
-    if (this.model.proyectoId) return;
+    
+    // If proyectoId is already set and not empty, we're good
+    if (this.model.proyectoId && this.model.proyectoId !== '') return;
+    
+    // Check if we have a proyectoNombre filled in (indicates user wants to create a new proyecto)
+    const nombreProyecto = this.model.proyectoNombre || this.nuevoProyecto.nombre;
+    
+    // If no proyectoNombre is filled, proyecto is optional - allow saving without it
+    if (!nombreProyecto || nombreProyecto.trim() === '') {
+      return;
+    }
+    
+    // proyectoNombre is filled, so create a new proyecto (regardless of proyectoModo)
+    
     const pPayload = {
-      nombre: this.nuevoProyecto.nombre,
-      desarrollador: this.nuevoProyecto.desarrollador,
-      ciudad: this.nuevoProyecto.localidad,
-      barrio: this.nuevoProyecto.barrio,
-      direccion: this.nuevoProyecto.direccion,
-      entrega: this.nuevoProyecto.entrega
+      nombre: nombreProyecto,
+      desarrollador: this.nuevoProyecto.desarrollador || '',
+      ciudad: this.nuevoProyecto.localidad || this.model.city || null,
+      barrio: this.nuevoProyecto.barrio || this.model.barrio || null,
+      direccion: this.nuevoProyecto.direccion || this.model.ubicacion || '',
+      entrega: this.nuevoProyecto.entrega || this.model.entrega || ''
     };
     const added = await this.proyectoService.addProyecto(pPayload);
-    this.model.proyectoId = added.id;
+    
+    // Ensure proyectoId is set as a string (never empty)
+    const newProyectoId = String(added.id);
+    if (!newProyectoId || newProyectoId === '') {
+      throw new Error('Error al crear el proyecto: no se obtuvo un ID válido');
+    }
+    this.model.proyectoId = newProyectoId;
+    
+    // Update proyectoNombre for consistency
+    this.model.proyectoNombre = nombreProyecto;
+    
+    // Update location fields
     this.model.city = pPayload.ciudad || this.model.city || null;
     this.model.barrio = pPayload.barrio || this.model.barrio || null;
+    
+    // Refresh proyectos list to include the newly created one
+    this.proyectoService.getProyectos().subscribe(ps => {
+      this.proyectosAll = ps || [];
+      const sorted = [...this.proyectosAll].sort((a, b) => {
+        const aTime = a.createdAt || a.created || 0;
+        const bTime = b.createdAt || b.created || 0;
+        return bTime - aTime;
+      });
+      this.proyectoItems = sorted.map(p => ({ id: String(p.id), label: String(p.nombre) }));
+    });
+    
     this.recomputeBarrios();
   }
 
@@ -766,6 +827,12 @@ export class UnidadForm {
     
     try {
       this.busy = true;
+      
+      // Ensure proyecto exists BEFORE building payload (so proyectoId is available)
+      if (this.alcance === 'proyecto') {
+        await this.ensureProyectoId();
+      }
+      
       const payload = await this.buildPayloadWithProjectInheritance();
       
       // Si es Apartamento con proyecto, actualizar la fecha de entrega en el proyecto
