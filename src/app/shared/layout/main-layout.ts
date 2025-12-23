@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { RouterModule } from '@angular/router';
@@ -6,7 +6,7 @@ import { Header } from './header/header';
 import { Sidebar } from './sidebar/sidebar';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { Auth, onAuthStateChanged, Unsubscribe } from '@angular/fire/auth';
+import { SupabaseService } from '../../core/services/supabase.service';
 import { UsuarioService } from '../../core/services/usuario';
 import { BreakpointService } from '../../core/services/breakpoint.service';
 import { firstValueFrom } from 'rxjs';
@@ -21,12 +21,12 @@ import { firstValueFrom } from 'rxjs';
 export class MainLayout implements OnInit, OnDestroy {
   pageTitle = 'Dashboard';
   userName = 'Nombre Usuario';
-  private authUnsubscribe?: Unsubscribe;
+  private supabase = inject(SupabaseService);
+  private authSubscription?: { data: { subscription: any } };
 
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
-    private auth: Auth,
     private usuarioService: UsuarioService,
     public breakpointService: BreakpointService
 ) {
@@ -46,25 +46,41 @@ export class MainLayout implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.authUnsubscribe = onAuthStateChanged(this.auth, async (user) => {
-      if (user) {
-        try {
-          const profile = await firstValueFrom(this.usuarioService.getUsuarioById(user.uid));
-          if (profile) {
-            this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim() || user.email || 'Usuario';
-          } else {
-            this.userName = user.email || 'Usuario';
-          }
-        } catch {
-          this.userName = user.email || 'Usuario';
-        }
+    // Load initial user
+    this.loadUser();
+
+    // Subscribe to auth state changes
+    const { data } = this.supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await this.updateUserName(session.user);
       }
     });
+    this.authSubscription = { data };
+  }
+
+  async loadUser() {
+    const { data: { user } } = await this.supabase.auth.getUser();
+    if (user) {
+      await this.updateUserName(user);
+    }
+  }
+
+  async updateUserName(user: any) {
+    try {
+      const profile = await firstValueFrom(this.usuarioService.getUsuarioById(user.id));
+      if (profile) {
+        this.userName = `${profile.nombre || ''} ${profile.apellido || ''}`.trim() || user.email || 'Usuario';
+      } else {
+        this.userName = user.email || 'Usuario';
+      }
+    } catch {
+      this.userName = user.email || 'Usuario';
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.authUnsubscribe) {
-      this.authUnsubscribe();
+    if (this.authSubscription?.data?.subscription) {
+      this.authSubscription.data.subscription.unsubscribe();
     }
   }
 

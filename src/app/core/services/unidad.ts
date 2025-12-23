@@ -1,65 +1,187 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, docData, updateDoc, deleteDoc } from '@angular/fire/firestore';
-import { Observable, firstValueFrom } from 'rxjs';
+import { SupabaseService } from './supabase.service';
+import { Observable, from, firstValueFrom } from 'rxjs';
 import { EventMonitorService } from './event-monitor.service';
 
 @Injectable({ providedIn: 'root' })
 export class UnidadService {
-	private firestore = inject(Firestore);
+	private supabase = inject(SupabaseService);
   private events = inject(EventMonitorService);
 
 	getUnidades(): Observable<any[]> {
-		const ref = collection(this.firestore, 'unidades');
-		return collectionData(ref, { idField: 'id' }) as Observable<any[]>;
+		return from(
+			this.supabase.client
+				.from('unidades')
+				.select('*')
+				.then(response => {
+					if (response.error) throw response.error;
+					// Transform snake_case back to camelCase for app compatibility
+					return (response.data || []).map((item: any) => this.toCamelCase(item));
+				})
+		);
 	}
 
 	async addUnidad(unidad: any) {
-		const ref = collection(this.firestore, 'unidades');
 		const sanitized = this.removeUndefinedDeep(unidad);
-		const added = await addDoc(ref, sanitized);
-		await this.events.new('Unidades', { id: added.id, ...sanitized });
-    if (sanitized?.proyectoId) {
-      const pref = doc(this.firestore, 'proyectos', String(sanitized.proyectoId));
-      const prev: any = await firstValueFrom(docData(pref));
-      const unidadesCount = (prev?.unidadesCount || 0) + 1;
-      await updateDoc(pref, { unidadesCount });
-    }
-		return added;
+		
+		// Remove fields that don't exist in the database table
+		const cleaned = { ...sanitized };
+		// Remove denormalized fields (these come from proyecto, not stored in unidades)
+		delete cleaned.city;
+		delete cleaned.barrio;
+		delete cleaned.ciudad;
+		delete cleaned.ciudadId;
+		delete cleaned.barrioId;
+		delete cleaned.proyectoNombre; // This is just for UI
+		delete cleaned.ubicacion; // This might be proyecto.direccion, check if needed
+		delete cleaned.entrega; // This is stored in proyectos table, not unidades
+		// Remove UI-only fields that don't exist in database schema
+		delete cleaned.acceso;
+		delete cleaned.infraestructura;
+		delete cleaned.tipoConstruccion;
+		delete cleaned.mejorasTrabajo;
+		delete cleaned.infraestructuraHabitacional;
+		delete cleaned.fuentesAgua;
+		delete cleaned.altura; // UI-only field, not in database schema
+		delete cleaned.extras; // Stored in unidad_amenities table, not in unidades
+		delete cleaned.amenities; // Stored in unidad_amenities table, not in unidades
+		delete cleaned.precioUSD; // Redundant with precio + moneda
+		delete cleaned.pisoProyecto; // UI-only field
+		delete cleaned.unidadesTotales; // UI-only field
+		delete cleaned.terraza; // UI-only field
+		delete cleaned.garage; // UI-only field
+		delete cleaned.tamanoTerraza; // UI-only field
+		delete cleaned.tamanoGarage; // UI-only field
+		delete cleaned.precioGarage; // UI-only field
+		delete cleaned.areaComun; // UI-only field
+		delete cleaned.equipamiento; // UI-only field
+		delete cleaned.tipo; // Legacy field, redundant with tipo_unidad
+		delete cleaned.unidades; // Legacy field
+		delete cleaned.inicio; // Legacy field
+		delete cleaned.tipoPropiedad; // UI-only field, not in database schema
+		// Map estado to estadoComercial (database column name)
+		if (cleaned.estado !== undefined) {
+			cleaned.estadoComercial = cleaned.estado;
+			delete cleaned.estado;
+		}
+		// Map precioUSD to precio (moneda defaults to USD)
+		if (cleaned.precioUSD !== undefined) {
+			cleaned.precio = cleaned.precioUSD;
+			delete cleaned.precioUSD;
+			if (!cleaned.moneda) {
+				cleaned.moneda = 'USD';
+			}
+		}
+		// Ensure tipoUnidad maps to tipo_unidad (snake_case conversion handles this)
+		// Generate UUID for new unidad if not provided
+		if (!cleaned.id) {
+			cleaned.id = crypto.randomUUID();
+		}
+		
+		// Transform camelCase to snake_case for database
+		const dbData = this.toSnakeCase(cleaned);
+		
+		const { data, error } = await this.supabase.client
+			.from('unidades')
+			.insert(dbData)
+			.select()
+			.single();
+		
+		if (error) throw error;
+		
+		await this.events.new('Unidades', { id: data.id, ...sanitized });
+		return { id: data.id };
 	}
 
   getUnidadById(id: string): Observable<any | undefined> {
-    const ref = doc(this.firestore, 'unidades', id);
-    return docData(ref, { idField: 'id' }) as Observable<any | undefined>;
+    return from(
+      this.supabase.client
+        .from('unidades')
+        .select('*')
+        .eq('id', id)
+        .single()
+        .then(response => {
+          if (response.error) {
+            if (response.error.code === 'PGRST116') return undefined; // Not found
+            throw response.error;
+          }
+          // Transform snake_case back to camelCase for app compatibility
+          return this.toCamelCase(response.data);
+        })
+    );
   }
 
   async updateUnidad(id: string, changes: any) {
-    const ref = doc(this.firestore, 'unidades', id);
-    const previous = await firstValueFrom(docData(ref, { idField: 'id' }));
+    const previous = await firstValueFrom(this.getUnidadById(id));
     const sanitized = this.removeUndefinedDeep(changes);
-    await updateDoc(ref, sanitized);
+    // Remove fields that don't exist in the database table
+    const cleaned = { ...sanitized };
+    // Remove denormalized fields (these come from proyecto, not stored in unidades)
+    delete cleaned.city;
+    delete cleaned.barrio;
+    delete cleaned.ciudad;
+    delete cleaned.ciudadId;
+    delete cleaned.barrioId;
+    delete cleaned.proyectoNombre; // This is just for UI
+    delete cleaned.ubicacion; // This might be proyecto.direccion, check if needed
+    delete cleaned.entrega; // This is stored in proyectos table, not unidades
+    // Remove UI-only fields that don't exist in database schema
+    delete cleaned.acceso;
+    delete cleaned.infraestructura;
+    delete cleaned.tipoConstruccion;
+    delete cleaned.mejorasTrabajo;
+    delete cleaned.infraestructuraHabitacional;
+    delete cleaned.fuentesAgua;
+    delete cleaned.altura; // UI-only field, not in database schema
+    delete cleaned.extras; // Stored in unidad_amenities table, not in unidades
+    delete cleaned.amenities; // Stored in unidad_amenities table, not in unidades
+    delete cleaned.precioUSD; // Redundant with precio + moneda
+    delete cleaned.pisoProyecto; // UI-only field
+    delete cleaned.unidadesTotales; // UI-only field
+    delete cleaned.terraza; // UI-only field
+    delete cleaned.garage; // UI-only field
+    delete cleaned.tamanoTerraza; // UI-only field
+    delete cleaned.tamanoGarage; // UI-only field
+    delete cleaned.precioGarage; // UI-only field
+    delete cleaned.areaComun; // UI-only field
+    delete cleaned.equipamiento; // UI-only field
+    delete cleaned.tipo; // Legacy field, redundant with tipo_unidad
+    delete cleaned.unidades; // Legacy field
+    delete cleaned.inicio; // Legacy field
+    delete cleaned.tipoPropiedad; // UI-only field, not in database schema
+    // Map estado to estadoComercial (database column name)
+    if (cleaned.estado !== undefined) {
+      cleaned.estadoComercial = cleaned.estado;
+      delete cleaned.estado;
+    }
+    // Map precioUSD to precio (moneda defaults to USD)
+    if (cleaned.precioUSD !== undefined) {
+      cleaned.precio = cleaned.precioUSD;
+      delete cleaned.precioUSD;
+      if (!cleaned.moneda) {
+        cleaned.moneda = 'USD';
+      }
+    }
+    // Ensure tipoUnidad maps to tipo_unidad (snake_case conversion handles this)
+    // Transform camelCase to snake_case for database
+    const dbChanges = this.toSnakeCase(cleaned);
+    const { error } = await this.supabase.client
+      .from('unidades')
+      .update(dbChanges)
+      .eq('id', id);
+    if (error) throw error;
     const current = { ...(previous as any), ...sanitized };
     await this.events.edit('Unidades', previous as any, current);
   }
 
   async deleteUnidad(id: string) {
-    const ref = doc(this.firestore, 'unidades', id);
-    const previous = await firstValueFrom(docData(ref, { idField: 'id' }));
-    await deleteDoc(ref);
+    const previous = await firstValueFrom(this.getUnidadById(id));
+    const { error } = await this.supabase.client
+      .from('unidades')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
     await this.events.delete('Unidades', previous as any);
-    const prev: any = previous;
-    if (prev?.proyectoId) {
-      try {
-        const pref = doc(this.firestore, 'proyectos', String(prev.proyectoId));
-        const pprev: any = await firstValueFrom(docData(pref));
-        if (pprev) {
-          const unidadesCount = Math.max(0, (pprev?.unidadesCount || 0) - 1);
-          await updateDoc(pref, { unidadesCount });
-        }
-      } catch (error: any) {
-        // Si el proyecto no existe o hay un error, solo loguear pero no fallar
-        console.warn('Could not update proyecto unidadesCount:', error?.message || error);
-      }
-    }
   }
 
   private removeUndefinedDeep(value: any): any {
@@ -75,5 +197,27 @@ export class UnidadService {
       return out;
     }
     return value;
+  }
+
+  private toSnakeCase(obj: any): any {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(v => this.toSnakeCase(v));
+    const result: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const snakeKey = key.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '');
+      result[snakeKey] = this.toSnakeCase(value);
+    }
+    return result;
+  }
+
+  private toCamelCase(obj: any): any {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(v => this.toCamelCase(v));
+    const result: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      result[camelKey] = this.toCamelCase(value);
+    }
+    return result;
   }
 }

@@ -5,7 +5,8 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
-import { VentaService, VentaRecord } from '../../core/services/venta';
+import { VentaService } from '../../core/services/venta';
+import { VentaRecord } from '../../core/models';
 import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 import demo from './demoData.json';
 
@@ -122,7 +123,11 @@ export class Reportes {
     });
 
     this.ventaService.getVentas().subscribe(vs => {
-      this.allVentas = (vs || []).sort((a, b) => (b?.date || 0) - (a?.date || 0));
+      this.allVentas = (vs || []).sort((a, b) => {
+        const dateA = typeof a?.date === 'number' ? a.date : 0;
+        const dateB = typeof b?.date === 'number' ? b.date : 0;
+        return dateB - dateA;
+      });
       this.applyFilters();
     });
   }

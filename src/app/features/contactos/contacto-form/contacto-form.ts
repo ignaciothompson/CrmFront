@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContactoService } from '../../../core/services/contacto';
+import { CiudadService } from '../../../core/services/ciudad.service';
+import { BarrioService } from '../../../core/services/barrio.service';
 
 @Component({
   selector: 'app-contacto-form',
@@ -18,6 +20,8 @@ export class ContactoForm {
   constructor(
     private router: Router, 
     private contactoService: ContactoService,
+    private ciudadService: CiudadService,
+    private barrioService: BarrioService,
     public activeModal?: NgbActiveModal
   ) {}
 
@@ -31,18 +35,9 @@ export class ContactoForm {
     ultimoContacto: '',
     proximoContacto: ''
   };
-  ciudades = [
-    { value: 'norte', label: 'Montevideo' },
-    { value: 'sur', label: 'Canelones' },
-    { value: 'este', label: 'Maldonado' }
-  ];
-  private barriosCatalog: Record<string, string[]> = {
-    norte: [ 'Centro', 'Cordón', 'Parque Rodó', 'Pocitos', 'Punta Carretas', 'Ciudad Vieja', 'Malvín', 'Carrasco' ],
-    sur: [ 'Ciudad de la Costa', 'Las Piedras', 'La Paz', 'Pando', 'Barros Blancos' ],
-    este: [ 'Punta del Este', 'Maldonado Nuevo', 'San Rafael', 'La Barra', 'Pinares' ]
-  };
-  barriosDireccion: string[] = [];
-  barriosPreferencia: string[] = [];
+  ciudades: Array<{ value: string; label: string }> = [];
+  barriosDireccion: Array<{ value: string; label: string }> = [];
+  barriosPreferencia: Array<{ value: string; label: string }> = [];
 
   ngOnInit(): void {
     // Siempre abrimos como modal - si no hay activeModal, redirigir a contactos
@@ -50,6 +45,11 @@ export class ContactoForm {
       this.router.navigate(['/contactos']);
       return;
     }
+
+    // Load ciudades from database
+    this.ciudadService.getCiudades().subscribe(ciudades => {
+      this.ciudades = ciudades.map(c => ({ value: String(c.id), label: c.nombre }));
+    });
 
     this.id = this.contactoId;
     if (this.id) {
@@ -64,24 +64,56 @@ export class ContactoForm {
           this.model.proximoContacto = new Date(c.proximoContacto).toISOString().split('T')[0];
         }
         this.syncFamiliaFlag();
-        this.recomputeBarrios();
+        this.loadBarriosForDireccion();
+        this.loadBarriosForPreferencia();
       });
     }
   }
 
-  onCiudadDireccionChange(): void { this.model.direccion.Barrio = ''; this.recomputeBarrios(); }
-  onCiudadPreferenciaChange(): void { this.model.preferencia.Barrio = ''; this.recomputeBarrios(); }
+  onCiudadDireccionChange(): void { 
+    this.model.direccion.Barrio = ''; 
+    this.loadBarriosForDireccion(); 
+  }
+  
+  onCiudadPreferenciaChange(): void { 
+    this.model.preferencia.Barrio = ''; 
+    this.loadBarriosForPreferencia(); 
+  }
+  
   onParejaChange(): void { this.syncFamiliaFlag(); }
 
   private syncFamiliaFlag(): void { if (!this.model.Pareja) this.model.familia = false; }
 
-  private recomputeBarrios(): void {
-    const dirCity = this.model.direccion.Ciudad;
-    const prefCity = this.model.preferencia.Ciudad;
-    const curatedDir = new Set<string>(this.barriosCatalog[dirCity] || []);
-    const curatedPref = new Set<string>(this.barriosCatalog[prefCity] || []);
-    this.barriosDireccion = Array.from(curatedDir).sort();
-    this.barriosPreferencia = Array.from(curatedPref).sort();
+  private loadBarriosForDireccion(): void {
+    const ciudadId = this.model.direccion?.Ciudad;
+    if (!ciudadId) {
+      this.barriosDireccion = [];
+      return;
+    }
+    const ciudadIdNum = parseInt(String(ciudadId), 10);
+    if (isNaN(ciudadIdNum)) {
+      this.barriosDireccion = [];
+      return;
+    }
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
+      this.barriosDireccion = barrios.map(b => ({ value: b.nombre, label: b.nombre }));
+    });
+  }
+
+  private loadBarriosForPreferencia(): void {
+    const ciudadId = this.model.preferencia?.Ciudad;
+    if (!ciudadId) {
+      this.barriosPreferencia = [];
+      return;
+    }
+    const ciudadIdNum = parseInt(String(ciudadId), 10);
+    if (isNaN(ciudadIdNum)) {
+      this.barriosPreferencia = [];
+      return;
+    }
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
+      this.barriosPreferencia = barrios.map(b => ({ value: b.nombre, label: b.nombre }));
+    });
   }
 
   save(): void {

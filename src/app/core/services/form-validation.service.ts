@@ -1,21 +1,5 @@
 import { Injectable } from '@angular/core';
-
-export interface ValidationRule {
-  field: string;
-  label: string;
-  required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-  pattern?: RegExp;
-  customValidator?: (value: any) => string | null;
-}
-
-export interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-}
+import { ValidationRule, ValidationResult } from '../models';
 
 @Injectable({
   providedIn: 'root'

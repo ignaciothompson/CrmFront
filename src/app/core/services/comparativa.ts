@@ -1,28 +1,52 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, docData, deleteDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { SupabaseService } from './supabase.service';
+import { Observable, from } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ComparativaService {
-	private firestore = inject(Firestore);
+	private supabase = inject(SupabaseService);
 
 	getComparativas(): Observable<any[]> {
-		const ref = collection(this.firestore, 'comparativas');
-		return collectionData(ref, { idField: 'id' }) as Observable<any[]>;
+		return from(
+			this.supabase.client
+				.from('comparativas')
+				.select('*')
+				.then(response => {
+					if (response.error) throw response.error;
+					return response.data || [];
+				})
+		);
 	}
 
 	getComparativa(id: string): Observable<any> {
-		const ref = doc(this.firestore, `comparativas/${id}`);
-		return docData(ref, { idField: 'id' });
+		return from(
+			this.supabase.client
+				.from('comparativas')
+				.select('*')
+				.eq('id', id)
+				.single()
+				.then(response => {
+					if (response.error) throw response.error;
+					return response.data;
+				})
+		);
 	}
 
-	addComparativa(payload: any) {
-		const ref = collection(this.firestore, 'comparativas');
-		return addDoc(ref, payload);
+	async addComparativa(payload: any) {
+		const { data, error } = await this.supabase.client
+			.from('comparativas')
+			.insert(payload)
+			.select()
+			.single();
+		if (error) throw error;
+		return { id: data.id };
 	}
 
-	deleteComparativa(id: string) {
-		const ref = doc(this.firestore, `comparativas/${id}`);
-		return deleteDoc(ref);
+	async deleteComparativa(id: string) {
+		const { error } = await this.supabase.client
+			.from('comparativas')
+			.delete()
+			.eq('id', id);
+		if (error) throw error;
 	}
 }

@@ -1,14 +1,13 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { SupabaseService } from '../services/supabase.service';
 
 export const authGuard: CanActivateFn = async () => {
-	const auth = inject(Auth);
+	const supabase = inject(SupabaseService);
 	const router = inject(Router);
-	const isAuthed = await new Promise<boolean>((resolve) => {
-		onAuthStateChanged(auth, (user) => resolve(!!user));
-	});
-	if (!isAuthed) {
+	
+	const { data: { session } } = await supabase.auth.getSession();
+	if (!session) {
 		router.navigateByUrl('/login');
 		return false;
 	}

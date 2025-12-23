@@ -1,11 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { Auth } from '@angular/fire/auth';
-import { signOut } from 'firebase/auth';
 import { Router } from '@angular/router';
 import { MobileMenu } from '../mobile-menu/mobile-menu';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
+import { SupabaseService } from '../../../core/services/supabase.service';
 
 @Component({
   selector: 'app-header',
@@ -21,9 +20,10 @@ export class Header implements OnInit {
     isDark = false;
     mobileMenuOpen = false;
 
+	private supabase = inject(SupabaseService);
+	private router = inject(Router);
+
 	constructor(
-		private router: Router, 
-		private auth: Auth,
 		public breakpointService: BreakpointService
 	) {}
 
@@ -67,7 +67,7 @@ export class Header implements OnInit {
 
 	async logout() {
 		try {
-			await signOut(this.auth);
+			await this.supabase.auth.signOut();
 			this.router.navigateByUrl('/login');
 		} catch {}
 	}

@@ -6,6 +6,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FilterComponent } from '../../../shared/components/filter/filter';
 import { UnidadService } from '../../../core/services/unidad';
 import { ProyectoService } from '../../../core/services/proyecto';
+import { CiudadService } from '../../../core/services/ciudad.service';
+import { BarrioService } from '../../../core/services/barrio.service';
+import { Ciudad, Barrio } from '../../../core/models';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
@@ -26,6 +29,8 @@ export class UnidadForm {
     private router: Router, 
     private unidadService: UnidadService, 
     private proyectoService: ProyectoService,
+    private ciudadService: CiudadService,
+    private barrioService: BarrioService,
     private confirmService: ConfirmService,
     private toastService: ToastService,
     public activeModal?: NgbActiveModal
@@ -81,7 +86,7 @@ export class UnidadForm {
     condicion: null, // A estrenar | Reciclado | A reciclar
     // Chacra / Rural specifics
     hectareas: null, // shared with Campo
-    m2Edificados: null,
+    // superficieEdificada is shared with Casa (defined above)
     tipoConstruccion: '',
     acceso: '',
     infraestructura: '',
@@ -138,11 +143,7 @@ export class UnidadForm {
     { value: 'Campo', label: 'Campo' }
   ];
   estadoComercialFilterOptions = this.estadoComercialOptions.map(s => ({ value: s, label: s }));
-  ciudades = [
-    { value: 'norte', label: 'Montevideo' },
-    { value: 'sur', label: 'Canelones' },
-    { value: 'este', label: 'Maldonado' }
-  ];
+  ciudadFilterOptions: Array<{ value: string; label: string }> = [];
   
   condicionCasaFilterOptions = this.condicionCasaOptions.map(c => ({ value: c, label: c }));
   orientacionFilterOptions = [
@@ -209,39 +210,22 @@ export class UnidadForm {
     { value: 'Forestal', label: 'Forestal' },
     { value: 'Mixta', label: 'Mixta' }
   ];
-  ciudadFilterOptions = this.ciudades.map(c => ({ value: c.value, label: c.label }));
   
-  get barrioFilterOptions() {
-    if (!this.barrios || this.barrios.length === 0) {
-      return [];
-    }
-    return this.barrios.map(b => ({ value: b, label: b }));
+  get barrioFilterOptions(): Array<{ value: string; label: string }> {
+    return this.barrios.map(b => ({ value: String(b.id), label: b.nombre }));
   }
   
-  get nuevoProyectoBarrioFilterOptions() {
-    if (!this.nuevoProyectoBarrios || this.nuevoProyectoBarrios.length === 0) {
-      return [];
-    }
-    return this.nuevoProyectoBarrios.map(b => ({ value: b, label: b }));
+  get nuevoProyectoBarrioFilterOptions(): Array<{ value: string; label: string }> {
+    return this.nuevoProyectoBarrios.map(b => ({ value: String(b.id), label: b.nombre }));
   }
+  
   // Session units added during the current flow (for table rendering)
   sessionUnits: any[] = [];
   busy = false;
   projectLocked = false;
   editingProyecto = false;
-  barrios: string[] = [];
-  nuevoProyectoBarrios: string[] = [];
-  private barriosCatalog: Record<string, string[]> = {
-    norte: [
-      'Centro', 'Cordón', 'Parque Rodó', 'Pocitos', 'Punta Carretas', 'Ciudad Vieja', 'Malvín', 'Carrasco'
-    ],
-    sur: [
-      'Ciudad de la Costa', 'Las Piedras', 'La Paz', 'Pando', 'Barros Blancos'
-    ],
-    este: [
-      'Punta del Este', 'Maldonado Nuevo', 'San Rafael', 'La Barra', 'Pinares'
-    ]
-  };
+  barrios: Barrio[] = [];
+  nuevoProyectoBarrios: Barrio[] = [];
 
   ngOnInit(): void {
     // Siempre abrimos como modal - si no hay activeModal, redirigir a unidades
@@ -249,6 +233,11 @@ export class UnidadForm {
       this.router.navigate(['/unidades']);
       return;
     }
+
+    // Load ciudades from database
+    this.ciudadService.getCiudades().subscribe(ciudadesList => {
+      this.ciudadFilterOptions = ciudadesList.map(c => ({ value: String(c.id), label: c.nombre }));
+    });
 
     this.id = this.unidadId;
     const proyectoIdInput = this.proyectoId;
@@ -272,14 +261,17 @@ export class UnidadForm {
           this.nuevoProyecto = {
             nombre: p.nombre || '',
             desarrollador: p.desarrollador || '',
-            localidad: p.ciudad || p.localidad || null,
-            barrio: p.barrio || null,
+            localidad: p.ciudad_id ? String(p.ciudad_id) : (p.ciudad || p.localidad || null),
+            barrio: p.barrio_id ? String(p.barrio_id) : (p.barrio || null),
             direccion: p.direccion || '',
             entrega: p.entrega || ''
           };
           this.editingProyecto = editProyectoInput;
           this.projectLocked = false;
-          this.recomputeNuevoProyectoBarrios();
+          // Load barrios for nuevo proyecto ciudad
+          if (this.nuevoProyecto.localidad) {
+            this.loadBarriosForNuevoProyecto(this.nuevoProyecto.localidad);
+          }
           this.reloadSessionUnits();
         }
       }
@@ -288,7 +280,17 @@ export class UnidadForm {
       this.unidadService.getUnidadById(this.id).subscribe(u => {
         if (u) {
           this.model = { ...this.model, ...u };
-          this.recomputeBarrios();
+          // Map ciudad_id/barrio_id to city/barrio strings if needed
+          if (u.ciudad_id && !this.model.city) {
+            this.model.city = String(u.ciudad_id);
+          }
+          if (u.barrio_id && !this.model.barrio) {
+            this.model.barrio = String(u.barrio_id);
+          }
+          // Load barrios for the selected ciudad
+          if (this.model.city) {
+            this.loadBarriosForCiudad(this.model.city);
+          }
           this.alcance = this.model.proyectoId ? 'proyecto' : 'unica';
           if (this.alcance === 'proyecto') this.projectLocked = true;
         }
@@ -303,39 +305,41 @@ export class UnidadForm {
 
   onCityChange(): void {
     this.model.barrio = null;
-    this.recomputeBarrios();
+    this.loadBarriosForCiudad(this.model.city);
   }
 
   onNuevoProyectoLocalidadChange(): void {
     this.nuevoProyecto.barrio = null;
-    this.recomputeNuevoProyectoBarrios();
+    this.loadBarriosForNuevoProyecto(this.nuevoProyecto.localidad);
   }
 
-  private recomputeNuevoProyectoBarrios(): void {
-    if (!this.nuevoProyecto.localidad) {
-      this.nuevoProyectoBarrios = [];
-      return;
-    }
-    const curated = this.barriosCatalog[this.nuevoProyecto.localidad] || [];
-    this.unidadService.getUnidades().subscribe(list => {
-      const byCity = list.filter(u => (u.city || u.localidad) === this.nuevoProyecto.localidad);
-      const fromData = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
-      const merged = Array.from(new Set<string>([...curated, ...Array.from(fromData)])).sort();
-      this.nuevoProyectoBarrios = merged;
-    });
-  }
-
-  private recomputeBarrios(): void {
-    if (!this.model.city) {
+  private loadBarriosForCiudad(ciudadId: string | null | undefined): void {
+    if (!ciudadId) {
       this.barrios = [];
       return;
     }
-    this.unidadService.getUnidades().subscribe(list => {
-      const byCity = list.filter(u => (u.city || u.localidad) === this.model.city);
-      const fromData = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
-      const curated = new Set<string>(this.barriosCatalog[this.model.city] || []);
-      const merged = Array.from(new Set<string>([...Array.from(curated), ...Array.from(fromData)])).sort();
-      this.barrios = merged;
+    const ciudadIdNum = parseInt(String(ciudadId), 10);
+    if (isNaN(ciudadIdNum)) {
+      this.barrios = [];
+      return;
+    }
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
+      this.barrios = barrios;
+    });
+  }
+
+  private loadBarriosForNuevoProyecto(ciudadId: string | null | undefined): void {
+    if (!ciudadId) {
+      this.nuevoProyectoBarrios = [];
+      return;
+    }
+    const ciudadIdNum = parseInt(String(ciudadId), 10);
+    if (isNaN(ciudadIdNum)) {
+      this.nuevoProyectoBarrios = [];
+      return;
+    }
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
+      this.nuevoProyectoBarrios = barrios;
     });
   }
 
@@ -437,12 +441,16 @@ export class UnidadForm {
     }
     // Denormalize values from proyecto into unidad model for fast filters
     this.model.proyectoNombre = p.nombre || '';
-    this.model.city = p.ciudad || p.city || this.model.city || null;
-    this.model.barrio = p.barrio || this.model.barrio || null;
+    // Map ciudad_id/barrio_id to city/barrio strings for form
+    this.model.city = p.ciudad_id ? String(p.ciudad_id) : (p.ciudad || p.city || this.model.city || null);
+    this.model.barrio = p.barrio_id ? String(p.barrio_id) : (p.barrio || this.model.barrio || null);
     this.model.ubicacion = p.direccion || this.model.ubicacion || '';
     // If unit type is empty, default from proyecto.tipo when present
     if (!this.model.tipo && p.tipo) this.model.tipo = p.tipo;
-    this.recomputeBarrios();
+    // Load barrios for the selected ciudad
+    if (this.model.city) {
+      this.loadBarriosForCiudad(this.model.city);
+    }
     this.reloadSessionUnits();
   }
 
@@ -570,7 +578,7 @@ export class UnidadForm {
       // specs by type
       'dormitorios', 'banos', 'm2Internos', 'm2Totales', 'orientacion', 'extras', // apto
       'superficieEdificada', 'superficieTerreno', 'antiguedad', 'condicion', // casa
-      'hectareas', 'm2Edificados', 'tipoConstruccion', 'acceso', 'infraestructura', 'luz', 'agua', 'internet', // chacra
+      'hectareas', 'superficieEdificada', 'tipoConstruccion', 'acceso', 'infraestructura', 'luz', 'agua', 'internet', // chacra
       'aptitudSuelo', 'indiceProductividad', 'mejorasTrabajo', 'infraestructuraHabitacional', 'fuentesAgua' // campo
     ];
     const next: any = {};
@@ -660,9 +668,12 @@ export class UnidadForm {
       if (!this.isApartamentoWithProyecto()) {
         payload.entrega = payload.entrega || p.entrega;
       }
-      payload.city = payload.city || p.ciudad || p.city;
-      payload.barrio = payload.barrio || p.barrio;
+      // Map ciudad_id/barrio_id to city/barrio strings for form compatibility (UI only, not saved to DB)
+      // These are denormalized from proyecto and shouldn't be saved to unidades table
+      payload.city = payload.city || (p.ciudad_id ? String(p.ciudad_id) : (p.ciudad || p.city));
+      payload.barrio = payload.barrio || (p.barrio_id ? String(p.barrio_id) : p.barrio);
       payload.ubicacion = payload.ubicacion || p.direccion;
+      // Note: city, barrio, ubicacion are removed in UnidadService before saving
     }
     return payload;
   }
@@ -683,14 +694,29 @@ export class UnidadForm {
     
     // proyectoNombre is filled, so create a new proyecto (regardless of proyectoModo)
     
-    const pPayload = {
+    // Convert ciudad and barrio strings to IDs
+    const ciudadId = this.nuevoProyecto.localidad 
+      ? parseInt(String(this.nuevoProyecto.localidad), 10) 
+      : (this.model.city ? parseInt(String(this.model.city), 10) : null);
+    const barrioId = this.nuevoProyecto.barrio 
+      ? parseInt(String(this.nuevoProyecto.barrio), 10) 
+      : (this.model.barrio ? parseInt(String(this.model.barrio), 10) : null);
+    
+    const pPayload: any = {
       nombre: nombreProyecto,
       desarrollador: this.nuevoProyecto.desarrollador || '',
-      ciudad: this.nuevoProyecto.localidad || this.model.city || null,
-      barrio: this.nuevoProyecto.barrio || this.model.barrio || null,
       direccion: this.nuevoProyecto.direccion || this.model.ubicacion || '',
       entrega: this.nuevoProyecto.entrega || this.model.entrega || ''
     };
+    
+    // Only add ciudad_id and barrio_id if they are valid numbers
+    if (ciudadId && !isNaN(ciudadId)) {
+      pPayload.ciudad_id = ciudadId;
+    }
+    if (barrioId && !isNaN(barrioId)) {
+      pPayload.barrio_id = barrioId;
+    }
+    
     const added = await this.proyectoService.addProyecto(pPayload);
     
     // Ensure proyectoId is set as a string (never empty)
@@ -718,7 +744,9 @@ export class UnidadForm {
       this.proyectoItems = sorted.map(p => ({ id: String(p.id), label: String(p.nombre) }));
     });
     
-    this.recomputeBarrios();
+    if (this.model.city) {
+      this.loadBarriosForCiudad(this.model.city);
+    }
   }
 
   // New form methods
@@ -901,7 +929,9 @@ export class UnidadForm {
       
       // Reload barrios if city is set
       if (this.model.city) {
-        this.recomputeBarrios();
+        if (this.model.city) {
+      this.loadBarriosForCiudad(this.model.city);
+    }
       }
       
       this.toastService.success(`Unidad "${payload.nombre}" agregada exitosamente`);

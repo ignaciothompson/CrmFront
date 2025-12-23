@@ -3,6 +3,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ContactoService } from '../../../core/services/contacto';
+import { CiudadService } from '../../../core/services/ciudad.service';
+import { BarrioService } from '../../../core/services/barrio.service';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
@@ -16,14 +18,20 @@ import { ContactoForm } from '../contacto-form/contacto-form';
   styleUrl: './contactos.css'
 })
 export class Contactos implements OnDestroy {
-  constructor(private contactoService: ContactoService, private modal: NgbModal) {}
+  constructor(
+    private contactoService: ContactoService, 
+    private ciudadService: CiudadService,
+    private barrioService: BarrioService,
+    private modal: NgbModal
+  ) {}
 
   // Filter configurations for subheader
   subheaderFilters: FilterConfig[] = [];
 
   localidad: string = '';
   selectedBarrio: string = '';
-  barrios: string[] = [];
+  barrios: Array<{ value: string; label: string }> = [];
+  ciudades: Array<{ value: string; label: string }> = [];
   all: any[] = [];
   filtered: any[] = [];
   nameSelectedId: string | null = null;
@@ -31,9 +39,14 @@ export class Contactos implements OnDestroy {
   tipoResidencia: string = '';
   cuartos: number | null = null;
   private sub?: Subscription;
-  private readonly cityLabelMap: Record<string, string> = { norte: 'Montevideo', sur: 'Canelones', este: 'Maldonado' };
 
   ngOnInit(): void {
+    // Load ciudades from database
+    this.ciudadService.getCiudades().subscribe(ciudadesList => {
+      this.ciudades = ciudadesList.map(c => ({ value: String(c.id), label: c.nombre }));
+      this.updateFilterConfigs();
+    });
+
     this.sub = this.contactoService.getContactos().subscribe(list => {
       this.all = list || [];
       this.nameItems = this.all
@@ -65,9 +78,7 @@ export class Contactos implements OnDestroy {
         label: 'Ciudad',
         values: [
           { value: '', label: 'Todas' },
-          { value: 'norte', label: 'Montevideo' },
-          { value: 'sur', label: 'Canelones' },
-          { value: 'este', label: 'Maldonado' }
+          ...this.ciudades
         ],
         columnClass: 'col-xs-12 col-sm-6 col-md-2'
       },
@@ -75,7 +86,10 @@ export class Contactos implements OnDestroy {
         id: 'barrio',
         type: 'select',
         label: 'Barrio',
-        values: this.barrios.map(b => ({ value: b, label: b })),
+        values: [
+          { value: '', label: 'Todos' },
+          ...this.barrios
+        ],
         disabled: !this.localidad,
         columnClass: 'col-xs-12 col-sm-6 col-md-2'
       },
@@ -114,12 +128,18 @@ export class Contactos implements OnDestroy {
     this.tipoResidencia = values['tipoResidencia'] || '';
     this.cuartos = values['cuartos'] !== undefined && values['cuartos'] !== null ? values['cuartos'] : null;
     
-    // Update barrios list when ciudad changes
+    // Update barrios list when ciudad changes - load from database
     if (this.localidad) {
-      const byCity = this.all.filter(c => (c?.direccion?.Ciudad || c.localidad || c.city) === this.localidad);
-      const set = new Set<string>(byCity.map(c => c?.direccion?.Barrio || c.barrio).filter(Boolean));
-      this.barrios = Array.from(set).sort();
-      this.updateFilterConfigs(); // Update barrio options
+      const ciudadIdNum = parseInt(String(this.localidad), 10);
+      if (!isNaN(ciudadIdNum)) {
+        this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barriosList => {
+          this.barrios = barriosList.map(b => ({ value: b.nombre, label: b.nombre }));
+          this.updateFilterConfigs(); // Update barrio options
+        });
+      } else {
+        this.barrios = [];
+        this.updateFilterConfigs();
+      }
     } else {
       this.barrios = [];
       this.selectedBarrio = '';
@@ -129,7 +149,10 @@ export class Contactos implements OnDestroy {
     this.recompute();
   }
 
-  labelForCity(value: string): string { return this.cityLabelMap[value] || value || ''; }
+  labelForCity(value: string): string { 
+    const ciudad = this.ciudades.find(c => c.value === value);
+    return ciudad ? ciudad.label : value || ''; 
+  }
 
   goNuevo(): void {
     const modalRef = this.modal.open(ContactoForm, { size: 'xl', backdrop: 'static', keyboard: false });
@@ -167,9 +190,15 @@ export class Contactos implements OnDestroy {
 
   private recompute(): void {
     if (this.localidad) {
-      const byCity = this.all.filter(c => (c?.direccion?.Ciudad || c.localidad || c.city) === this.localidad);
-      const set = new Set<string>(byCity.map(c => c?.direccion?.Barrio || c.barrio).filter(Boolean));
-      this.barrios = Array.from(set).sort();
+      const byCity = this.all.filter(c => {
+        const ciudadId = c?.direccion?.Ciudad || c.localidad || c.city;
+        return String(ciudadId) === String(this.localidad);
+      });
+      // Extract unique barrio names from filtered contacts
+      const barrioSet = new Set<string>(byCity.map(c => c?.direccion?.Barrio || c.barrio).filter(Boolean));
+      // Match barrios from database with the ones found in contacts
+      const barrioNames = Array.from(barrioSet).sort();
+      this.barrios = barrioNames.map(b => ({ value: b, label: b }));
       this.filtered = byCity;
     } else {
       this.barrios = [];
@@ -178,7 +207,10 @@ export class Contactos implements OnDestroy {
 
     // Apply barrio filter
     if (this.selectedBarrio) {
-      this.filtered = this.filtered.filter(c => (c?.direccion?.Barrio || c.barrio) === this.selectedBarrio);
+      this.filtered = this.filtered.filter(c => {
+        const barrio = c?.direccion?.Barrio || c.barrio;
+        return String(barrio) === String(this.selectedBarrio);
+      });
     }
 
     // Apply name selection filter (from typeahead by id)

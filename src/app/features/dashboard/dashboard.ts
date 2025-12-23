@@ -1,12 +1,13 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
 import { UnidadService } from '../../core/services/unidad';
 import { ContactoService } from '../../core/services/contacto';
 import { EntrevistaService } from '../../core/services/entrevista';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { SupabaseService } from '../../core/services/supabase.service';
 import { Router } from '@angular/router';
+import { from } from 'rxjs';
 import { MeetModal } from '../entrevistas/components/meet-modal/meet-modal';
 import { UnidadForm } from '../unidades/unidad-form/unidad-form';
 import { ContactoForm } from '../contactos/contacto-form/contacto-form';
@@ -25,12 +26,13 @@ import { BreakpointService } from '../../core/services/breakpoint.service';
 export class Dashboard {
   @ViewChild('fullCalendar') fullCalendarComponent!: FullCalendarComponent;
 
+  private supabase = inject(SupabaseService);
+
   constructor(
     private unidadService: UnidadService, 
     private contactoService: ContactoService, 
     private entrevistaService: EntrevistaService, 
     private modal: NgbModal, 
-    private firestore: Firestore, 
     private router: Router,
     public breakpointService: BreakpointService
   ) {}
@@ -153,8 +155,15 @@ export class Dashboard {
     });
 
     // Today's activity from eventos
-    const ref = collection(this.firestore, 'eventos');
-    collectionData(ref, { idField: 'id' }).subscribe((rows: any[]) => {
+    from(
+      this.supabase.client
+        .from('eventos')
+        .select('*')
+        .then(response => {
+          if (response.error) throw response.error;
+          return response.data || [];
+        })
+    ).subscribe((rows: any[]) => {
       const start = new Date(); start.setHours(0,0,0,0);
       const end = new Date(); end.setHours(23,59,59,999);
       const today = (rows || []).filter(r => {
@@ -162,13 +171,17 @@ export class Dashboard {
         return dt && dt >= start && dt <= end;
       }).sort((a,b) => String(b?.fecha).localeCompare(String(a?.fecha)));
       // Map to recent items with links
-      const mapped = today.map((ev: any) => ({
-        icon: this.iconFor(ev?.categoria),
-        text: this.textFor(ev),
-        time: 'Hoy',
-        tone: this.mapTone(ev?.tipo),
-        navigate: () => this.navigateTo(ev)
-      }));
+      // Use data_json from database, fallback to data for compatibility
+      const mapped = today.map((ev: any) => {
+        const eventData = ev?.data_json || ev?.data;
+        return {
+          icon: this.iconFor(ev?.categoria),
+          text: this.textFor({ ...ev, data: eventData }),
+          time: 'Hoy',
+          tone: this.mapTone(ev?.tipo),
+          navigate: () => this.navigateTo({ ...ev, data: eventData })
+        };
+      });
       this.recent = mapped.slice(0, 8);
     });
   }
@@ -235,9 +248,14 @@ export class Dashboard {
 
   private parseDate(v: any): Date | null {
     if (!v) return null;
-    if (v && typeof v.toDate === 'function') {
-      const d = v.toDate();
-      return d instanceof Date ? d : null;
+    // Handle ISO string dates (Supabase stores dates as strings)
+    if (typeof v === 'string') {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    // Handle Date objects
+    if (v instanceof Date) {
+      return isNaN(v.getTime()) ? null : v;
     }
     const d = new Date(v);
     return isNaN(d.getTime()) ? null : d;
@@ -258,7 +276,8 @@ export class Dashboard {
   }
 
   private labelForEvent(ev: any): string {
-    const cur = ev?.data?.current || {};
+    const eventData = ev?.data_json || ev?.data || {};
+    const cur = eventData?.current || {};
     if (ev?.categoria === 'Contactos') {
       const n = `${cur?.Nombre || cur?.nombre || ''} ${cur?.Apellido || cur?.apellido || ''}`.trim();
       return n;
@@ -274,7 +293,8 @@ export class Dashboard {
 
   private navigateTo(ev: any): void {
     const cat = ev?.categoria;
-    const current = ev?.data?.current || {};
+    const eventData = ev?.data_json || ev?.data || {};
+    const current = eventData?.current || {};
     const id = current?.id || current?.contactoId || current?.unidadId || current?.idRef;
     if (cat === 'Contactos' && id) {
       const modalRef = this.modal.open(ContactoForm, { size: 'xl', backdrop: 'static', keyboard: false });
