@@ -1,36 +1,51 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, docData, updateDoc, deleteDoc, query, where, setDoc } from '@angular/fire/firestore';
-import { Observable, firstValueFrom } from 'rxjs';
+import { SupabaseService } from './supabase.service';
+import { Observable, from, firstValueFrom } from 'rxjs';
 import { EventMonitorService } from './event-monitor.service';
-
-export interface UsuarioData {
-  id?: string;
-  nombre: string;
-  apellido: string;
-  email: string;
-  telefono?: string;
-  canDelete?: boolean;
-  localidades?: string[]; // Array of localidades: 'norte', 'sur', 'este'
-  createdAt?: number;
-  updatedAt?: number;
-}
+import { UsuarioData } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  private firestore = inject(Firestore);
+  private supabase = inject(SupabaseService);
   private events = inject(EventMonitorService);
 
   getUsuarios(): Observable<UsuarioData[]> {
-    const ref = collection(this.firestore, 'usuarios');
-    return collectionData(ref, { idField: 'id' }) as Observable<UsuarioData[]>;
+    return from(
+      this.supabase.client
+        .from('usuarios')
+        .select('*')
+        .then(response => {
+          if (response.error) {
+            // Handle table not found error (PGRST205) - table might not exist yet
+            if (response.error.code === 'PGRST205') {
+              console.warn('Usuarios table does not exist. User profiles may not be configured yet.');
+              return [];
+            }
+            throw response.error;
+          }
+          return response.data || [];
+        })
+    );
   }
 
   async getUsuarioByEmail(email: string): Promise<UsuarioData | null> {
     try {
-      const ref = collection(this.firestore, 'usuarios');
-      const q = query(ref, where('email', '==', email));
-      const snapshot = await firstValueFrom(collectionData(q, { idField: 'id' }) as Observable<UsuarioData[]>);
-      return snapshot.length > 0 ? snapshot[0] : null;
+      const { data, error } = await this.supabase.client
+        .from('usuarios')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+      if (error) {
+        // Handle table not found error (PGRST205) - table might not exist yet
+        if (error.code === 'PGRST205') {
+          console.warn('Usuarios table does not exist. User profiles may not be configured yet.');
+          return null;
+        }
+        if (error.code !== 'PGRST116') {
+          throw error;
+        }
+      }
+      return data || null;
     } catch (error) {
       console.error('Error getting usuario by email:', error);
       return null;
@@ -38,33 +53,62 @@ export class UsuarioService {
   }
 
   getUsuarioById(id: string): Observable<UsuarioData | undefined> {
-    const ref = doc(this.firestore, 'usuarios', id);
-    return docData(ref, { idField: 'id' }) as Observable<UsuarioData | undefined>;
+    return from(
+      this.supabase.client
+        .from('usuarios')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle()
+        .then(response => {
+          if (response.error) {
+            // Handle table not found error (PGRST205) - table might not exist yet
+            if (response.error.code === 'PGRST205') {
+              console.warn('Usuarios table does not exist. User profiles may not be configured yet.');
+              return undefined;
+            }
+            // Log error for debugging but don't throw for "not found" cases
+            if (response.error.code === 'PGRST116' || response.error.code === '42P01') {
+              console.warn('Usuario not found:', id, response.error);
+              return undefined;
+            }
+            console.error('Error fetching usuario:', response.error);
+            throw response.error;
+          }
+          return response.data || undefined;
+        })
+    );
   }
 
   async addUsuario(usuario: UsuarioData) {
-    const ref = collection(this.firestore, 'usuarios');
     const payload = {
       ...usuario,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
-    const added = await addDoc(ref, payload);
-    await this.events.new('Usuarios', { id: added.id, ...payload });
-    return added;
+    const { data, error } = await this.supabase.client
+      .from('usuarios')
+      .insert(payload)
+      .select()
+      .single();
+    if (error) throw error;
+    await this.events.new('Usuarios', { id: data.id, ...payload });
+    return { id: data.id };
   }
 
   async updateUsuario(id: string, changes: Partial<UsuarioData>) {
-    const ref = doc(this.firestore, 'usuarios', id);
     try {
-      const previous = await firstValueFrom(docData(ref, { idField: 'id' }));
+      const previous = await firstValueFrom(this.getUsuarioById(id));
       if (previous) {
         // Document exists, update it
         const payload = {
           ...changes,
           updatedAt: Date.now()
         };
-        await updateDoc(ref, payload);
+        const { error } = await this.supabase.client
+          .from('usuarios')
+          .update(payload)
+          .eq('id', id);
+        if (error) throw error;
         const current = { ...(previous as any), ...payload };
         await this.events.edit('Usuarios', previous as any, current);
       } else {
@@ -74,7 +118,12 @@ export class UsuarioService {
           createdAt: Date.now(),
           updatedAt: Date.now()
         };
-        await setDoc(ref, payload, { merge: true });
+        const { data, error } = await this.supabase.client
+          .from('usuarios')
+          .insert({ id, ...payload })
+          .select()
+          .single();
+        if (error) throw error;
         await this.events.new('Usuarios', { id, ...payload });
       }
     } catch (error: any) {
@@ -84,15 +133,23 @@ export class UsuarioService {
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
-      await setDoc(ref, payload, { merge: true });
+      const { data, error: insertError } = await this.supabase.client
+        .from('usuarios')
+        .upsert({ id, ...payload })
+        .select()
+        .single();
+      if (insertError) throw insertError;
       await this.events.new('Usuarios', { id, ...payload });
     }
   }
 
   async deleteUsuario(id: string) {
-    const ref = doc(this.firestore, 'usuarios', id);
-    const previous = await firstValueFrom(docData(ref, { idField: 'id' }));
-    await deleteDoc(ref);
+    const previous = await firstValueFrom(this.getUsuarioById(id));
+    const { error } = await this.supabase.client
+      .from('usuarios')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
     await this.events.delete('Usuarios', previous as any);
   }
 }

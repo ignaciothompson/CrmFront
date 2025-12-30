@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { VentaService, VentaRecord } from '../../../core/services/venta';
+import { VentaService } from '../../../core/services/venta';
+import { VentaRecord } from '../../../core/models';
 import { ContactoService } from '../../../core/services/contacto';
 import { UnidadService } from '../../../core/services/unidad';
 import { VentaInfoModal } from '../venta-info-modal/venta-info-modal';
@@ -57,7 +58,11 @@ export class VentasPage {
     };
     
     this.ventaService.getVentas().subscribe(rows => {
-      this.all = (rows || []).sort((a, b) => (b?.date || 0) - (a?.date || 0));
+      this.all = (rows || []).sort((a, b) => {
+        const dateA = typeof a?.date === 'number' ? a.date : 0;
+        const dateB = typeof b?.date === 'number' ? b.date : 0;
+        return dateB - dateA;
+      });
       this.filtered = this.all;
     });
     this.contactoService.getContactos().subscribe(cs => {
@@ -146,11 +151,17 @@ export class VentasPage {
     if (this.selectedType) list = list.filter(r => r.type === this.selectedType);
     if (this.dateFrom) {
       const from = new Date(this.dateFrom + 'T00:00:00').getTime();
-      list = list.filter(r => (r.date || 0) >= from);
+      list = list.filter(r => {
+        const dateValue = typeof r.date === 'number' ? r.date : 0;
+        return dateValue >= from;
+      });
     }
     if (this.dateTo) {
       const to = new Date(this.dateTo + 'T23:59:59').getTime();
-      list = list.filter(r => (r.date || 0) <= to);
+      list = list.filter(r => {
+        const dateValue = typeof r.date === 'number' ? r.date : 0;
+        return dateValue <= to;
+      });
     }
     this.filtered = list;
   }

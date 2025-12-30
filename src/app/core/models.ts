@@ -1,6 +1,7 @@
 // Core domain models and enums used across the app
 
-export type Ciudad = 'Montevideo' | 'Maldonado' | 'Canelones';
+// Legacy Ciudad type (string union) - consider migrating to CiudadModel
+export type CiudadType = 'Montevideo' | 'Maldonado' | 'Canelones';
 
 export type Orientacion =
   | 'Norte' | 'Noreste' | 'Este' | 'Sudeste'
@@ -43,7 +44,7 @@ export interface Proyecto {
   id: string;
   nombre: string;
   tipoProyecto: 'Multiple' | 'Unico';
-  ciudad: Ciudad;
+  ciudad: CiudadType;
   barrio: string;
   tipo: TipoResidencia; // Casa / Apartamento / Complejo
   createdAt?: number;
@@ -55,7 +56,7 @@ export interface Unidad {
   proyectoId: string;
 
   // Denormalized from proyecto for filtering
-  ciudad: Ciudad;
+  ciudad: CiudadType;
   barrio: string;
 
   nombre?: string;             // Ej: “Apto 302”
@@ -86,7 +87,7 @@ export interface Unidad {
 }
 
 export interface ContactoPreferencias {
-  ciudad?: Ciudad;
+  ciudad?: CiudadType;
   barrio?: string;
   tipo?: TipoResidencia;
   cuartos?: number; // 0..n (0 = Monoambiente)
@@ -123,4 +124,76 @@ export interface Contacto {
   updatedAt?: number;
 }
 
+// Ciudad interface (from ciudad.service.ts) - database model
+export interface CiudadModel {
+  id: number;
+  nombre: string;
+}
+
+// Alias for backward compatibility
+export type Ciudad = CiudadModel;
+
+// Barrio interface (from barrio.service.ts)
+export interface Barrio {
+  id: number;
+  ciudad_id: number;
+  nombre: string;
+}
+
+// VentaRecord interface (from venta.ts)
+export interface VentaRecord {
+  id?: string | number;
+  date?: number; // epoch ms (normalized to number)
+  type: 'venta' | 'renta';
+  contacto?: { id: string; nombre?: string } | null;
+  contactoId?: string; // For database
+  unidad?: { id: string; nombre?: string; localidad?: string };
+  unidadId?: string; // For database
+  importe?: number; // Valor de la venta/renta
+  comision?: number; // Porcentaje de comisión (ej: 3.5 para 3.5%)
+  comisionTotal?: number; // Total comisión calculada
+  moneda?: string; // 'USD', 'UYU', etc.
+  precioUnitario?: number; // Precio de la unidad (usado para calcular comisión si no se especifica)
+  meses?: number; // Meses de duración de la renta (solo para tipo renta)
+}
+
+// UsuarioData interface (from usuario.ts)
+export interface UsuarioData {
+  id?: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono?: string;
+  canDelete?: boolean;
+  localidades?: string[]; // Array of localidades: 'norte', 'sur', 'este'
+  createdAt?: number;
+  updatedAt?: number;
+}
+
+// ToastMessage interface (from toast.service.ts)
+export interface ToastMessage {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  duration?: number;
+}
+
+// ValidationRule interface (from form-validation.service.ts)
+export interface ValidationRule {
+  field: string;
+  label: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  pattern?: RegExp;
+  customValidator?: (value: any) => string | null;
+}
+
+// ValidationResult interface (from form-validation.service.ts)
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
 

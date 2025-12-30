@@ -1,10 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { importProvidersFrom, isDevMode } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideAuth, getAuth, connectAuthEmulator } from '@angular/fire/auth';
-import { provideFirestore, getFirestore, connectFirestoreEmulator } from '@angular/fire/firestore';
-import { environment } from './environments/environment';
+import { importProvidersFrom } from '@angular/core';
 import { App } from './app/app';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AppRoutingModule } from './app/app-routing-module';
@@ -13,26 +8,8 @@ import { inject } from '@vercel/analytics';
 
 bootstrapApplication(App, {
   providers: [
-    provideAnimations(),
     importProvidersFrom(AppRoutingModule),
-    provideCharts(withDefaultRegisterables()),
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => {
-      const auth = getAuth();
-      // Only connect to emulator if explicitly enabled in environment
-      if (isDevMode() && environment.useEmulators) {
-        connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-      }
-      return auth;
-    }),
-    provideFirestore(() => {
-      const db = getFirestore();
-      // Only connect to emulator if explicitly enabled in environment
-      if (isDevMode() && environment.useEmulators) {
-        connectFirestoreEmulator(db, 'localhost', 8090);
-      }
-      return db;
-    })
+    provideCharts(withDefaultRegisterables())
   ]
 })
   .then(() => {

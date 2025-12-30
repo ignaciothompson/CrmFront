@@ -43,9 +43,8 @@
 }
 
 .tab-content {
-    padding: 20px 0;
+    padding: 0px 0 20px 0 !important;
 }
-
 .nav-tabs {
     display: flex;
     border-bottom: 2px solid var(--border, #ddd);

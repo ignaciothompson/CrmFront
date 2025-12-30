@@ -1,6 +1,6 @@
 <div class="toast-container">
   @for (message of messages; track message.id) {
-    <div class="toast toast-{{ message.type }}" [@slideInOut]>
+    <div class="toast toast-{{ message.type }}">
       <div class="toast-icon">
         <i class="fa {{ getIconClass(message.type) }}"></i>
       </div>

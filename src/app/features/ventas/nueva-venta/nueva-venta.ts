@@ -5,7 +5,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
 import { ContactoService } from '../../../core/services/contacto';
 import { UnidadService } from '../../../core/services/unidad';
-import { VentaService, VentaRecord } from '../../../core/services/venta';
+import { VentaService } from '../../../core/services/venta';
+import { VentaRecord } from '../../../core/models';
 
 @Component({
   selector: 'app-nueva-venta',
@@ -49,7 +50,11 @@ export class NuevaVentaModal {
       this.unidadItems = this.unidades.map(u => ({ id: String(u.id), label: `${u?.nombre || u?.name || 'Unidad'} — ${u?.barrio || ''}`.trim() }));
     });
     this.ventaService.getVentas().subscribe(rows => {
-      this.ventas = (rows || []).sort((a, b) => (b?.date || 0) - (a?.date || 0)).slice(0, 10);
+      this.ventas = (rows || []).sort((a, b) => {
+        const dateA = typeof a?.date === 'number' ? a.date : 0;
+        const dateB = typeof b?.date === 'number' ? b.date : 0;
+        return dateB - dateA;
+      }).slice(0, 10);
     });
   }
 
@@ -139,9 +144,14 @@ export class NuevaVentaModal {
 
     // Procesar todas las ventas agregadas
     for (const venta of this.ventasAgregadas) {
-      const unidad = this.unidades.find(u => String(u.id) === String(venta.unidad.id));
+      if (!venta.unidad || !venta.unidad.id) {
+        errores.push('Unidad no especificada en la venta');
+        continue;
+      }
+      
+      const unidad = this.unidades.find(u => String(u.id) === String(venta.unidad!.id));
       if (!unidad) {
-        errores.push(`Unidad ${venta.unidad.nombre} no encontrada`);
+        errores.push(`Unidad ${venta.unidad.nombre || venta.unidad.id} no encontrada`);
         continue;
       }
 
@@ -174,11 +184,11 @@ export class NuevaVentaModal {
         }
         await this.unidadService.updateUnidad(String(unidad.id), changes);
         console.log('Unidad actualizada exitosamente:', unidad.id);
-        exitosas.push(`Venta para ${venta.unidad.nombre} guardada correctamente`);
+        exitosas.push(`Venta para ${venta.unidad.nombre || unidad.nombre || 'unidad'} guardada correctamente`);
       } catch (error: any) {
         console.error('Error al guardar venta:', error);
         const mensajeError = error?.message || 'Error desconocido';
-        errores.push(`${venta.unidad.nombre}: ${mensajeError}`);
+        errores.push(`${venta.unidad.nombre || venta.unidad.id}: ${mensajeError}`);
       }
     }
 

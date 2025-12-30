@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { trigger, transition, style, animate } from '@angular/animations';
-import { ToastService, ToastMessage } from '../../../core/services/toast.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { ToastMessage } from '../../../core/models';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -9,18 +9,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './toast.html',
-  styleUrl: './toast.css',
-  animations: [
-    trigger('slideInOut', [
-      transition(':enter', [
-        style({ transform: 'translateX(100%)', opacity: 0 }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
-      ])
-    ])
-  ]
+  styleUrl: './toast.css'
 })
 export class ToastComponent implements OnInit, OnDestroy {
   messages: ToastMessage[] = [];

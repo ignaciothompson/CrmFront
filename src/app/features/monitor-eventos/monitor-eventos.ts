@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Firestore, collection, collectionData, query, where, Timestamp } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { SupabaseService } from '../../core/services/supabase.service';
+import { Observable, from } from 'rxjs';
 import { SubheaderComponent, FilterConfig } from '../../shared/components/subheader/subheader';
 
 @Component({
@@ -14,7 +14,7 @@ import { SubheaderComponent, FilterConfig } from '../../shared/components/subhea
   styleUrl: './monitor-eventos.css'
 })
 export class MonitorEventosComponent {
-  constructor(private firestore: Firestore) {}
+  private supabase = inject(SupabaseService);
 
   // Filter configurations for subheader
   subheaderFilters: FilterConfig[] = [];
@@ -91,9 +91,16 @@ export class MonitorEventosComponent {
   }
 
   load(): void {
-    const ref = collection(this.firestore, 'eventos');
     // Client-side filtering (simple and fast to implement). Can be moved to server query later.
-    collectionData(ref, { idField: 'id' }).subscribe((rows: any[]) => {
+    from(
+      this.supabase.client
+        .from('eventos')
+        .select('*')
+        .then(response => {
+          if (response.error) throw response.error;
+          return response.data || [];
+        })
+    ).subscribe((rows: any[]) => {
       let data = rows || [];
       
       // Ensure we have data
@@ -140,11 +147,13 @@ export class MonitorEventosComponent {
       if (this.categoria) data = data.filter(r => r?.categoria === this.categoria);
       if (this.tipo) data = data.filter(r => r?.tipo === this.tipo);
       // Map detalle: only show primitive changes for Editado in format: Campo: "old" a "new"
+      // Use data_json from database, fallback to data for compatibility
       const mapped = data.map(d => {
         let detalleStr = '';
-        if (d?.tipo === 'Editado' && d?.data?.changes) {
+        const eventData = d?.data_json || d?.data;
+        if (d?.tipo === 'Editado' && eventData?.changes) {
           const lines: string[] = [];
-          for (const [campo, change] of Object.entries(d.data.changes)) {
+          for (const [campo, change] of Object.entries(eventData.changes)) {
             const oldV = (change as any)?.oldValue;
             const newV = (change as any)?.newValue;
             if (this.isPrimitive(oldV) && this.isPrimitive(newV)) {
@@ -153,7 +162,7 @@ export class MonitorEventosComponent {
           }
           detalleStr = lines.join(' | ');
         }
-        return { ...d, _detalleStr: detalleStr };
+        return { ...d, _detalleStr: detalleStr, data: eventData || d.data };
       });
       this.items = mapped.sort((a,b) => {
         const da = this.parseDateLike(a?.fecha)?.getTime() || 0;
@@ -178,16 +187,7 @@ export class MonitorEventosComponent {
 
   private parseDateLike(v: any): Date | null {
     if (!v) return null;
-    // Handle Firestore Timestamp
-    if (v && typeof v.toDate === 'function') {
-      try {
-        const d = v.toDate();
-        return d instanceof Date ? d : null;
-      } catch (e) {
-        console.warn('Error converting Firestore timestamp:', e);
-      }
-    }
-    // Handle ISO string dates
+    // Handle ISO string dates (Supabase stores dates as strings)
     if (typeof v === 'string') {
       const d = new Date(v);
       return isNaN(d.getTime()) ? null : d;

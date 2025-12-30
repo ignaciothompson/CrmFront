@@ -51,8 +51,8 @@
         <label class="c-label" for="dirBarrio">Barrio</label>
         <select id="dirBarrio" class="form-control c-input" [(ngModel)]="model.direccion.Barrio" name="dirBarrio" [disabled]="!model.direccion.Ciudad">
           <option value="">Seleccione</option>
-          @for (b of barriosDireccion; track b) {
-            <option [value]="b">{{ b }}</option>
+          @for (b of barriosDireccion; track b.value) {
+            <option [value]="b.value">{{ b.label }}</option>
           }
         </select>
       </div>
@@ -71,8 +71,8 @@
         <label class="c-label" for="prefBarrio">Barrio</label>
         <select id="prefBarrio" class="form-control c-input" [(ngModel)]="model.preferencia.Barrio" name="prefBarrio" [disabled]="!model.preferencia.Ciudad">
           <option value="">Seleccione</option>
-          @for (b of barriosPreferencia; track b) {
-            <option [value]="b">{{ b }}</option>
+          @for (b of barriosPreferencia; track b.value) {
+            <option [value]="b.value">{{ b.label }}</option>
           }
         </select>
       </div>

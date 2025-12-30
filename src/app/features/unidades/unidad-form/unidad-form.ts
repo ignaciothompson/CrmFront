@@ -2,13 +2,16 @@ import { Component, Input } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FilterComponent } from '../../../shared/components/filter/filter';
 import { UnidadService } from '../../../core/services/unidad';
 import { ProyectoService } from '../../../core/services/proyecto';
+import { CiudadService } from '../../../core/services/ciudad.service';
+import { BarrioService } from '../../../core/services/barrio.service';
+import { Ciudad, Barrio } from '../../../core/models';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
+import { ProyectoSelectModal } from '../components/proyecto-select-modal/proyecto-select-modal';
 
 @Component({
   selector: 'app-unidad-form',
@@ -26,8 +29,11 @@ export class UnidadForm {
     private router: Router, 
     private unidadService: UnidadService, 
     private proyectoService: ProyectoService,
+    private ciudadService: CiudadService,
+    private barrioService: BarrioService,
     private confirmService: ConfirmService,
     private toastService: ToastService,
+    private modalService: NgbModal,
     public activeModal?: NgbActiveModal
   ) {}
 
@@ -36,79 +42,70 @@ export class UnidadForm {
 
   // Main form model. We keep legacy fields for backward-compat while introducing new dynamic-unit fields
   model: any = {
-    // Common
-    nombre: '',
-    descripcion: '',
-    entrega: '',
-    ubicacion: '',
-    city: null,
-    barrio: null,
-    responsable: '',
-    comision: null,
-    // Link to proyecto (when alcance === 'proyecto')
-    proyectoId: '',
-    // Dynamic typing for units
+    // Unidad Values
+    // Id
+    nombre: '', // saved on unidad
     tipoUnidad: 'Apartamento', // 'Apartamento' | 'Casa' | 'Chacra' | 'Campo' - Default: Apartamento
-    tipoPropiedad: null, // 'Edificio' | 'Casa' | 'PH'
-    estadoComercial: 'En venta', // En venta | En alquiler | Reservada | Vendida
-    // Apartment specifics
+    estadoComercial: 'En venta', // saved on unidad
+    precioUSD: null,
+    responsable: '', // saved on unidad
+    comision: null, // saved on unidad
     dormitorios: null,
     banos: null,
+    orientacion: null,
+    distribucion: null,
     m2Internos: null,
     m2Totales: null,
     piso: null,
-    orientacion: null,
-    distribucion: null,
-    altura: null,
-    precioUSD: null,
-    estado: null,
-    proyectoNombre: '',
-    pisoProyecto: null,
-    unidadesTotales: null,
+    superficieEdificada: null,
+    superficieTerreno: null,
+    plantas: null,
+    hectareas: null,
+    // deleted at 
+    // created at
+    // updated at
+    barrio: null, // saved on unidad
+    ciudad: null, // saved on unidad
+    ciudadId: null, // saved on unidad
+    barrioId: null, // saved on unidad
     terraza: '',
     garage: 'No',
     tamanoTerraza: null,
     tamanoGarage: null,
     precioGarage: null,
-    areaComun: '',
-    equipamiento: '',
     amenities: [],
-    // Casa specifics
-    superficieEdificada: null,
-    superficieTerreno: null,
-    plantas: null,
-    antiguedad: null,
-    condicion: null, // A estrenar | Reciclado | A reciclar
-    // Chacra / Rural specifics
-    hectareas: null, // shared with Campo
-    m2Edificados: null,
-    tipoConstruccion: '',
-    acceso: '',
-    infraestructura: '',
-    luz: false,
-    agua: false,
-    internet: false,
-    // Campo specifics
-    aptitudSuelo: null,
-    indiceProductividad: null,
-    mejorasTrabajo: '',
-    infraestructuraHabitacional: '',
-    fuentesAgua: '',
-    // Legacy (kept but not surfaced in new flow unless needed)
-    tipo: 'Residencial',
-    unidades: null,
-    inicio: '',
-    extras: []
+    altura: null,
+    fechaEntrega: '', // saved on unidad
+
+    // Proyecto values
+    proyectoId: '', // saved on proyecto
+    proyectoNombre: '',
+    // created at
+    // updated at
   };
   id?: string;
   proyectoItems: Array<{ id: string; label: string }> = [];
   proyectosAll: any[] = [];
-  extrasCatalog = EXTRAS_CATALOG;
-  apartmentExtras = ['Garage', 'Terraza', 'Parrillero', 'Servicio', 'Estufa a Leña', 'Piscina', 'Jacuzzi', 'Loft', 'Dúplex / Tríplex', 'Penthouse'];
-  houseExtras = ['Garage', 'Jardín', 'Piscina', 'Parrillero', 'Estufa a Leña', 'Dependencia de Servicio', 'Altillo / Playroom'];
+
+  private refreshProyectoItems(): void {
+    if (!this.proyectosAll || this.proyectosAll.length === 0) {
+      this.proyectoItems = [];
+      return;
+    }
+    const sorted = [...this.proyectosAll].sort((a, b) => {
+      const aTime = a.createdAt || a.created || 0;
+      const bTime = b.createdAt || b.created || 0;
+      return bTime - aTime; // Más recientes primero
+    });
+    this.proyectoItems = sorted.map(p => ({ 
+      id: String(p.id), 
+      label: String(p.nombre || p.name || 'Sin nombre') 
+    })).filter(x => x.id && x.id.trim() !== '');
+  }
   // Flow control
-  alcance: 'proyecto' | 'unica' = 'proyecto';
   proyectoModo: 'existente' | 'nuevo' = 'existente';
+  proyectoSelectMode: 'existente' | 'nuevo' = 'existente'; // New field for UI selection
+  proyectoFieldsDisabled: boolean = false; // Track if proyecto fields should be disabled
   nuevoProyecto: { nombre: string; desarrollador: string; localidad: string | null; barrio: string | null; direccion: string; entrega: string } = {
     nombre: '',
     desarrollador: '',
@@ -119,14 +116,9 @@ export class UnidadForm {
   };
   tipoUnidadOptions = ['Apartamento', 'Casa', 'Chacra', 'Campo'];
   estadoComercialOptions = ['En venta', 'En alquiler', 'Reservada', 'Vendida', 'Pre-venta', 'En Pozo'];
-  condicionCasaOptions = ['A estrenar', 'Reciclado', 'A reciclar'];
   orientaciones = ['Norte', 'Sur', 'Este', 'Oeste'];
   
   // Options for filter components
-  alcanceOptions = [
-    { value: 'proyecto', label: 'Es parte de un Proyecto' },
-    { value: 'unica', label: 'Es una Unidad Única' }
-  ];
   proyectoModoOptions = [
     { value: 'existente', label: 'Existente' },
     { value: 'nuevo', label: 'Nuevo' }
@@ -138,13 +130,8 @@ export class UnidadForm {
     { value: 'Campo', label: 'Campo' }
   ];
   estadoComercialFilterOptions = this.estadoComercialOptions.map(s => ({ value: s, label: s }));
-  ciudades = [
-    { value: 'norte', label: 'Montevideo' },
-    { value: 'sur', label: 'Canelones' },
-    { value: 'este', label: 'Maldonado' }
-  ];
+  ciudadFilterOptions: Array<{ value: string; label: string }> = [];
   
-  condicionCasaFilterOptions = this.condicionCasaOptions.map(c => ({ value: c, label: c }));
   orientacionFilterOptions = [
     { value: 'Norte', label: 'Norte' },
     { value: 'Noreste', label: 'Noreste' },
@@ -162,15 +149,6 @@ export class UnidadForm {
     { value: 'Contrafrente/Central', label: 'Contrafrente/Central' },
     { value: 'Lateral', label: 'Lateral' },
     { value: 'Inferior', label: 'Inferior' }
-  ];
-  tipoProyectoFilterOptions = [
-    { value: 'Edificio', label: 'Edificio' },
-    { value: 'Barrio', label: 'Barrio' }
-  ];
-  estadoFilterOptions = [
-    { value: 'Construccion', label: 'Construcción' },
-    { value: 'Pre-venta', label: 'Pre-venta' },
-    { value: 'Venta', label: 'Venta' }
   ];
   terrazaOptions = [
     { value: 'Si', label: 'Si' },
@@ -203,45 +181,22 @@ export class UnidadForm {
     { key: 'spa', label: 'Spa' }
   ];
   savedUnidades: Array<{ id: string; nombre: string; piso: number | null; m2Internos: number | null; m2Totales: number | null }> = [];
-  aptitudSueloOptions = [
-    { value: 'Ganadera', label: 'Ganadera' },
-    { value: 'Agrícola', label: 'Agrícola' },
-    { value: 'Forestal', label: 'Forestal' },
-    { value: 'Mixta', label: 'Mixta' }
-  ];
-  ciudadFilterOptions = this.ciudades.map(c => ({ value: c.value, label: c.label }));
   
-  get barrioFilterOptions() {
-    if (!this.barrios || this.barrios.length === 0) {
-      return [];
-    }
-    return this.barrios.map(b => ({ value: b, label: b }));
+  get barrioFilterOptions(): Array<{ value: string; label: string }> {
+    return this.barrios.map(b => ({ value: String(b.id), label: b.nombre }));
   }
   
-  get nuevoProyectoBarrioFilterOptions() {
-    if (!this.nuevoProyectoBarrios || this.nuevoProyectoBarrios.length === 0) {
-      return [];
-    }
-    return this.nuevoProyectoBarrios.map(b => ({ value: b, label: b }));
+  get nuevoProyectoBarrioFilterOptions(): Array<{ value: string; label: string }> {
+    return this.nuevoProyectoBarrios.map(b => ({ value: String(b.id), label: b.nombre }));
   }
+  
   // Session units added during the current flow (for table rendering)
   sessionUnits: any[] = [];
   busy = false;
   projectLocked = false;
   editingProyecto = false;
-  barrios: string[] = [];
-  nuevoProyectoBarrios: string[] = [];
-  private barriosCatalog: Record<string, string[]> = {
-    norte: [
-      'Centro', 'Cordón', 'Parque Rodó', 'Pocitos', 'Punta Carretas', 'Ciudad Vieja', 'Malvín', 'Carrasco'
-    ],
-    sur: [
-      'Ciudad de la Costa', 'Las Piedras', 'La Paz', 'Pando', 'Barros Blancos'
-    ],
-    este: [
-      'Punta del Este', 'Maldonado Nuevo', 'San Rafael', 'La Barra', 'Pinares'
-    ]
-  };
+  barrios: Barrio[] = [];
+  nuevoProyectoBarrios: Barrio[] = [];
 
   ngOnInit(): void {
     // Siempre abrimos como modal - si no hay activeModal, redirigir a unidades
@@ -250,36 +205,33 @@ export class UnidadForm {
       return;
     }
 
+    // Load ciudades from database
+    this.ciudadService.getCiudades().subscribe(ciudadesList => {
+      this.ciudadFilterOptions = ciudadesList.map(c => ({ value: String(c.id), label: c.nombre }));
+    });
+
     this.id = this.unidadId;
     const proyectoIdInput = this.proyectoId;
     const editProyectoInput = this.editProyecto;
     
     this.proyectoService.getProyectos().subscribe(ps => {
       this.proyectosAll = ps || [];
-      // Ordenar por fecha de creación (más recientes primero) y mapear
-      const sorted = [...this.proyectosAll].sort((a, b) => {
-        const aTime = a.createdAt || a.created || 0;
-        const bTime = b.createdAt || b.created || 0;
-        return bTime - aTime; // Más recientes primero
-      });
-      this.proyectoItems = sorted.map(p => ({ id: String(p.id), label: String(p.nombre) }));
+      this.refreshProyectoItems();
+      
       if (proyectoIdInput) {
         const p = this.proyectosAll.find(x => String(x.id) === String(proyectoIdInput));
         if (p) {
-          this.alcance = 'proyecto';
-          this.proyectoModo = 'nuevo';
+          this.proyectoModo = 'existente';
+          this.proyectoSelectMode = 'existente';
           this.model.proyectoId = String(p.id);
-          this.nuevoProyecto = {
-            nombre: p.nombre || '',
-            desarrollador: p.desarrollador || '',
-            localidad: p.ciudad || p.localidad || null,
-            barrio: p.barrio || null,
-            direccion: p.direccion || '',
-            entrega: p.entrega || ''
-          };
+          this.loadProyectoData(p);
           this.editingProyecto = editProyectoInput;
           this.projectLocked = false;
-          this.recomputeNuevoProyectoBarrios();
+          this.proyectoFieldsDisabled = true;
+          // Load barrios for nuevo proyecto ciudad
+          if (this.nuevoProyecto.localidad) {
+            this.loadBarriosForNuevoProyecto(this.nuevoProyecto.localidad);
+          }
           this.reloadSessionUnits();
         }
       }
@@ -288,9 +240,28 @@ export class UnidadForm {
       this.unidadService.getUnidadById(this.id).subscribe(u => {
         if (u) {
           this.model = { ...this.model, ...u };
-          this.recomputeBarrios();
-          this.alcance = this.model.proyectoId ? 'proyecto' : 'unica';
-          if (this.alcance === 'proyecto') this.projectLocked = true;
+          // Map ciudad_id/barrio_id to ciudad/barrio strings if needed
+          if (u.ciudad_id && !this.model.ciudad) {
+            this.model.ciudad = String(u.ciudad_id);
+          }
+          if (u.barrio_id && !this.model.barrio) {
+            this.model.barrio = String(u.barrio_id);
+          }
+          // Load barrios for the selected ciudad
+          if (this.model.ciudad) {
+            this.loadBarriosForCiudad(this.model.ciudad);
+          }
+          // Set proyectoSelectMode based on whether proyectoId exists
+          if (this.model.proyectoId) {
+            this.proyectoSelectMode = 'existente';
+            this.projectLocked = true;
+            // Load proyecto data if not already loaded
+            const p = this.proyectosAll.find(x => String(x.id) === String(this.model.proyectoId));
+            if (p) {
+              this.loadProyectoData(p);
+              this.proyectoFieldsDisabled = true;
+            }
+          }
         }
       });
     } else {
@@ -301,45 +272,61 @@ export class UnidadForm {
     }
   }
 
-  onCityChange(): void {
+  onCiudadChange(): void {
     this.model.barrio = null;
-    this.recomputeBarrios();
+    this.loadBarriosForCiudad(this.model.ciudad);
   }
 
   onNuevoProyectoLocalidadChange(): void {
     this.nuevoProyecto.barrio = null;
-    this.recomputeNuevoProyectoBarrios();
+    this.loadBarriosForNuevoProyecto(this.nuevoProyecto.localidad);
   }
 
-  private recomputeNuevoProyectoBarrios(): void {
-    if (!this.nuevoProyecto.localidad) {
-      this.nuevoProyectoBarrios = [];
-      return;
-    }
-    const curated = this.barriosCatalog[this.nuevoProyecto.localidad] || [];
-    this.unidadService.getUnidades().subscribe(list => {
-      const byCity = list.filter(u => (u.city || u.localidad) === this.nuevoProyecto.localidad);
-      const fromData = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
-      const merged = Array.from(new Set<string>([...curated, ...Array.from(fromData)])).sort();
-      this.nuevoProyectoBarrios = merged;
-    });
-  }
-
-  private recomputeBarrios(): void {
-    if (!this.model.city) {
+  private loadBarriosForCiudad(ciudadId: string | null | undefined): void {
+    if (!ciudadId) {
       this.barrios = [];
       return;
     }
-    this.unidadService.getUnidades().subscribe(list => {
-      const byCity = list.filter(u => (u.city || u.localidad) === this.model.city);
-      const fromData = new Set<string>(byCity.map(u => u.barrio).filter(Boolean));
-      const curated = new Set<string>(this.barriosCatalog[this.model.city] || []);
-      const merged = Array.from(new Set<string>([...Array.from(curated), ...Array.from(fromData)])).sort();
-      this.barrios = merged;
+    const ciudadIdNum = parseInt(String(ciudadId), 10);
+    if (isNaN(ciudadIdNum)) {
+      this.barrios = [];
+      return;
+    }
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
+      this.barrios = barrios;
+    });
+  }
+
+  private loadBarriosForNuevoProyecto(ciudadId: string | null | undefined): void {
+    if (!ciudadId) {
+      this.nuevoProyectoBarrios = [];
+      return;
+    }
+    const ciudadIdNum = parseInt(String(ciudadId), 10);
+    if (isNaN(ciudadIdNum)) {
+      this.nuevoProyectoBarrios = [];
+      return;
+    }
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
+      this.nuevoProyectoBarrios = barrios;
     });
   }
 
   async save(): Promise<void> {
+    // If we're not editing and form is empty but we have saved unidades, just close
+    // This handles the case where user clicked "Agregar y Repetir" multiple times
+    // and then clicks "Guardar" with an empty form
+    if (!this.id && this.savedUnidades.length > 0) {
+      const isFormEmpty = !this.model.nombre || this.model.nombre.trim() === '';
+      if (isFormEmpty) {
+        // Form is empty but we have saved unidades, just close the modal
+        if (this.activeModal) {
+          this.activeModal.close(true);
+        }
+        return;
+      }
+    }
+    
     // Validate before saving
     if (!this.validateRequiredFields()) {
       return;
@@ -349,42 +336,26 @@ export class UnidadForm {
       this.busy = true;
       
       // Ensure proyecto exists BEFORE building payload (so proyectoId is available)
-      if (this.alcance === 'proyecto' && !this.id) {
+      // This handles both creating new proyectos and ensuring existing ones are valid
+      if (!this.id) {
         await this.ensureProyectoId();
       }
       
       const payload = await this.buildPayloadWithProjectInheritance();
       
-      if (this.alcance === 'proyecto' && this.id) {
-        await this.unidadService.updateUnidad(this.id, payload);
-        const updated = { id: this.id, ...payload };
-        this.upsertSessionUnit(updated);
-        // Update in savedUnidades if it exists
-        const savedIdx = this.savedUnidades.findIndex(su => su.id === String(this.id));
-        if (savedIdx >= 0) {
-          this.savedUnidades[savedIdx] = {
-            id: String(this.id),
-            nombre: payload.nombre || '',
-            piso: payload.piso || null,
-            m2Internos: payload.m2Internos || null,
-            m2Totales: payload.m2Totales || null
-          };
-        }
-        this.id = undefined;
-        this.prepareNextCloned();
-        this.toastService.success(`Unidad "${payload.nombre}" actualizada exitosamente`);
-        return;
-      }
+      console.log('Payload before save:', payload);
       
       // Si es Apartamento con proyecto, actualizar la fecha de entrega en el proyecto
-      if (this.isApartamentoWithProyecto() && this.model.proyectoId && this.model.entrega) {
+      if (this.model.tipoUnidad === 'Apartamento' && this.model.proyectoId && this.model.fechaEntrega) {
         await this.proyectoService.updateProyecto(String(this.model.proyectoId), {
-          entrega: this.model.entrega
+          entrega: this.model.fechaEntrega
         });
       }
       
       if (this.id) {
-        await this.unidadService.updateUnidad(this.id, payload);
+        // Update existing unidad
+        const result = await this.unidadService.updateUnidad(this.id, payload);
+        console.log('Update result:', result);
         // Update in savedUnidades if it exists
         const savedIdx = this.savedUnidades.findIndex(su => su.id === String(this.id));
         if (savedIdx >= 0) {
@@ -398,7 +369,10 @@ export class UnidadForm {
         }
         this.toastService.success(`Unidad "${payload.nombre}" actualizada exitosamente`);
       } else {
-        await this.unidadService.addUnidad(payload);
+        // Create new unidad
+        console.log('Adding new unidad with payload:', payload);
+        const result = await this.unidadService.addUnidad(payload);
+        console.log('Add result:', result);
         this.toastService.success(`Unidad "${payload.nombre}" creada exitosamente`);
       }
       
@@ -406,23 +380,34 @@ export class UnidadForm {
       if (this.activeModal) {
         this.activeModal.close(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving unidad:', error);
-      this.toastService.error('Error al guardar la unidad. Por favor, verifique los datos e intente nuevamente.');
+      console.error('Error details:', {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code,
+        stack: error?.stack
+      });
+      
+      // Show more specific error message if available
+      const errorMessage = error?.message || error?.details || 'Error al guardar la unidad. Por favor, verifique los datos e intente nuevamente.';
+      this.toastService.error(errorMessage);
     } finally {
       this.busy = false;
     }
   }
 
-  onExtraChange(extraLabel: string, isChecked: boolean): void {
-    const currentExtras: string[] = Array.isArray(this.model.extras) ? this.model.extras.slice() : [];
-    const alreadyIncluded = currentExtras.includes(extraLabel);
-    if (isChecked && !alreadyIncluded) {
-      this.model.extras = [...currentExtras, extraLabel];
-      return;
-    }
-    if (!isChecked && alreadyIncluded) {
-      this.model.extras = currentExtras.filter((existingLabel: string) => existingLabel !== extraLabel);
+
+  onProyectoSelectModeChange(): void {
+    if (this.proyectoSelectMode === 'existente') {
+      // Clear new project fields
+      this.model.proyectoNombre = '';
+      this.proyectoFieldsDisabled = false;
+    } else {
+      // Clear existing project selection
+      this.model.proyectoId = '';
+      this.proyectoFieldsDisabled = false;
     }
   }
 
@@ -432,18 +417,77 @@ export class UnidadForm {
       // Clear proyectoNombre if proyecto is cleared
       if (!this.model.proyectoId) {
         this.model.proyectoNombre = '';
+        this.proyectoFieldsDisabled = false;
       }
       return;
     }
+    // Load proyecto data and disable fields
+    this.loadProyectoData(p);
+    this.proyectoFieldsDisabled = true;
+    this.reloadSessionUnits();
+  }
+
+  private loadProyectoData(p: any): void {
     // Denormalize values from proyecto into unidad model for fast filters
     this.model.proyectoNombre = p.nombre || '';
-    this.model.city = p.ciudad || p.city || this.model.city || null;
-    this.model.barrio = p.barrio || this.model.barrio || null;
-    this.model.ubicacion = p.direccion || this.model.ubicacion || '';
-    // If unit type is empty, default from proyecto.tipo when present
-    if (!this.model.tipo && p.tipo) this.model.tipo = p.tipo;
-    this.recomputeBarrios();
-    this.reloadSessionUnits();
+    // Map ciudad_id/barrio_id to ciudad/barrio strings for form
+    this.model.ciudad = p.ciudad_id ? String(p.ciudad_id) : (p.ciudad || this.model.ciudad || null);
+    this.model.barrio = p.barrio_id ? String(p.barrio_id) : (p.barrio || this.model.barrio || null);
+    // Load barrios for the selected ciudad
+    if (this.model.ciudad) {
+      this.loadBarriosForCiudad(this.model.ciudad);
+    }
+    // Also update nuevoProyecto for consistency
+    this.nuevoProyecto = {
+      nombre: p.nombre || '',
+      desarrollador: p.desarrollador || '',
+      localidad: p.ciudad_id ? String(p.ciudad_id) : (p.ciudad || p.localidad || null),
+      barrio: p.barrio_id ? String(p.barrio_id) : (p.barrio || null),
+      direccion: p.direccion || '',
+      entrega: p.entrega || ''
+    };
+  }
+
+  async onProyectoNombreBlur(): Promise<void> {
+    // Only validate if we're in "new" mode and nombre is filled
+    if (this.proyectoSelectMode !== 'nuevo' || !this.model.proyectoNombre || this.model.proyectoNombre.trim() === '') {
+      return;
+    }
+
+    const nombre = this.model.proyectoNombre.trim();
+    
+    // Check if a proyecto with this name already exists
+    const existingProyectos = this.proyectosAll.filter(p => 
+      p.nombre && p.nombre.toLowerCase().trim() === nombre.toLowerCase()
+    );
+
+    if (existingProyectos.length > 0) {
+      // Show modal to select existing proyecto
+      const modalRef = this.modalService.open(ProyectoSelectModal, {
+        size: 'md',
+        backdrop: 'static',
+        keyboard: false
+      });
+      
+      (modalRef.componentInstance as any).proyectos = existingProyectos;
+      (modalRef.componentInstance as any).searchTerm = nombre;
+
+      try {
+        const selectedProyecto = await modalRef.result;
+        if (selectedProyecto) {
+          // User selected an existing proyecto
+          this.proyectoSelectMode = 'existente';
+          this.model.proyectoId = String(selectedProyecto.id);
+          this.model.proyectoNombre = selectedProyecto.nombre || '';
+          this.loadProyectoData(selectedProyecto);
+          this.proyectoFieldsDisabled = true;
+          this.reloadSessionUnits();
+        }
+      } catch {
+        // User cancelled - clear the nombre field
+        this.model.proyectoNombre = '';
+      }
+    }
   }
 
   // Project flow: add current unit, then prepare the next one cloning configuration
@@ -474,8 +518,10 @@ export class UnidadForm {
     this.unidadService.getUnidadById(row.id).subscribe(u => {
       if (u) {
         this.model = { ...this.model, ...u };
-        this.alcance = this.model.proyectoId ? 'proyecto' : 'unica';
-        if (this.alcance === 'proyecto') this.projectLocked = true;
+        if (this.model.proyectoId) {
+          this.proyectoSelectMode = 'existente';
+          this.projectLocked = true;
+        }
       }
     });
   }
@@ -505,10 +551,10 @@ export class UnidadForm {
   }
 
   private validateRequiredForAdd(): boolean {
-    if (this.alcance === 'proyecto') {
-      if (this.proyectoModo === 'existente' && !this.model.proyectoId) return false;
+    if (this.model.proyectoId) {
+      if (this.proyectoSelectMode === 'existente' && !this.model.proyectoId) return false;
       // When creating a new project, require at least project name
-      if (this.proyectoModo === 'nuevo' && !this.nuevoProyecto.nombre) return false;
+      if (this.proyectoSelectMode === 'nuevo' && !this.model.proyectoNombre && !this.nuevoProyecto.nombre) return false;
     }
     if (!this.model.tipoUnidad) return false;
     if (!this.model.nombre) return false;
@@ -528,11 +574,11 @@ export class UnidadForm {
     }
     if (this.model.dormitorios === null || this.model.dormitorios === undefined) errors.push('Los dormitorios son obligatorios');
     if (this.model.banos === null || this.model.banos === undefined) errors.push('Los baños son obligatorios');
-    if (this.model.m2Internos === null || this.model.m2Internos === undefined) errors.push('El tamaño interior (m²) es obligatorio');
-    if (this.model.m2Totales === null || this.model.m2Totales === undefined) errors.push('El tamaño total (m²) es obligatorio');
     
     // Campos específicos por tipo
     if (this.model.tipoUnidad === 'Apartamento') {
+      if (this.model.m2Internos === null || this.model.m2Internos === undefined) errors.push('El tamaño interior (m²) es obligatorio para apartamentos');
+      if (this.model.m2Totales === null || this.model.m2Totales === undefined) errors.push('El tamaño total (m²) es obligatorio para apartamentos');
       if (!this.model.orientacion) errors.push('La orientación es obligatoria para apartamentos');
       if (!this.model.distribucion) errors.push('La distribución es obligatoria para apartamentos');
       if (!this.model.altura || this.model.altura.trim() === '') errors.push('La altura es obligatoria para apartamentos');
@@ -543,16 +589,15 @@ export class UnidadForm {
     }
     
     // Campos comunes obligatorios
-    if (!this.model.estado) errors.push('El estado es obligatorio');
+    if (!this.model.estadoComercial) errors.push('El estado comercial es obligatorio');
     if (!this.model.responsable || this.model.responsable.trim() === '') errors.push('El responsable es obligatorio');
     if (this.model.precioUSD === null || this.model.precioUSD === undefined) errors.push('El precio (USD) es obligatorio');
     if (this.model.comision === null || this.model.comision === undefined) errors.push('La comisión (%) es obligatoria');
 
     // Validación de Tab 2 - Solo para Casa o Campo
     if (this.isCasaOrCampoType()) {
-      if (!this.model.city) errors.push('La ciudad es obligatoria');
+      if (!this.model.ciudad) errors.push('La ciudad es obligatoria');
       if (!this.model.barrio) errors.push('El barrio es obligatorio');
-      if (!this.model.ubicacion || this.model.ubicacion.trim() === '') errors.push('La dirección es obligatoria');
     }
 
     if (errors.length > 0) {
@@ -566,16 +611,14 @@ export class UnidadForm {
 
   private prepareNextCloned(): void {
     const kept = [
-      'proyectoId', 'ubicacion', 'city', 'barrio', 'responsable', 'entrega', 'tipoUnidad',
+      'proyectoId', 'ciudad', 'barrio', 'responsable', 'fechaEntrega', 'tipoUnidad',
       // specs by type
-      'dormitorios', 'banos', 'm2Internos', 'm2Totales', 'orientacion', 'extras', // apto
-      'superficieEdificada', 'superficieTerreno', 'antiguedad', 'condicion', // casa
-      'hectareas', 'm2Edificados', 'tipoConstruccion', 'acceso', 'infraestructura', 'luz', 'agua', 'internet', // chacra
-      'aptitudSuelo', 'indiceProductividad', 'mejorasTrabajo', 'infraestructuraHabitacional', 'fuentesAgua' // campo
+      'dormitorios', 'banos', 'm2Internos', 'm2Totales', 'orientacion', // apto
+      'superficieEdificada', 'superficieTerreno', 'plantas', // casa
+      'hectareas', // chacra/campo
     ];
     const next: any = {};
     for (const k of kept) next[k] = this.model[k];
-    next.descripcion = this.model.descripcion || '';
     next.comision = this.model.comision;
     // Reset fields
     next.nombre = '';
@@ -613,15 +656,11 @@ export class UnidadForm {
     const payload = { ...this.model };
     
     // Si es Apartamento con proyecto, la fecha de entrega va al proyecto, no a la unidad
-    if (this.isApartamentoWithProyecto()) {
-      payload.entrega = undefined; // No guardar en la unidad
+    // Remove fechaEntrega from payload so it's not saved to unidad table
+    if (this.model.tipoUnidad === 'Apartamento' && this.model.proyectoId) {
+      delete payload.fechaEntrega; // No guardar en la unidad, se guarda en el proyecto
     }
-    
-    if (this.alcance !== 'proyecto') {
-      // If not proyecto scope, ensure proyectoId is not set
-      payload.proyectoId = undefined;
-      return payload;
-    }
+    // For all other cases (Casa, Campo, Chacra, or Apartamento without proyecto), fechaEntrega should be saved
     
     // If proyectoId is not set, check if proyectoNombre is filled (user wants to create proyecto)
     // If proyectoNombre is also empty, proyecto is optional - allow saving without it
@@ -629,12 +668,12 @@ export class UnidadForm {
       const nombreProyecto = this.model.proyectoNombre || this.nuevoProyecto.nombre;
       if (!nombreProyecto || nombreProyecto.trim() === '') {
         // No proyectoId and no proyectoNombre - proyecto is optional
-        payload.proyectoId = undefined;
+        payload.proyectoId = null;
         return payload;
       }
       // proyectoNombre is filled but proyectoId not set - this shouldn't happen if ensureProyectoId() was called
-      // But just in case, set proyectoId to undefined and let ensureProyectoId() handle it
-      payload.proyectoId = undefined;
+      // But just in case, set proyectoId to null and let ensureProyectoId() handle it
+      payload.proyectoId = null;
       return payload;
     }
     
@@ -655,23 +694,32 @@ export class UnidadForm {
       };
     }
     if (p) {
-      payload.desarrollador = p.desarrollador ?? payload.desarrollador;
+      // Note: desarrollador belongs to proyectos table, not unidades table - do not include it
       // Para apartamentos con proyecto, usar la fecha del modelo (que se guardará en el proyecto)
-      if (!this.isApartamentoWithProyecto()) {
-        payload.entrega = payload.entrega || p.entrega;
+      if (!(this.model.tipoUnidad === 'Apartamento' && this.model.proyectoId)) {
+        payload.fechaEntrega = payload.fechaEntrega || p.entrega;
       }
-      payload.city = payload.city || p.ciudad || p.city;
-      payload.barrio = payload.barrio || p.barrio;
-      payload.ubicacion = payload.ubicacion || p.direccion;
+      // Map ciudad_id/barrio_id to ciudad/barrio strings for form compatibility (UI only, not saved to DB)
+      // These are denormalized from proyecto and shouldn't be saved to unidades table
+      // Note: ciudad and barrio varchar fields were removed from table, only ciudad_id and barrio_id are saved
+      if (!payload.ciudad && p.ciudad_id) {
+        payload.ciudad = String(p.ciudad_id);
+      }
+      if (!payload.barrio && p.barrio_id) {
+        payload.barrio = String(p.barrio_id);
+      }
     }
     return payload;
   }
 
   private async ensureProyectoId(): Promise<void> {
-    if (this.alcance !== 'proyecto') return;
-    
     // If proyectoId is already set and not empty, we're good
     if (this.model.proyectoId && this.model.proyectoId !== '') return;
+    
+    // If we're in "existente" mode but no proyectoId is selected, proyecto is optional
+    if (this.proyectoSelectMode === 'existente' && !this.model.proyectoId) {
+      return;
+    }
     
     // Check if we have a proyectoNombre filled in (indicates user wants to create a new proyecto)
     const nombreProyecto = this.model.proyectoNombre || this.nuevoProyecto.nombre;
@@ -681,16 +729,22 @@ export class UnidadForm {
       return;
     }
     
-    // proyectoNombre is filled, so create a new proyecto (regardless of proyectoModo)
+    // Validate that the nombre doesn't already exist (should have been caught earlier, but double-check)
+    const existingProyectos = this.proyectosAll.filter(p => 
+      p.nombre && p.nombre.toLowerCase().trim() === nombreProyecto.toLowerCase().trim()
+    );
     
-    const pPayload = {
-      nombre: nombreProyecto,
-      desarrollador: this.nuevoProyecto.desarrollador || '',
-      ciudad: this.nuevoProyecto.localidad || this.model.city || null,
-      barrio: this.nuevoProyecto.barrio || this.model.barrio || null,
-      direccion: this.nuevoProyecto.direccion || this.model.ubicacion || '',
-      entrega: this.nuevoProyecto.entrega || this.model.entrega || ''
+    if (existingProyectos.length > 0) {
+      throw new Error(`Ya existe un proyecto con el nombre "${nombreProyecto}". Por favor, seleccione el proyecto existente.`);
+    }
+    
+    // proyectoNombre is filled and doesn't exist, so create a new proyecto
+    // Only send nombre and proyectoId (both optional) to proyectos table
+    const pPayload: any = {
+      nombre: nombreProyecto
+      // proyectoId is optional - not setting it here as it's not part of the form
     };
+    
     const added = await this.proyectoService.addProyecto(pPayload);
     
     // Ensure proyectoId is set as a string (never empty)
@@ -703,42 +757,16 @@ export class UnidadForm {
     // Update proyectoNombre for consistency
     this.model.proyectoNombre = nombreProyecto;
     
-    // Update location fields
-    this.model.city = pPayload.ciudad || this.model.city || null;
-    this.model.barrio = pPayload.barrio || this.model.barrio || null;
-    
     // Refresh proyectos list to include the newly created one
     this.proyectoService.getProyectos().subscribe(ps => {
       this.proyectosAll = ps || [];
-      const sorted = [...this.proyectosAll].sort((a, b) => {
-        const aTime = a.createdAt || a.created || 0;
-        const bTime = b.createdAt || b.created || 0;
-        return bTime - aTime;
-      });
-      this.proyectoItems = sorted.map(p => ({ id: String(p.id), label: String(p.nombre) }));
+      this.refreshProyectoItems();
     });
-    
-    this.recomputeBarrios();
   }
 
   // New form methods
-  onTipoPropiedadChange(): void {
-    // When tipoPropiedad changes, update tipoUnidad if needed
-    if (this.model.tipoPropiedad === 'Casa') {
-      this.model.tipoUnidad = 'Casa';
-    }
-  }
-
-  isCasaType(): boolean {
-    return this.model.tipoPropiedad === 'Casa' || this.model.tipoUnidad === 'Casa';
-  }
-
   isCasaOrCampoType(): boolean {
     return this.model.tipoUnidad === 'Casa' || this.model.tipoUnidad === 'Campo';
-  }
-
-  isApartamentoWithProyecto(): boolean {
-    return this.model.tipoUnidad === 'Apartamento' && !!this.model.proyectoId;
   }
 
   hasTerraza(): boolean {
@@ -829,16 +857,16 @@ export class UnidadForm {
       this.busy = true;
       
       // Ensure proyecto exists BEFORE building payload (so proyectoId is available)
-      if (this.alcance === 'proyecto') {
+      if (this.model.proyectoId) {
         await this.ensureProyectoId();
       }
       
       const payload = await this.buildPayloadWithProjectInheritance();
       
       // Si es Apartamento con proyecto, actualizar la fecha de entrega en el proyecto
-      if (this.isApartamentoWithProyecto() && this.model.proyectoId && this.model.entrega) {
+      if (this.model.tipoUnidad === 'Apartamento' && this.model.proyectoId && this.model.fechaEntrega) {
         await this.proyectoService.updateProyecto(String(this.model.proyectoId), {
-          entrega: this.model.entrega
+          entrega: this.model.fechaEntrega
         });
       }
       
@@ -847,7 +875,7 @@ export class UnidadForm {
       const saved = { id: addedRef.id, ...payload };
       
       // Add to sessionUnits if in proyecto mode (for display table)
-      if (this.alcance === 'proyecto' && this.model.proyectoId) {
+      if (this.model.proyectoId) {
         this.upsertSessionUnit(saved);
       }
       
@@ -862,22 +890,18 @@ export class UnidadForm {
       
       // Save data to preserve
       const preservedData = {
-        // Proyecto/Ubicacion
-        tipoPropiedad: this.model.tipoPropiedad,
+        // Proyecto
         proyectoNombre: this.model.proyectoNombre,
-        city: this.model.city,
+        proyectoId: this.model.proyectoId,
+        ciudad: this.model.ciudad,
         barrio: this.model.barrio,
-        ubicacion: this.model.ubicacion,
-        pisoProyecto: this.model.pisoProyecto,
-        unidadesTotales: this.model.unidadesTotales,
-        // Extras y Equipamiento
+        fechaEntrega: this.model.fechaEntrega,
+        // Extras
         terraza: this.model.terraza,
         garage: this.model.garage,
         tamanoTerraza: this.model.tamanoTerraza,
         tamanoGarage: this.model.tamanoGarage,
         precioGarage: this.model.precioGarage,
-        areaComun: this.model.areaComun,
-        equipamiento: this.model.equipamiento,
         amenities: Array.isArray(this.model.amenities) ? [...this.model.amenities] : [],
         // Basic fields that might be reused
         tipoUnidad: this.model.tipoUnidad,
@@ -885,7 +909,9 @@ export class UnidadForm {
         distribucion: this.model.distribucion,
         altura: this.model.altura,
         precioUSD: this.model.precioUSD,
-        estado: this.model.estado
+        estadoComercial: this.model.estadoComercial,
+        responsable: this.model.responsable,
+        comision: this.model.comision
       };
       
       // Reset basic unit fields
@@ -899,9 +925,9 @@ export class UnidadForm {
       // Restore preserved data
       Object.assign(this.model, preservedData);
       
-      // Reload barrios if city is set
-      if (this.model.city) {
-        this.recomputeBarrios();
+      // Reload barrios if ciudad is set
+      if (this.model.ciudad) {
+        this.loadBarriosForCiudad(this.model.ciudad);
       }
       
       this.toastService.success(`Unidad "${payload.nombre}" agregada exitosamente`);

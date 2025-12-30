@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, addDoc, collection } from '@angular/fire/firestore';
+import { SupabaseService } from './supabase.service';
 import { Evento, EventoCategoria, EventoData, EventoTipo } from '../models/evento.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventMonitorService {
-  private firestore = inject(Firestore);
+  private supabase = inject(SupabaseService);
 
   async new<T>(categoria: EventoCategoria, current: T, usuario?: string) {
     const evento: any = {
@@ -41,9 +41,35 @@ export class EventMonitorService {
   }
 
   private async persist<T>(evento: Evento<T>) {
-    const ref = collection(this.firestore, 'eventos');
-    const sanitized = this.removeUndefinedDeep(evento as any);
-    await addDoc(ref, sanitized);
+    // Transform to database format: use data_json instead of data
+    // Ensure fecha is always an ISO string for Supabase
+    let fechaValue: string;
+    if (evento.fecha) {
+      fechaValue = typeof evento.fecha === 'string' ? evento.fecha : new Date(evento.fecha).toISOString();
+    } else {
+      fechaValue = new Date().toISOString();
+    }
+    
+    const dbData: any = {
+      tipo: evento.tipo,
+      categoria: evento.categoria,
+      fecha: fechaValue,
+      data_json: evento.data || {},
+      entidad_id: (evento.data as any)?.current?.id || null,
+      usuario_id: (evento as any).usuario || null
+    };
+    
+    // Generate UUID for id if not provided
+    if (!dbData.id) {
+      dbData.id = crypto.randomUUID();
+    }
+    
+    const sanitized = this.removeUndefinedDeep(dbData);
+    
+    const { error } = await this.supabase.client
+      .from('eventos')
+      .insert(sanitized);
+    if (error) throw error;
   }
 
   private getChanges(oldObj: Record<string, any>, newObj: Record<string, any>) {

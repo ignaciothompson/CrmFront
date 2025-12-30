@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { VentaRecord } from '../../../core/services/venta';
+import { VentaRecord } from '../../../core/models';
 
 @Component({
   selector: 'app-venta-info-modal',

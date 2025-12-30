@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Auth, onAuthStateChanged, User, Unsubscribe } from '@angular/fire/auth';
+import { SupabaseService } from '../../../core/services/supabase.service';
 import { UsuarioService } from '../../../core/services/usuario';
 import { firstValueFrom } from 'rxjs';
+import { User } from '@supabase/supabase-js';
 
 @Component({
   selector: 'app-usuario',
@@ -21,30 +22,47 @@ export class Usuario implements OnInit, OnDestroy {
     telefono: ''
   };
   busy = false;
-  private authUnsubscribe?: Unsubscribe;
+  private supabase = inject(SupabaseService);
+  private authSubscription?: { data: { subscription: any } };
 
   constructor(
-    private auth: Auth,
     private usuarioService: UsuarioService
   ) {}
 
   ngOnInit(): void {
-    this.authUnsubscribe = onAuthStateChanged(this.auth, async (user) => {
-      this.currentUser = user;
-      if (user) {
-        this.model.email = user.email || '';
-        // Load user profile from Firestore using uid
-        const profile = await firstValueFrom(this.usuarioService.getUsuarioById(user.uid));
+    // Get initial user
+    this.loadUser();
+
+    // Subscribe to auth state changes
+    const { data } = this.supabase.auth.onAuthStateChange(async (event, session) => {
+      this.currentUser = session?.user ?? null;
+      if (session?.user) {
+        this.model.email = session.user.email || '';
+        // Load user profile from Supabase using uid
+        const profile = await firstValueFrom(this.usuarioService.getUsuarioById(session.user.id));
         if (profile) {
           this.model = { ...this.model, ...profile };
         }
       }
     });
+    this.authSubscription = { data };
+  }
+
+  async loadUser() {
+    const { data: { user } } = await this.supabase.auth.getUser();
+    this.currentUser = user;
+    if (user) {
+      this.model.email = user.email || '';
+      const profile = await firstValueFrom(this.usuarioService.getUsuarioById(user.id));
+      if (profile) {
+        this.model = { ...this.model, ...profile };
+      }
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.authUnsubscribe) {
-      this.authUnsubscribe();
+    if (this.authSubscription?.data?.subscription) {
+      this.authSubscription.data.subscription.unsubscribe();
     }
   }
 
@@ -64,8 +82,8 @@ export class Usuario implements OnInit, OnDestroy {
         telefono: this.model.telefono || ''
       };
 
-      if (this.currentUser.uid) {
-        await this.usuarioService.updateUsuario(this.currentUser.uid, payload);
+      if (this.currentUser.id) {
+        await this.usuarioService.updateUsuario(this.currentUser.id, payload);
         alert('Perfil actualizado correctamente');
       }
     } catch (error) {

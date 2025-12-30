@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsuarioService, UsuarioData } from '../../../core/services/usuario';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { UsuarioService } from '../../../core/services/usuario';
+import { UsuarioData } from '../../../core/models';
+import { SupabaseService } from '../../../core/services/supabase.service';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UsuarioEditModal } from '../usuario-modal/usuario-edit-modal';
@@ -36,9 +37,10 @@ export class AdministrarUsuarios implements OnInit, OnDestroy {
     { value: 'este', label: 'Maldonado' }
   ];
 
+  private supabase = inject(SupabaseService);
+
   constructor(
     private usuarioService: UsuarioService,
-    private auth: Auth,
     private modal: NgbModal
   ) {}
 
@@ -100,14 +102,16 @@ export class AdministrarUsuarios implements OnInit, OnDestroy {
 
     this.busy = true;
     try {
-      // Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(
-        this.auth,
-        this.newUsuario.email,
-        this.newUsuario.password
-      );
+      // Create Supabase Auth user
+      const { data: authData, error: authError } = await this.supabase.auth.signUp({
+        email: this.newUsuario.email,
+        password: this.newUsuario.password
+      });
 
-      // Create user profile in Firestore using the Firebase Auth UID as document ID
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('User creation failed');
+
+      // Create user profile in Supabase using the Supabase Auth UID as document ID
       const usuarioData: UsuarioData = {
         nombre: this.newUsuario.nombre,
         apellido: this.newUsuario.apellido,
@@ -118,14 +122,14 @@ export class AdministrarUsuarios implements OnInit, OnDestroy {
       };
 
       // Use updateUsuario which will create the document if it doesn't exist
-      await this.usuarioService.updateUsuario(userCredential.user.uid, usuarioData);
+      await this.usuarioService.updateUsuario(authData.user.id, usuarioData);
       
       alert('Usuario creado correctamente');
       this.resetNewUsuario();
       this.showCreateForm = false;
     } catch (error: any) {
       console.error('Error creating usuario:', error);
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.message?.includes('already registered') || error.code === '23505') {
         alert('Este email ya está en uso');
       } else {
         alert('Error al crear el usuario. Por favor, intente nuevamente.');
