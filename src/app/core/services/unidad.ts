@@ -26,15 +26,19 @@ export class UnidadService {
 		
 		// Remove fields that don't exist in the database table
 		const cleaned = { ...sanitized };
-		// Remove denormalized fields (these come from proyecto, not stored in unidades)
-		delete cleaned.city;
-		delete cleaned.barrio;
-		delete cleaned.ciudad;
-		delete cleaned.ciudadId;
-		delete cleaned.barrioId;
+		// Keep ciudad, barrio, ciudadId, barrioId - these are sent to unidades table
+		// Keep desarrollador - this is sent to unidades table
+		// Keep altura, tamanoTerraza, tamanoGarage, precioGarage - these are sent to unidades table
 		delete cleaned.proyectoNombre; // This is just for UI
-		delete cleaned.ubicacion; // This might be proyecto.direccion, check if needed
-		delete cleaned.entrega; // This is stored in proyectos table, not unidades
+		// Map fechaEntrega to entrega (database column name)
+		if (cleaned.fechaEntrega !== undefined && cleaned.fechaEntrega !== null && cleaned.fechaEntrega !== '') {
+			cleaned.entrega = cleaned.fechaEntrega;
+		} else if (cleaned.fechaEntrega === '' || cleaned.fechaEntrega === null) {
+			// Explicitly set to null if empty string or null
+			cleaned.entrega = null;
+		}
+		// Always remove fechaEntrega, use entrega instead
+		delete cleaned.fechaEntrega;
 		// Remove UI-only fields that don't exist in database schema
 		delete cleaned.acceso;
 		delete cleaned.infraestructura;
@@ -42,44 +46,120 @@ export class UnidadService {
 		delete cleaned.mejorasTrabajo;
 		delete cleaned.infraestructuraHabitacional;
 		delete cleaned.fuentesAgua;
-		delete cleaned.altura; // UI-only field, not in database schema
-		delete cleaned.extras; // Stored in unidad_amenities table, not in unidades
-		delete cleaned.amenities; // Stored in unidad_amenities table, not in unidades
-		delete cleaned.precioUSD; // Redundant with precio + moneda
-		delete cleaned.pisoProyecto; // UI-only field
-		delete cleaned.unidadesTotales; // UI-only field
-		delete cleaned.terraza; // UI-only field
-		delete cleaned.garage; // UI-only field
-		delete cleaned.tamanoTerraza; // UI-only field
-		delete cleaned.tamanoGarage; // UI-only field
-		delete cleaned.precioGarage; // UI-only field
-		delete cleaned.areaComun; // UI-only field
-		delete cleaned.equipamiento; // UI-only field
-		delete cleaned.tipo; // Legacy field, redundant with tipo_unidad
-		delete cleaned.unidades; // Legacy field
-		delete cleaned.inicio; // Legacy field
-		delete cleaned.tipoPropiedad; // UI-only field, not in database schema
+		delete cleaned.extras; // Legacy field, not used
+		// Remove luz, agua, internet - these are not saved to database
+		delete cleaned.luz;
+		delete cleaned.agua;
+		delete cleaned.internet;
+		// Keep amenities - transform to array format with id and name
+		// amenities is an array of strings (keys), we need to transform it to array of {id, name}
+		// Keep terraza, garage - these are stored in unidades table
+		// terraza and garage are strings (Si/No/Extra)
+		// Remove fields that were removed from database
+		delete cleaned.antiguedad; // Removed from database
+		delete cleaned.condicion; // Removed from database
+		delete cleaned.aptitudSuelo; // Removed from database
+		delete cleaned.indiceProductividad; // Removed from database
+		// Remove legacy fields that are removed from tables and UI
+		delete cleaned.tipo; // Removed from tables and UI
+		delete cleaned.unidades; // Removed from tables and UI
+		delete cleaned.inicio; // Removed from tables and UI
 		// Map estado to estadoComercial (database column name)
 		if (cleaned.estado !== undefined) {
 			cleaned.estadoComercial = cleaned.estado;
 			delete cleaned.estado;
 		}
-		// Map precioUSD to precio (moneda defaults to USD)
-		if (cleaned.precioUSD !== undefined) {
+		// Map precioUSD to precio (always USD, no need to store moneda)
+		// IMPORTANT: Do this BEFORE deleting precioUSD
+		if (cleaned.precioUSD !== undefined && cleaned.precioUSD !== null && cleaned.precioUSD !== '') {
 			cleaned.precio = cleaned.precioUSD;
-			delete cleaned.precioUSD;
-			if (!cleaned.moneda) {
-				cleaned.moneda = 'USD';
-			}
 		}
+		// Delete precioUSD after mapping (it's redundant with precio)
+		delete cleaned.precioUSD;
+		// Remove moneda field - we only manage USD, no need to store it
+		delete cleaned.moneda;
+		// Ensure precio is set (required field)
+		if (cleaned.precio === undefined || cleaned.precio === null || cleaned.precio === '') {
+			throw new Error('El precio es obligatorio');
+		}
+		
+		// Transform amenities array to format [{id: string, name: string}]
+		if (cleaned.amenities && Array.isArray(cleaned.amenities)) {
+			cleaned.amenities = cleaned.amenities.map((key: string) => ({
+				id: key,
+				name: key
+			}));
+		} else {
+			cleaned.amenities = [];
+		}
+		
 		// Ensure tipoUnidad maps to tipo_unidad (snake_case conversion handles this)
 		// Generate UUID for new unidad if not provided
 		if (!cleaned.id) {
 			cleaned.id = crypto.randomUUID();
 		}
 		
+		// Add timestamps (will be converted to created_at, updated_at, deleted_at by toSnakeCase)
+		const now = new Date().toISOString();
+		cleaned.createdAt = now;
+		cleaned.updatedAt = now;
+		// deleted_at is null by default (not deleted) - must be explicitly set
+		cleaned.deletedAt = null;
+		
+		// Ensure proyectoId is included if present (will be converted to proyecto_id)
+		// proyectoId is already in cleaned from sanitized, just ensure it's a string if present
+		if (cleaned.proyectoId !== undefined && cleaned.proyectoId !== null && cleaned.proyectoId !== '') {
+			cleaned.proyectoId = String(cleaned.proyectoId);
+		} else {
+			cleaned.proyectoId = null;
+		}
+		
+		// Map ciudad/barrio IDs to ciudad_id/barrio_id (foreign keys)
+		// ciudad and barrio from form are ID strings, need to convert to integers for foreign keys
+		if (cleaned.ciudadId !== undefined && cleaned.ciudadId !== null && cleaned.ciudadId !== '') {
+			cleaned.ciudadId = parseInt(String(cleaned.ciudadId), 10);
+			if (isNaN(cleaned.ciudadId)) {
+				delete cleaned.ciudadId;
+			}
+		} else if (cleaned.ciudad !== undefined && cleaned.ciudad !== null && cleaned.ciudad !== '') {
+			// ciudad is the ID string from the select dropdown
+			const ciudadIdNum = parseInt(String(cleaned.ciudad), 10);
+			if (!isNaN(ciudadIdNum)) {
+				cleaned.ciudadId = ciudadIdNum;
+			}
+			// Keep ciudad as string (name) if it's not a number, otherwise delete it
+			if (!isNaN(parseInt(String(cleaned.ciudad), 10))) {
+				delete cleaned.ciudad; // Remove ID string, we have ciudad_id
+			}
+		} else {
+			cleaned.ciudadId = null;
+		}
+		// Always remove ciudad varchar field (removed from table, only ciudad_id is saved)
+		delete cleaned.ciudad;
+		
+		if (cleaned.barrioId !== undefined && cleaned.barrioId !== null && cleaned.barrioId !== '') {
+			cleaned.barrioId = parseInt(String(cleaned.barrioId), 10);
+			if (isNaN(cleaned.barrioId)) {
+				delete cleaned.barrioId;
+			}
+		} else if (cleaned.barrio !== undefined && cleaned.barrio !== null && cleaned.barrio !== '') {
+			// barrio is the ID string from the select dropdown
+			const barrioIdNum = parseInt(String(cleaned.barrio), 10);
+			if (!isNaN(barrioIdNum)) {
+				cleaned.barrioId = barrioIdNum;
+			}
+		} else {
+			cleaned.barrioId = null;
+		}
+		// Always remove barrio varchar field (removed from table, only barrio_id is saved)
+		delete cleaned.barrio;
+		
 		// Transform camelCase to snake_case for database
 		const dbData = this.toSnakeCase(cleaned);
+		
+		// Debug: Log the data being sent to Supabase
+		console.log('Fields being sent to Supabase (unidades table):', Object.keys(dbData));
+		console.log('Full payload:', dbData);
 		
 		const { data, error } = await this.supabase.client
 			.from('unidades')
@@ -87,8 +167,23 @@ export class UnidadService {
 			.select()
 			.single();
 		
-		if (error) throw error;
+		if (error) {
+			console.error('Supabase insert error:', error);
+			console.error('Error details:', {
+				message: error.message,
+				details: error.details,
+				hint: error.hint,
+				code: error.code
+			});
+			throw error;
+		}
 		
+		if (!data || !data.id) {
+			console.error('Insert succeeded but no data returned:', { data, error });
+			throw new Error('Error al crear la unidad: no se recibió respuesta del servidor');
+		}
+		
+		console.log('Unidad creada exitosamente:', data);
 		await this.events.new('Unidades', { id: data.id, ...sanitized });
 		return { id: data.id };
 	}
@@ -116,15 +211,19 @@ export class UnidadService {
     const sanitized = this.removeUndefinedDeep(changes);
     // Remove fields that don't exist in the database table
     const cleaned = { ...sanitized };
-    // Remove denormalized fields (these come from proyecto, not stored in unidades)
-    delete cleaned.city;
-    delete cleaned.barrio;
-    delete cleaned.ciudad;
-    delete cleaned.ciudadId;
-    delete cleaned.barrioId;
+    // Keep ciudad, barrio, ciudadId, barrioId - these are sent to unidades table
+    // Keep desarrollador - this is sent to unidades table
+    // Keep altura, tamanoTerraza, tamanoGarage, precioGarage - these are sent to unidades table
     delete cleaned.proyectoNombre; // This is just for UI
-    delete cleaned.ubicacion; // This might be proyecto.direccion, check if needed
-    delete cleaned.entrega; // This is stored in proyectos table, not unidades
+    // Map fechaEntrega to entrega (database column name)
+    if (cleaned.fechaEntrega !== undefined && cleaned.fechaEntrega !== null && cleaned.fechaEntrega !== '') {
+      cleaned.entrega = cleaned.fechaEntrega;
+    } else if (cleaned.fechaEntrega === '' || cleaned.fechaEntrega === null) {
+      // Explicitly set to null if empty string or null
+      cleaned.entrega = null;
+    }
+    // Always remove fechaEntrega, use entrega instead
+    delete cleaned.fechaEntrega;
     // Remove UI-only fields that don't exist in database schema
     delete cleaned.acceso;
     delete cleaned.infraestructura;
@@ -132,36 +231,152 @@ export class UnidadService {
     delete cleaned.mejorasTrabajo;
     delete cleaned.infraestructuraHabitacional;
     delete cleaned.fuentesAgua;
-    delete cleaned.altura; // UI-only field, not in database schema
-    delete cleaned.extras; // Stored in unidad_amenities table, not in unidades
-    delete cleaned.amenities; // Stored in unidad_amenities table, not in unidades
-    delete cleaned.precioUSD; // Redundant with precio + moneda
-    delete cleaned.pisoProyecto; // UI-only field
-    delete cleaned.unidadesTotales; // UI-only field
-    delete cleaned.terraza; // UI-only field
-    delete cleaned.garage; // UI-only field
-    delete cleaned.tamanoTerraza; // UI-only field
-    delete cleaned.tamanoGarage; // UI-only field
-    delete cleaned.precioGarage; // UI-only field
-    delete cleaned.areaComun; // UI-only field
-    delete cleaned.equipamiento; // UI-only field
-    delete cleaned.tipo; // Legacy field, redundant with tipo_unidad
-    delete cleaned.unidades; // Legacy field
-    delete cleaned.inicio; // Legacy field
-    delete cleaned.tipoPropiedad; // UI-only field, not in database schema
+    delete cleaned.extras; // Legacy field, not used
+    // Remove luz, agua, internet - these are not saved to database
+    delete cleaned.luz;
+    delete cleaned.agua;
+    delete cleaned.internet;
+    // Keep amenities - transform to array format with id and name
+    // Keep terraza, garage - these are stored in unidades table
+    // Remove fields that were removed from database
+    delete cleaned.antiguedad; // Removed from database
+    delete cleaned.condicion; // Removed from database
+    delete cleaned.aptitudSuelo; // Removed from database
+    delete cleaned.indiceProductividad; // Removed from database
+    // Remove legacy fields that are removed from tables and UI
+    delete cleaned.tipo; // Removed from tables and UI
+    delete cleaned.unidades; // Removed from tables and UI
+    delete cleaned.inicio; // Removed from tables and UI
     // Map estado to estadoComercial (database column name)
     if (cleaned.estado !== undefined) {
       cleaned.estadoComercial = cleaned.estado;
       delete cleaned.estado;
     }
-    // Map precioUSD to precio (moneda defaults to USD)
-    if (cleaned.precioUSD !== undefined) {
+    // Map precioUSD to precio (always USD, no need to store moneda)
+    // IMPORTANT: Do this BEFORE deleting precioUSD
+    if (cleaned.precioUSD !== undefined && cleaned.precioUSD !== null && cleaned.precioUSD !== '') {
       cleaned.precio = cleaned.precioUSD;
-      delete cleaned.precioUSD;
-      if (!cleaned.moneda) {
-        cleaned.moneda = 'USD';
+    }
+    // Delete precioUSD after mapping (it's redundant with precio)
+    delete cleaned.precioUSD;
+    // Remove moneda field - we only manage USD, no need to store it
+    delete cleaned.moneda;
+    
+    // Map ciudad/barrio IDs to ciudad_id/barrio_id (foreign keys)
+    // ciudad and barrio from form are ID strings, need to convert to integers for foreign keys
+    if (cleaned.ciudadId !== undefined && cleaned.ciudadId !== null && cleaned.ciudadId !== '') {
+      cleaned.ciudadId = parseInt(String(cleaned.ciudadId), 10);
+      if (isNaN(cleaned.ciudadId)) {
+        delete cleaned.ciudadId;
+      }
+    } else if (cleaned.ciudad !== undefined && cleaned.ciudad !== null && cleaned.ciudad !== '') {
+      // ciudad is the ID string from the select dropdown
+      const ciudadIdNum = parseInt(String(cleaned.ciudad), 10);
+      if (!isNaN(ciudadIdNum)) {
+        cleaned.ciudadId = ciudadIdNum;
+      }
+      // Keep ciudad as string (name) if it's not a number, otherwise delete it
+      if (!isNaN(parseInt(String(cleaned.ciudad), 10))) {
+        delete cleaned.ciudad; // Remove ID string, we have ciudad_id
+      }
+    } else {
+      // If ciudad is explicitly null/empty, set ciudad_id to null
+      if (cleaned.ciudad === null || cleaned.ciudad === '') {
+        cleaned.ciudadId = null;
+        delete cleaned.ciudad;
       }
     }
+    
+    if (cleaned.barrioId !== undefined && cleaned.barrioId !== null && cleaned.barrioId !== '') {
+      cleaned.barrioId = parseInt(String(cleaned.barrioId), 10);
+      if (isNaN(cleaned.barrioId)) {
+        delete cleaned.barrioId;
+      }
+    } else if (cleaned.barrio !== undefined && cleaned.barrio !== null && cleaned.barrio !== '') {
+      // barrio is the ID string from the select dropdown
+      const barrioIdNum = parseInt(String(cleaned.barrio), 10);
+      if (!isNaN(barrioIdNum)) {
+        cleaned.barrioId = barrioIdNum;
+      }
+      // Keep barrio as string (name) if it's not a number, otherwise delete it
+      if (!isNaN(parseInt(String(cleaned.barrio), 10))) {
+        delete cleaned.barrio; // Remove ID string, we have barrio_id
+      }
+    } else {
+      // If barrio is explicitly null/empty, set barrio_id to null
+      if (cleaned.barrio === null || cleaned.barrio === '') {
+        cleaned.barrioId = null;
+        delete cleaned.barrio;
+      }
+    }
+    
+    // Transform amenities array to format [{id: string, name: string}]
+    if (cleaned.amenities && Array.isArray(cleaned.amenities)) {
+      cleaned.amenities = cleaned.amenities.map((key: string) => ({
+        id: key,
+        name: key
+      }));
+    } else if (cleaned.amenities === undefined || cleaned.amenities === null) {
+      // Don't update amenities if not provided
+      delete cleaned.amenities;
+    }
+    
+    // Update timestamp
+    cleaned.updatedAt = new Date().toISOString();
+    
+    // Ensure proyectoId is included if present (will be converted to proyecto_id)
+    if (cleaned.proyectoId !== undefined && cleaned.proyectoId !== null && cleaned.proyectoId !== '') {
+      cleaned.proyectoId = String(cleaned.proyectoId);
+    } else if (cleaned.proyectoId === '') {
+      cleaned.proyectoId = null;
+    }
+    
+    // Map ciudad/barrio IDs to ciudad_id/barrio_id (foreign keys)
+    // ciudad and barrio from form are ID strings, need to convert to integers for foreign keys
+    if (cleaned.ciudadId !== undefined && cleaned.ciudadId !== null && cleaned.ciudadId !== '') {
+      cleaned.ciudadId = parseInt(String(cleaned.ciudadId), 10);
+      if (isNaN(cleaned.ciudadId)) {
+        delete cleaned.ciudadId;
+      }
+    } else if (cleaned.ciudad !== undefined && cleaned.ciudad !== null && cleaned.ciudad !== '') {
+      // ciudad is the ID string from the select dropdown
+      const ciudadIdNum = parseInt(String(cleaned.ciudad), 10);
+      if (!isNaN(ciudadIdNum)) {
+        cleaned.ciudadId = ciudadIdNum;
+      }
+      // Keep ciudad as string (name) if it's not a number, otherwise delete it
+      if (!isNaN(parseInt(String(cleaned.ciudad), 10))) {
+        delete cleaned.ciudad; // Remove ID string, we have ciudad_id
+      }
+    } else {
+      // If ciudad is explicitly null/empty, set ciudad_id to null
+      cleaned.ciudadId = null;
+    }
+    // Always remove ciudad varchar field (removed from table, only ciudad_id is saved)
+    delete cleaned.ciudad;
+    
+    if (cleaned.barrioId !== undefined && cleaned.barrioId !== null && cleaned.barrioId !== '') {
+      cleaned.barrioId = parseInt(String(cleaned.barrioId), 10);
+      if (isNaN(cleaned.barrioId)) {
+        delete cleaned.barrioId;
+      }
+    } else if (cleaned.barrio !== undefined && cleaned.barrio !== null && cleaned.barrio !== '') {
+      // barrio is the ID string from the select dropdown
+      const barrioIdNum = parseInt(String(cleaned.barrio), 10);
+      if (!isNaN(barrioIdNum)) {
+        cleaned.barrioId = barrioIdNum;
+      }
+      // Keep barrio as string (name) if it's not a number, otherwise delete it
+      if (!isNaN(parseInt(String(cleaned.barrio), 10))) {
+        delete cleaned.barrio; // Remove ID string, we have barrio_id
+      }
+    } else {
+      // If barrio is explicitly null/empty, set barrio_id to null
+      cleaned.barrioId = null;
+    }
+    // Always remove barrio varchar field (removed from table, only barrio_id is saved)
+    delete cleaned.barrio;
+    
     // Ensure tipoUnidad maps to tipo_unidad (snake_case conversion handles this)
     // Transform camelCase to snake_case for database
     const dbChanges = this.toSnakeCase(cleaned);

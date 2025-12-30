@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h5 class="modal-title">Proyecto Existente Encontrado</h5>
+  <button type="button" class="close" aria-label="Close" (click)="cancel()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <p>Se encontró{{ proyectos.length > 1 ? 'n' : '' }} {{ proyectos.length }} proyecto{{ proyectos.length > 1 ? 's' : '' }} con el nombre "<strong>{{ searchTerm }}</strong>". Por favor, seleccione el proyecto existente o cancele para crear uno nuevo.</p>
+  
+  <div class="row m-t">
+    <div class="col-xs-12">
+      <label class="c-label"><b>Seleccionar Proyecto Existente</b></label>
+      <typeahead 
+        [(ngModel)]="selectedProyectoId" 
+        name="selectedProyectoId" 
+        [items]="proyectoItems" 
+        idKey="id" 
+        labelKey="label" 
+        placeholder="Buscar proyecto...">
+      </typeahead>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn c-btn btn-default" (click)="cancel()">Cancelar</button>
+  <button type="button" class="btn c-btn btn-primary" [disabled]="!selectedProyectoId" (click)="selectProyecto()">Seleccionar</button>
+</div>
+

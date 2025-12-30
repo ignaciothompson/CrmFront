@@ -28,39 +28,27 @@ export class ProyectoService {
   }
 
   async addProyecto(proyecto: any) {
-    // Transform ciudad/barrio strings to ciudad_id/barrio_id if needed
-    const dbData: any = { ...proyecto };
+    // Only save proyectoNombre and proyectoId (both optional) to proyectos table
+    const dbData: any = {};
     
     // Generate ID if not provided (proyectos table requires id)
-    if (!dbData.id) {
+    if (!proyecto.id) {
       // Generate a UUID-like string ID
       dbData.id = crypto.randomUUID();
+    } else {
+      dbData.id = proyecto.id;
     }
     
-    // Handle ciudad_id - convert string to number if needed
-    if (dbData.ciudad_id !== undefined) {
-      dbData.ciudad_id = typeof dbData.ciudad_id === 'string' ? parseInt(dbData.ciudad_id, 10) : dbData.ciudad_id;
-      if (isNaN(dbData.ciudad_id)) delete dbData.ciudad_id;
-    } else if (dbData.ciudad !== undefined) {
-      // Legacy support: if ciudad is provided as string ID, convert it
-      const ciudadId = typeof dbData.ciudad === 'string' ? parseInt(dbData.ciudad, 10) : dbData.ciudad;
-      if (!isNaN(ciudadId)) {
-        dbData.ciudad_id = ciudadId;
-        delete dbData.ciudad;
-      }
+    // Only include proyectoNombre if provided (optional)
+    if (proyecto.nombre !== undefined && proyecto.nombre !== null && proyecto.nombre !== '') {
+      dbData.nombre = proyecto.nombre;
     }
     
-    // Handle barrio_id - convert string to number if needed
-    if (dbData.barrio_id !== undefined) {
-      dbData.barrio_id = typeof dbData.barrio_id === 'string' ? parseInt(dbData.barrio_id, 10) : dbData.barrio_id;
-      if (isNaN(dbData.barrio_id)) delete dbData.barrio_id;
-    } else if (dbData.barrio !== undefined) {
-      // Legacy support: if barrio is provided as string ID, convert it
-      const barrioId = typeof dbData.barrio === 'string' ? parseInt(dbData.barrio, 10) : dbData.barrio;
-      if (!isNaN(barrioId)) {
-        dbData.barrio_id = barrioId;
-        delete dbData.barrio;
-      }
+    // proyectoId is optional - only include if provided
+    // Note: proyectoId might refer to a parent proyecto or similar, but based on requirements
+    // we only save nombre and proyectoId (if proyectoId field exists in proyectos table)
+    if (proyecto.proyectoId !== undefined && proyecto.proyectoId !== null && proyecto.proyectoId !== '') {
+      dbData.proyecto_id = proyecto.proyectoId;
     }
     
     const { data, error } = await this.supabase.client
@@ -96,33 +84,25 @@ export class ProyectoService {
   }
 
   async updateProyecto(id: string, changes: any) {
-    // Transform ciudad/barrio strings to ciudad_id/barrio_id if needed
-    const dbChanges: any = { ...changes };
+    // Only update proyectoNombre and proyectoId (both optional) in proyectos table
+    const dbChanges: any = {};
     
-    // Handle ciudad_id - convert string to number if needed
-    if (dbChanges.ciudad_id !== undefined) {
-      dbChanges.ciudad_id = typeof dbChanges.ciudad_id === 'string' ? parseInt(dbChanges.ciudad_id, 10) : dbChanges.ciudad_id;
-      if (isNaN(dbChanges.ciudad_id)) delete dbChanges.ciudad_id;
-    } else if (dbChanges.ciudad !== undefined) {
-      // Legacy support: if ciudad is provided as string ID, convert it
-      const ciudadId = typeof dbChanges.ciudad === 'string' ? parseInt(dbChanges.ciudad, 10) : dbChanges.ciudad;
-      if (!isNaN(ciudadId)) {
-        dbChanges.ciudad_id = ciudadId;
-        delete dbChanges.ciudad;
-      }
+    // Only include nombre if provided
+    if (changes.nombre !== undefined && changes.nombre !== null && changes.nombre !== '') {
+      dbChanges.nombre = changes.nombre;
     }
     
-    // Handle barrio_id - convert string to number if needed
-    if (dbChanges.barrio_id !== undefined) {
-      dbChanges.barrio_id = typeof dbChanges.barrio_id === 'string' ? parseInt(dbChanges.barrio_id, 10) : dbChanges.barrio_id;
-      if (isNaN(dbChanges.barrio_id)) delete dbChanges.barrio_id;
-    } else if (dbChanges.barrio !== undefined) {
-      // Legacy support: if barrio is provided as string ID, convert it
-      const barrioId = typeof dbChanges.barrio === 'string' ? parseInt(dbChanges.barrio, 10) : dbChanges.barrio;
-      if (!isNaN(barrioId)) {
-        dbChanges.barrio_id = barrioId;
-        delete dbChanges.barrio;
-      }
+    // proyectoId is optional - only include if provided
+    if (changes.proyectoId !== undefined && changes.proyectoId !== null && changes.proyectoId !== '') {
+      dbChanges.proyecto_id = changes.proyectoId;
+    } else if (changes.proyectoId === null || changes.proyectoId === '') {
+      // Explicitly set to null if provided as empty/null
+      dbChanges.proyecto_id = null;
+    }
+    
+    // Only update if there are changes
+    if (Object.keys(dbChanges).length === 0) {
+      return; // No changes to apply
     }
     
     const { error } = await this.supabase.client

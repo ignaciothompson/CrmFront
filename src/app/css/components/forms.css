@@ -43,6 +43,10 @@
 .c-skin select.form-control.c-input {
     appearance: listbox;
 }
+
+.c-skin input.form-control.c-input[type="radio"] {
+    margin-right: 5px;
+}
 /* -----------------------------------------------------------------
    ADAPTACIONES MÓVILES
    Ajustes de altura para dispositivos móviles
