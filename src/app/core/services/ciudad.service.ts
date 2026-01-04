@@ -14,7 +14,11 @@ export class CiudadService {
         .select('*')
         .order('nombre')
         .then(response => {
-          if (response.error) throw response.error;
+          if (response.error) {
+            console.error('Error fetching ciudades:', response.error);
+            throw response.error;
+          }
+          console.log('Ciudades fetched from Supabase:', response.data);
           return response.data || [];
         })
     );

@@ -28,7 +28,11 @@ export class BarrioService {
         .eq('ciudad_id', ciudadId)
         .order('nombre')
         .then(response => {
-          if (response.error) throw response.error;
+          if (response.error) {
+            console.error('Error fetching barrios by ciudad:', response.error);
+            throw response.error;
+          }
+          console.log(`Barrios fetched for ciudad ${ciudadId}:`, response.data);
           return response.data || [];
         })
     );

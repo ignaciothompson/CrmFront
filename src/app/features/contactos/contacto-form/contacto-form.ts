@@ -47,8 +47,13 @@ export class ContactoForm {
     }
 
     // Load ciudades from database
-    this.ciudadService.getCiudades().subscribe(ciudades => {
-      this.ciudades = ciudades.map(c => ({ value: String(c.id), label: c.nombre }));
+    this.ciudadService.getCiudades().subscribe({
+      next: (ciudades) => {
+        this.ciudades = ciudades.map(c => ({ value: String(c.id), label: c.nombre }));
+      },
+      error: (error) => {
+        alert('Error al cargar las ciudades. Por favor, recargue la página.');
+      }
     });
 
     this.id = this.contactoId;
@@ -95,8 +100,13 @@ export class ContactoForm {
       this.barriosDireccion = [];
       return;
     }
-    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
-      this.barriosDireccion = barrios.map(b => ({ value: b.nombre, label: b.nombre }));
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe({
+      next: (barrios) => {
+        this.barriosDireccion = barrios.map(b => ({ value: b.nombre, label: b.nombre }));
+      },
+      error: (error) => {
+        this.barriosDireccion = [];
+      }
     });
   }
 
@@ -111,8 +121,13 @@ export class ContactoForm {
       this.barriosPreferencia = [];
       return;
     }
-    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe(barrios => {
-      this.barriosPreferencia = barrios.map(b => ({ value: b.nombre, label: b.nombre }));
+    this.barrioService.getBarriosByCiudad(ciudadIdNum).subscribe({
+      next: (barrios) => {
+        this.barriosPreferencia = barrios.map(b => ({ value: b.nombre, label: b.nombre }));
+      },
+      error: (error) => {
+        this.barriosPreferencia = [];
+      }
     });
   }
 
@@ -161,7 +176,6 @@ export class ContactoForm {
           this.activeModal.close(true);
         }
       }).catch((error) => {
-        console.error('Error updating contacto:', error);
         alert('Error al guardar el contacto. Por favor, intente nuevamente.');
       });
     } else {
@@ -170,7 +184,6 @@ export class ContactoForm {
           this.activeModal.close(true);
         }
       }).catch((error) => {
-        console.error('Error adding contacto:', error);
         alert('Error al guardar el contacto. Por favor, intente nuevamente.');
       });
     }

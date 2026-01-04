@@ -154,12 +154,26 @@ export class Contactos implements OnDestroy {
     return ciudad ? ciudad.label : value || ''; 
   }
 
+  private reloadContactos(): void {
+    this.contactoService.getContactos().subscribe(list => {
+      this.all = list || [];
+      this.nameItems = this.all
+        .map(c => ({
+          id: String(c.id),
+          label: `${c?.Nombre || c?.nombre || ''} ${c?.Apellido || c?.apellido || ''}`.trim()
+        }))
+        .filter(it => !!it.label);
+      this.updateFilterConfigs();
+      this.recompute();
+    });
+  }
+
   goNuevo(): void {
     const modalRef = this.modal.open(ContactoForm, { size: 'xl', backdrop: 'static', keyboard: false });
     modalRef.result.then((result: any) => {
       // Si se guardó exitosamente, recargar los contactos pero mantener los filtros
       if (result === true) {
-        this.recompute();
+        this.reloadContactos();
       }
     }).catch(() => {
       // Modal cerrado sin guardar, mantener filtros
@@ -173,7 +187,7 @@ export class Contactos implements OnDestroy {
     modalRef.result.then((result: any) => {
       // Si se guardó exitosamente, recargar los contactos pero mantener los filtros
       if (result === true) {
-        this.recompute();
+        this.reloadContactos();
       }
     }).catch(() => {
       // Modal cerrado sin guardar, mantener filtros
@@ -184,7 +198,13 @@ export class Contactos implements OnDestroy {
     if (!id) return;
     const ok = confirm('¿Eliminar este contacto?');
     if (!ok) return;
-    await this.contactoService.deleteContacto(String(id));
+    try {
+      await this.contactoService.deleteContacto(String(id));
+      this.reloadContactos();
+    } catch (error) {
+      console.error('Error deleting contacto:', error);
+      alert('Error al eliminar el contacto. Por favor, intente nuevamente.');
+    }
   }
 
 

@@ -16,7 +16,10 @@ export class UnidadService {
 				.then(response => {
 					if (response.error) throw response.error;
 					// Transform snake_case back to camelCase for app compatibility
-					return (response.data || []).map((item: any) => this.toCamelCase(item));
+					return (response.data || []).map((item: any) => {
+						const camelCaseItem = this.toCamelCase(item);
+						return this.addComputedProperties(camelCaseItem);
+					});
 				})
 		);
 	}
@@ -201,7 +204,8 @@ export class UnidadService {
             throw response.error;
           }
           // Transform snake_case back to camelCase for app compatibility
-          return this.toCamelCase(response.data);
+          const camelCaseItem = this.toCamelCase(response.data);
+          return this.addComputedProperties(camelCaseItem);
         })
     );
   }
@@ -434,5 +438,40 @@ export class UnidadService {
       result[camelKey] = this.toCamelCase(value);
     }
     return result;
+  }
+
+  /**
+   * Add computed properties based on estadoComercial for backward compatibility
+   * These properties don't exist in the database but are used throughout the app
+   */
+  private addComputedProperties(unidad: any): any {
+    if (!unidad || typeof unidad !== 'object') return unidad;
+    
+    const estadoComercial = unidad.estadoComercial || '';
+    const estadoLower = estadoComercial.toLowerCase();
+    
+    // Compute vendida: true if estadoComercial is 'Vendida'
+    unidad.vendida = estadoLower === 'vendida';
+    unidad.sold = unidad.vendida; // Alias for compatibility
+    
+    // Compute rented: true if estadoComercial is 'En alquiler'
+    unidad.rented = estadoLower === 'en alquiler';
+    
+    // Compute activo: true if unidad is not deleted (deletedAt is null)
+    // Note: activo is not stored in DB, but we derive it from deletedAt
+    unidad.activo = unidad.deletedAt == null;
+    
+    // Set disponibilidad based on estadoComercial for compatibility
+    if (!unidad.disponibilidad) {
+      if (unidad.vendida) {
+        unidad.disponibilidad = 'Vendida';
+      } else if (unidad.rented) {
+        unidad.disponibilidad = 'Rentada';
+      } else {
+        unidad.disponibilidad = 'Disponible: publicada';
+      }
+    }
+    
+    return unidad;
   }
 }

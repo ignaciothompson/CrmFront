@@ -77,6 +77,10 @@ export class NuevaVentaModal {
         if (!this.importe && this.precioUnitario) {
           this.importe = this.precioUnitario;
         }
+        // Cargar la comisión de la unidad si existe y no hay una comisión ya establecida
+        if (unidad?.comision != null && this.comision == null) {
+          this.comision = unidad.comision;
+        }
       }
     } else {
       this.precioUnitario = null;
@@ -161,26 +165,14 @@ export class NuevaVentaModal {
         console.log('Venta guardada exitosamente:', ventaDoc.id);
 
         // Solo si la venta se guardó exitosamente, actualizar la unidad
-        const changes: any = {
-          activo: false // Deshabilitar la unidad
-        };
+        const changes: any = {};
         if (venta.type === 'venta') {
-          changes.vendida = true;
-          changes.disponibilidad = 'Vendida';
+          // Actualizar estado comercial a 'Vendida' cuando se vende una unidad
+          changes.estadoComercial = 'Vendida';
         }
         if (venta.type === 'renta') {
-          changes.rented = true;
-          changes.disponibilidad = 'Rentada';
-          // Calcular fecha de finalización de renta (fecha actual + meses)
-          if (venta.meses && venta.meses > 0) {
-            const fechaActual = new Date();
-            const fechaFinRenta = new Date(fechaActual);
-            fechaFinRenta.setMonth(fechaFinRenta.getMonth() + venta.meses);
-            // Guardar como timestamp en milisegundos
-            changes.fechaFinRenta = fechaFinRenta.getTime();
-            // También guardar fecha de inicio de renta
-            changes.fechaInicioRenta = fechaActual.getTime();
-          }
+          // Actualizar estado comercial a 'En alquiler' cuando se renta una unidad
+          changes.estadoComercial = 'En alquiler';
         }
         await this.unidadService.updateUnidad(String(unidad.id), changes);
         console.log('Unidad actualizada exitosamente:', unidad.id);
