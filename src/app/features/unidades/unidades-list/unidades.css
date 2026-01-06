@@ -50,3 +50,144 @@
   border-bottom-color: var(--link-color);
 }
 
+/* Secondary Filters Dropdown */
+.secondary-filters-container {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.secondary-filters-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface-1);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+}
+
+.secondary-filters-toggle:hover {
+  background: var(--surface-2);
+}
+
+.secondary-filters-toggle.active {
+  background: var(--surface-2);
+}
+
+.secondary-filters-toggle i {
+  margin-right: 8px;
+  transition: transform 0.2s;
+}
+
+.filter-badge {
+  background: var(--primary-color);
+  color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.secondary-filters-panel {
+  border-top: 1px solid var(--border);
+  padding: 15px;
+  background: var(--surface-1);
+}
+
+.secondary-filters-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.filter-chip-label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.filter-chip-value {
+  color: var(--muted-text-color);
+}
+
+/* Table with horizontal scroll */
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.scroll-table-horizontal {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.unidades-table {
+  min-width: 1400px;
+  width: 100%;
+}
+
+.unidades-table th,
+.unidades-table td {
+  white-space: nowrap;
+  padding: 12px 8px;
+  font-size: 13px;
+}
+
+.unidades-table th {
+  background: var(--surface-2);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 8;
+}
+
+.unidades-table th:first-child,
+.unidades-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: white;
+}
+
+.unidades-table th:last-child,
+.unidades-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: white;
+}
+
+.unidades-table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+/* Ensure sticky columns have proper background on hover */
+.unidades-table tbody tr:hover td:first-child,
+.unidades-table tbody tr:hover td:last-child {
+  background: var(--surface-2);
+}
+

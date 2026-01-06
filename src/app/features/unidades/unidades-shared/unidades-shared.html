@@ -1,48 +1,403 @@
-<div class="frame">
-  <div class="frame-title">
-    <h4>{{ proyecto?.nombre || 'Proyecto' }}</h4>
-  </div>
-  <div class="frame-body">
-    <div class="row">
-      <div class="col-xs-12 col-sm-6">
-        <div><strong>Desarrollador:</strong> {{ proyecto?.desarrollador || '-' }}</div>
-        <div><strong>Entrega:</strong> {{ proyecto?.entrega || '-' }}</div>
-      </div>
-      <div class="col-xs-12 col-sm-6">
-        <div><strong>Localidad:</strong> {{ proyecto?.ciudad || proyecto?.localidad || '-' }}</div>
-        <div><strong>Barrio:</strong> {{ proyecto?.barrio || '-' }}</div>
-        <div><strong>Dirección:</strong> {{ proyecto?.direccion || '-' }}</div>
-      </div>
-    </div>
-    <h5 class="mt-2">Unidades</h5>
-    <div class="table-responsive">
-      <table class="table c-table table-striped">
-        <thead>
-          <tr>
-            <th>Referencia</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>M2 / Ha</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (u of unidades; track u) {
-            <tr>
-              <td>{{ u.nombre }}</td>
-              <td>{{ u.tipoUnidad }}</td>
-              <td>{{ u.estadoComercial }}</td>
-              <td>{{ getPrimarySize(u) }}</td>
-            </tr>
+<div class="unidad-public-container">
+  <div class="unidad-wrapper">
+    @if (unidades.length === 1) {
+      <!-- Single Unit View (RE/MAX style) -->
+      @let unidad = unidades[0];
+      
+      <!-- Header with Price -->
+      <div class="unidad-header-public">
+        <div class="breadcrumb">
+          <span>Comprar</span>
+          <span class="separator">></span>
+          <span>{{ unidad.tipoUnidad || unidad.tipo || 'Propiedad' }}</span>
+          <span class="separator">></span>
+          <span>{{ unidad.ciudad || '-' }}</span>
+        </div>
+        
+        <h1 class="unidad-title">{{ unidad.nombre || 'Propiedad' }}</h1>
+        
+        @if (unidad.precioUSD || unidad.precio) {
+          <div class="price-highlight">
+            {{ (unidad.precioUSD || unidad.precio) | currency:'USD':'symbol':'1.0-0' }}
+          </div>
+        }
+        
+        <!-- Key Info Badges -->
+        <div class="key-info-badges">
+          @if (unidad.m2Totales) {
+            <div class="info-badge">
+              <span class="badge-label">{{ unidad.m2Totales }}m²</span>
+              <span class="badge-sublabel">totales</span>
+            </div>
           }
-          @if (!unidades.length) {
-            <tr>
-              <td colspan="4" class="text-center">Sin unidades</td>
-            </tr>
+          @if (unidad.m2Internos) {
+            <div class="info-badge">
+              <span class="badge-label">{{ unidad.m2Internos }}m²</span>
+              <span class="badge-sublabel">cubiertos</span>
+            </div>
           }
-        </tbody>
-      </table>
-    </div>
+          @if (unidad.dormitorios !== null && unidad.dormitorios !== undefined) {
+            <div class="info-badge">
+              <span class="badge-label">{{ unidad.dormitorios }}</span>
+              <span class="badge-sublabel">dormitorios</span>
+            </div>
+          }
+          @if (unidad.banos !== null && unidad.banos !== undefined) {
+            <div class="info-badge">
+              <span class="badge-label">{{ unidad.banos }}</span>
+              <span class="badge-sublabel">baños</span>
+            </div>
+          }
+          @if (unidad.ciudad) {
+            <div class="info-badge">
+              <span class="badge-label">{{ unidad.ciudad }}</span>
+            </div>
+          }
+          @if (unidad.barrio) {
+            <div class="info-badge">
+              <span class="badge-label">{{ unidad.barrio }}</span>
+            </div>
+          }
+        </div>
+        
+        @if (proyecto) {
+          <div class="proyecto-info">
+            @if (proyecto.nombre) {
+              <span><i class="fa fa-building"></i> Proyecto: {{ proyecto.nombre }}</span>
+            }
+            @if (proyecto.desarrollador) {
+              <span><i class="fa fa-building"></i> Desarrollador: {{ proyecto.desarrollador }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Description Section -->
+      <div class="description-section">
+        <h2 class="section-title">Descripción</h2>
+        <div class="description-content">
+          @if (unidad.nombre) {
+            <h3>{{ unidad.nombre }}</h3>
+          }
+          <p class="description-text">
+            @if (unidad.tipoUnidad || unidad.tipo) {
+              <strong>{{ unidad.tipoUnidad || unidad.tipo }}</strong>
+            }
+            @if (unidad.m2Totales || unidad.m2Internos) {
+              de {{ unidad.m2Totales || unidad.m2Internos }} metros cuadrados
+            }
+            @if (unidad.ciudad || unidad.barrio) {
+              ubicado en {{ unidad.barrio ? unidad.barrio + ', ' : '' }}{{ unidad.ciudad || '' }}.
+            }
+            @if (unidad.dormitorios !== null && unidad.dormitorios !== undefined) {
+              Cuenta con {{ unidad.dormitorios }} {{ unidad.dormitorios === 1 ? 'dormitorio' : 'dormitorios' }}
+            }
+            @if (unidad.banos !== null && unidad.banos !== undefined) {
+              y {{ unidad.banos }} {{ unidad.banos === 1 ? 'baño' : 'baños' }}.
+            }
+            @if (unidad.orientacion) {
+              Orientación {{ unidad.orientacion }}.
+            }
+            @if (unidad.entrega) {
+              Entrega: {{ unidad.entrega }}.
+            }
+          </p>
+        </div>
+      </div>
+
+      <!-- Details Section -->
+      <div class="details-section">
+        <h2 class="section-title">Detalles</h2>
+        <div class="details-grid">
+          @if (unidad.m2Totales) {
+            <div class="detail-item">
+              <span class="detail-label">Superficie total:</span>
+              <span class="detail-value">{{ unidad.m2Totales }} m²</span>
+            </div>
+          }
+          @if (unidad.m2Internos) {
+            <div class="detail-item">
+              <span class="detail-label">Superficie cubierta:</span>
+              <span class="detail-value">{{ unidad.m2Internos }} m²</span>
+            </div>
+          }
+          @if (unidad.superficieEdificada) {
+            <div class="detail-item">
+              <span class="detail-label">Superficie edificada:</span>
+              <span class="detail-value">{{ unidad.superficieEdificada }} m²</span>
+            </div>
+          }
+          @if (unidad.superficieTerreno) {
+            <div class="detail-item">
+              <span class="detail-label">Superficie terreno:</span>
+              <span class="detail-value">{{ unidad.superficieTerreno }} m²</span>
+            </div>
+          }
+          @if (unidad.dormitorios !== null && unidad.dormitorios !== undefined) {
+            <div class="detail-item">
+              <span class="detail-label">Dormitorios:</span>
+              <span class="detail-value">{{ unidad.dormitorios }}</span>
+            </div>
+          }
+          @if (unidad.banos !== null && unidad.banos !== undefined) {
+            <div class="detail-item">
+              <span class="detail-label">Baños:</span>
+              <span class="detail-value">{{ unidad.banos }}</span>
+            </div>
+          }
+          @if (unidad.orientacion) {
+            <div class="detail-item">
+              <span class="detail-label">Orientación:</span>
+              <span class="detail-value">{{ unidad.orientacion }}</span>
+            </div>
+          }
+          @if (unidad.distribucion) {
+            <div class="detail-item">
+              <span class="detail-label">Distribución:</span>
+              <span class="detail-value">{{ unidad.distribucion }}</span>
+            </div>
+          }
+          @if (unidad.piso !== null && unidad.piso !== undefined) {
+            <div class="detail-item">
+              <span class="detail-label">Piso:</span>
+              <span class="detail-value">{{ unidad.piso }}</span>
+            </div>
+          }
+          @if (unidad.plantas !== null && unidad.plantas !== undefined) {
+            <div class="detail-item">
+              <span class="detail-label">Plantas:</span>
+              <span class="detail-value">{{ unidad.plantas }}</span>
+            </div>
+          }
+          @if (unidad.hectareas) {
+            <div class="detail-item">
+              <span class="detail-label">Hectáreas:</span>
+              <span class="detail-value">{{ unidad.hectareas }} ha</span>
+            </div>
+          }
+          @if (unidad.altura) {
+            <div class="detail-item">
+              <span class="detail-label">Altura:</span>
+              <span class="detail-value">{{ unidad.altura }}</span>
+            </div>
+          }
+          @if (unidad.estadoComercial || unidad.estado) {
+            <div class="detail-item">
+              <span class="detail-label">Estado:</span>
+              <span class="detail-value">{{ unidad.estadoComercial || unidad.estado }}</span>
+            </div>
+          }
+          @if (unidad.responsable) {
+            <div class="detail-item">
+              <span class="detail-label">Responsable:</span>
+              <span class="detail-value">{{ unidad.responsable }}</span>
+            </div>
+          }
+          @if (unidad.comision !== null && unidad.comision !== undefined) {
+            <div class="detail-item">
+              <span class="detail-label">Comisión:</span>
+              <span class="detail-value">{{ unidad.comision }}%</span>
+            </div>
+          }
+          @if (unidad.entrega) {
+            <div class="detail-item">
+              <span class="detail-label">Entrega:</span>
+              <span class="detail-value">{{ unidad.entrega }}</span>
+            </div>
+          }
+          @if (unidad.terraza) {
+            <div class="detail-item">
+              <span class="detail-label">Terraza:</span>
+              <span class="detail-value">{{ unidad.terraza }}</span>
+            </div>
+          }
+          @if (unidad.tamanoTerraza) {
+            <div class="detail-item">
+              <span class="detail-label">Tamaño Terraza:</span>
+              <span class="detail-value">{{ unidad.tamanoTerraza }} m²</span>
+            </div>
+          }
+          @if (unidad.garage) {
+            <div class="detail-item">
+              <span class="detail-label">Garage:</span>
+              <span class="detail-value">{{ unidad.garage }}</span>
+            </div>
+          }
+          @if (unidad.tamanoGarage) {
+            <div class="detail-item">
+              <span class="detail-label">Tamaño Garage:</span>
+              <span class="detail-value">{{ unidad.tamanoGarage }} m²</span>
+            </div>
+          }
+          @if (unidad.precioGarage) {
+            <div class="detail-item">
+              <span class="detail-label">Precio Garage:</span>
+              <span class="detail-value">{{ unidad.precioGarage | currency:'USD':'symbol':'1.0-0' }}</span>
+            </div>
+          }
+          @if (unidad.ciudad) {
+            <div class="detail-item">
+              <span class="detail-label">Ciudad:</span>
+              <span class="detail-value">{{ unidad.ciudad }}</span>
+            </div>
+          }
+          @if (unidad.barrio) {
+            <div class="detail-item">
+              <span class="detail-label">Barrio:</span>
+              <span class="detail-value">{{ unidad.barrio }}</span>
+            </div>
+          }
+          @if (unidad.id) {
+            <div class="detail-item">
+              <span class="detail-label">Código:</span>
+              <span class="detail-value">{{ unidad.id }}</span>
+            </div>
+          }
+        </div>
+        
+        @if (unidad.extras && unidad.extras.length > 0) {
+          <div class="amenities-section">
+            <h3 class="amenities-title">Características</h3>
+            <div class="amenities-list">
+              @for (extra of unidad.extras; track extra) {
+                <span class="amenity-tag">{{ extra }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      
+    } @else {
+      <!-- Multiple Units View (Project) -->
+      <!-- Header -->
+      <div class="unidad-header-public">
+        <h1 class="unidad-title">{{ proyecto?.nombre || 'Proyecto' }}</h1>
+        @if (proyecto) {
+          <div class="proyecto-info">
+            @if (proyecto.desarrollador) {
+              <span><i class="fa fa-building"></i> {{ proyecto.desarrollador }}</span>
+            }
+            @if (proyecto.ciudad || proyecto.localidad) {
+              <span><i class="fa fa-map-marker-alt"></i> {{ proyecto.ciudad || proyecto.localidad }}</span>
+            }
+            @if (proyecto.barrio) {
+              <span><i class="fa fa-map-marker-alt"></i> {{ proyecto.barrio }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Units Table -->
+      <div class="units-table-wrapper">
+        <table class="units-table">
+          <thead>
+            <tr>
+              <th class="attribute-col">Información</th>
+              @for (unidad of unidades; track unidad.id) {
+                <th class="unit-col">{{ unidad.nombre || 'Unidad' }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @if (!unidades || unidades.length === 0) {
+              <tr>
+                <td colspan="100%" class="no-unidades-message">
+                  <p>No hay unidades disponibles</p>
+                </td>
+              </tr>
+            } @else {
+              <!-- Nombre Row -->
+              <tr>
+                <td class="attribute-label">Nombre</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value unit-name">
+                    {{ unidad.nombre || '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Tipo Row -->
+              <tr>
+                <td class="attribute-label">Tipo</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ unidad.tipoUnidad || unidad.tipo || '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Precio Row -->
+              <tr>
+                <td class="attribute-label">Precio</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value unit-price">
+                    {{ (unidad.precioUSD || unidad.precio) ? ((unidad.precioUSD || unidad.precio) | currency:'USD':'symbol':'1.0-0') : '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Dormitorios Row -->
+              <tr>
+                <td class="attribute-label">Dormitorios</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ unidad.dormitorios ?? unidad.cuartos ?? '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Baños Row -->
+              <tr>
+                <td class="attribute-label">Baños</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ unidad.banos ?? '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Tamaño Row -->
+              <tr>
+                <td class="attribute-label">Tamaño</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ getPrimarySize(unidad) || '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Estado Row -->
+              <tr>
+                <td class="attribute-label">Estado</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ unidad.estadoComercial || unidad.estado || '-' }}
+                  </td>
+                }
+              </tr>
+
+              <!-- Ubicación Section -->
+              <tr>
+                <td class="attribute-label">Ciudad</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ unidad.ciudad || '-' }}
+                  </td>
+                }
+              </tr>
+
+              <tr>
+                <td class="attribute-label">Barrio</td>
+                @for (unidad of unidades; track unidad.id) {
+                  <td class="unit-value">
+                    {{ unidad.barrio || '-' }}
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
   </div>
 </div>
-
-

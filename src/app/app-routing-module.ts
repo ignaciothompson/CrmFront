@@ -9,8 +9,11 @@ const routes: Routes = [
 	{ path: 'login', loadComponent: () => import('./features/auth/login/login').then(m => m.Login) },
   // Public proyecto share page
   { path: 'proyecto/:id', loadComponent: () => import('./features/unidades/unidades-shared/unidades-shared').then(m => m.UnidadesShared) },
+  // Public unidad share page (shows single unit)
+  { path: 'unidad/:id', loadComponent: () => import('./features/unidades/unidades-shared/unidades-shared').then(m => m.UnidadesShared) },
   // Public access to shared comparativas by id (new public path)
   { path: 'comparacion/:id', loadComponent: () => import('./features/comparativas/pages/comparativa-detail/comparativa-detail').then(m => m.ComparativaDetailPage) },
+  { path: 'comparacion-expired', loadComponent: () => import('./features/comparativas/pages/comparativa-expired/comparativa-expired').then(m => m.ComparativaExpiredPage) },
 	{
 		path: '',
 		component: MainLayout,
@@ -22,7 +25,6 @@ const routes: Routes = [
 			{ path: 'contactos', data: { title: 'Contactos' }, loadComponent: () => import('./features/contactos/contactos-list/contactos').then(m => m.Contactos) },
 			{ path: 'contactos-seguimiento', data: { title: 'Seguimiento de Contactos' }, loadComponent: () => import('./features/contactos-seguimiento/contactos-seguimiento').then(m => m.ContactosSeguimiento) },
             { path: 'unidades', data: { title: 'Listado de Proyectos' }, loadComponent: () => import('./features/unidades/unidades-list/unidades').then(m => m.Unidades) },
-            { path: 'comparativas', data: { title: 'Crear Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-create/comparativas').then(m => m.Comparativas) },
             { path: 'listado-comparativas', data: { title: 'Comparativas' }, loadComponent: () => import('./features/comparativas/pages/comparativas-list/comparativas-list').then(m => m.ComparativasListPage) },
 			{ path: 'reportes', data: { title: 'Reportes' }, loadComponent: () => import('./features/reportes/reportes').then(m => m.Reportes) },
             { path: 'monitor-eventos', data: { title: 'Monitor de Eventos' }, loadComponent: () => import('./features/monitor-eventos/monitor-eventos').then(m => m.MonitorEventosComponent) },

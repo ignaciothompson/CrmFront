@@ -4,6 +4,8 @@ import { ComparativaService } from '../../../../core/services/comparativa';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SubheaderComponent, FilterConfig } from '../../../../shared/components/subheader/subheader';
+import { ToastService } from '../../../../core/services/toast.service';
+import { ConfirmService } from '../../../../shared/services/confirm.service';
 
 @Component({
   selector: 'app-comparativas-list',
@@ -13,7 +15,12 @@ import { SubheaderComponent, FilterConfig } from '../../../../shared/components/
   styleUrl: './comparativas-list.css'
 })
 export class ComparativasListPage {
-  constructor(private comparativaService: ComparativaService, private router: Router) {}
+  constructor(
+    private comparativaService: ComparativaService, 
+    private router: Router,
+    private toastService: ToastService,
+    private confirmService: ConfirmService
+  ) {}
 
   // Filter configurations for subheader
   subheaderFilters: FilterConfig[] = [];
@@ -25,20 +32,27 @@ export class ComparativasListPage {
   contactoItems: Array<{ id: string; label: string }> = [];
 
   ngOnInit(): void {
-    this.comparativaService.getComparativas().subscribe(cs => {
-      this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
-      this.filtered = this.comparativas;
-      const byContacto: Record<string, string> = {};
-      for (const c of this.comparativas) {
-        const id = String(c?.contacto?.id || c?.contactoId || '');
-        if (!id) continue;
-        const name = c?.contacto?.nombre || c?.contactoNombre || id;
-        const last = c?.contacto?.apellido || c?.contactoApellido || '';
-        const label = `${name} ${last}`.trim();
-        if (!byContacto[id]) byContacto[id] = label;
+    this.comparativaService.getComparativas().subscribe({
+      next: (cs) => {
+        console.log('ComparativasListPage - Received comparativas:', cs);
+        this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
+        console.log('ComparativasListPage - Sorted comparativas:', this.comparativas);
+        this.filtered = this.comparativas;
+        const byContacto: Record<string, string> = {};
+        for (const c of this.comparativas) {
+          const id = String(c?.contacto?.id || c?.contactoId || '');
+          if (!id) continue;
+          const name = c?.contacto?.nombre || c?.contactoNombre || id;
+          const last = c?.contacto?.apellido || c?.contactoApellido || '';
+          const label = `${name} ${last}`.trim();
+          if (!byContacto[id]) byContacto[id] = label;
+        }
+        this.contactoItems = Object.entries(byContacto).map(([id, label]) => ({ id, label }));
+        this.updateFilterConfigs();
+      },
+      error: (error) => {
+        console.error('ComparativasListPage - Error loading comparativas:', error);
       }
-      this.contactoItems = Object.entries(byContacto).map(([id, label]) => ({ id, label }));
-      this.updateFilterConfigs();
     });
   }
 
@@ -74,15 +88,85 @@ export class ComparativasListPage {
   }
 
   copyLink(c: any): void {
-    const url = window.location.origin + '/comparacion/' + c?.id;
-    navigator.clipboard?.writeText(url);
+    // Use token if available, otherwise fallback to ID (for backward compatibility)
+    const identifier = c?.token || c?.id;
+    const url = window.location.origin + '/comparacion/' + identifier;
+    navigator.clipboard?.writeText(url).then(() => {
+      this.toastService.success('Link copiado al portapapeles');
+    }).catch(() => {
+      this.toastService.error('Error al copiar el link');
+    });
   }
 
-  delete(c: any): void {
+  async regenerate(c: any): Promise<void> {
     if (!c?.id) return;
-    const ok = confirm('¿Eliminar esta comparativa? Esta acción no se puede deshacer.');
-    if (!ok) return;
-    this.comparativaService.deleteComparativa(String(c.id));
+    
+    const confirmed = await this.confirmService.confirm({
+      title: 'Regenerar comparativa',
+      message: '¿Regenerar esta comparativa? Se creará una nueva comparativa con las mismas unidades.',
+      confirmText: 'Regenerar',
+      cancelText: 'Cancelar'
+    });
+    
+    if (!confirmed) return;
+
+    try {
+      const now = Date.now();
+      // Extract only unidad IDs from the comparativa
+      const unidadesIds = Array.isArray(c?.unidades) 
+        ? c.unidades.map((u: any) => ({ id: String(u.id) }))
+        : [];
+      
+      const payload = {
+        fecha: now,
+        contactoId: c?.contacto?.id ? String(c.contacto.id) : null,
+        contacto: c?.contacto || null,
+        unidades: unidadesIds
+      };
+
+      const ref = await this.comparativaService.addComparativa(payload);
+      const token = (ref as any)?.token || (ref as any)?.id;
+      
+      if (token) {
+        this.toastService.success('Comparativa regenerada exitosamente');
+        window.open(`/comparacion/${token}`, '_blank');
+        // Reload comparativas list
+        this.comparativaService.getComparativas().subscribe(cs => {
+          this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
+          this.applyFilters();
+        });
+      }
+    } catch (error) {
+      console.error('Error regenerating comparativa:', error);
+      this.toastService.error('Error al regenerar la comparativa. Por favor, intente nuevamente.');
+    }
+  }
+
+  async delete(c: any): Promise<void> {
+    if (!c?.id) return;
+    
+    const confirmed = await this.confirmService.confirm({
+      title: 'Confirmar eliminación',
+      message: '¿Eliminar esta comparativa? Esta acción no se puede deshacer.',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      confirmButtonClass: 'btn-danger'
+    });
+    
+    if (!confirmed) return;
+    
+    try {
+      await this.comparativaService.deleteComparativa(String(c.id));
+      this.toastService.success('Comparativa eliminada exitosamente');
+      // Reload comparativas list
+      this.comparativaService.getComparativas().subscribe(cs => {
+        this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
+        this.applyFilters();
+      });
+    } catch (error) {
+      console.error('Error deleting comparativa:', error);
+      this.toastService.error('Error al eliminar la comparativa. Por favor, intente nuevamente.');
+    }
   }
 
 

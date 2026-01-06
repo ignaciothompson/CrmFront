@@ -29,7 +29,13 @@ export class CompareModal {
   ngOnInit(): void {
     this.contactoService.getContactos().subscribe(cs => {
       this.contactos = cs || [];
-      this.contactoItems = this.contactos.map(c => ({ id: String(c.id), label: String((c.nombre || '') + (c.apellido ? (' ' + c.apellido) : '')) })).filter(x => !!x.label);
+      this.contactoItems = this.contactos.map(c => {
+        // Handle both capitalized and lowercase field names
+        const nombre = c.Nombre || c.nombre || '';
+        const apellido = c.Apellido || c.apellido || '';
+        const label = `${nombre} ${apellido}`.trim();
+        return { id: String(c.id), label: label };
+      }).filter(x => !!x.label);
     });
   }
 
@@ -49,6 +55,14 @@ export class CompareModal {
     const contacto = this.selectedContactoId 
       ? this.contactos.find(c => String(c.id) === String(this.selectedContactoId))
       : null;
+    
+    // Normalize contacto data for consistency
+    if (contacto) {
+      contacto.nombre = contacto.Nombre || contacto.nombre || '';
+      contacto.apellido = contacto.Apellido || contacto.apellido || '';
+      contacto.telefono = contacto.Celular || contacto.telefono || '';
+      contacto.mail = contacto.Mail || contacto.mail || '';
+    }
     
     this.activeModal.close({ contacto });
   }

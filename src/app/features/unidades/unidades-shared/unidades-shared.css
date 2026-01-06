@@ -1,3 +1,373 @@
-/* public view styles can be extended later */
+.unidad-public-container {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 
+.unidad-wrapper {
+  max-width: 1400px;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
 
+/* Header */
+.unidad-header-public {
+  padding: 30px 40px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.breadcrumb .separator {
+  color: #9ca3af;
+}
+
+.unidad-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+  line-height: 1.2;
+}
+
+.price-highlight {
+  font-size: 48px;
+  font-weight: 700;
+  color: #059669;
+  margin-bottom: 24px;
+  line-height: 1;
+}
+
+.key-info-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  min-width: 100px;
+}
+
+.badge-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.badge-sublabel {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: lowercase;
+  margin-top: 4px;
+}
+
+.proyecto-info {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  color: #6b7280;
+  font-size: 14px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.proyecto-info span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proyecto-info i {
+  color: #9ca3af;
+}
+
+/* Description Section */
+.description-section {
+  padding: 40px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+}
+
+.description-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.description-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+}
+
+/* Details Section */
+.details-section {
+  padding: 40px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Amenities Section */
+.amenities-section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.amenities-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.amenities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.amenity-tag {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #eff6ff;
+  color: #1e40af;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Units Table (for multiple units view) */
+.units-table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  width: 100%;
+}
+
+.units-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.units-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.units-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  border-right: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+.units-table th:last-child {
+  border-right: none;
+}
+
+.attribute-col {
+  width: 200px;
+  background: #f3f4f6;
+}
+
+.unit-col {
+  min-width: 250px;
+}
+
+.units-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  max-height: 50px;
+}
+
+.units-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.units-table tbody td {
+  background: white;
+  max-height: 50px;
+  overflow: hidden;
+}
+
+.units-table tbody tr td:first-child {
+  background: #EEE;
+}
+
+.attribute-label {
+  background: #EEE;
+  padding: 0px 20px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attribute-label i {
+  color: #9ca3af;
+  width: 16px;
+  text-align: center;
+}
+
+.unit-value {
+  padding: 0px 20px;
+  color: var(--text-color);
+  border-right: 1px solid #e5e7eb;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.unit-value:last-child {
+  border-right: none;
+}
+
+.unit-name {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.unit-price {
+  font-weight: 700;
+  color: var(--success-color);
+  font-size: 14px;
+}
+
+.muted-text {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.no-unidades-message {
+  padding: 60px 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.no-unidades-message p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .unidad-public-container {
+    padding: 20px 10px;
+  }
+
+  .unidad-header-public {
+    padding: 20px;
+  }
+
+  .unidad-title {
+    font-size: 24px;
+  }
+
+  .price-highlight {
+    font-size: 36px;
+  }
+
+  .key-info-badges {
+    gap: 12px;
+  }
+
+  .info-badge {
+    min-width: 80px;
+    padding: 10px 16px;
+  }
+
+  .badge-label {
+    font-size: 18px;
+  }
+
+  .description-section,
+  .details-section {
+    padding: 20px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .units-table {
+    font-size: 12px;
+  }
+
+  .attribute-col {
+    width: 120px;
+  }
+
+  .unit-col {
+    min-width: 180px;
+  }
+
+  .attribute-label,
+  .unit-value {
+    padding: 12px 12px;
+    font-size: 12px;
+  }
+}

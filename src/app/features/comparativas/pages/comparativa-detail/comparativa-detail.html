@@ -1,89 +1,348 @@
-<div class="comparativa-header">
-  <div class="header-image"></div>
-  <div class="header-overlay">
-    <h2>Comparativa</h2>
-    @if (comparativa?.contacto) {
-      <div class="contacto">
-        <span><b>Cliente:</b> {{ comparativa?.contacto?.nombre }}</span>
-        <span class="m-l-sm"><b>Tel:</b> {{ comparativa?.contacto?.telefono }}</span>
-        <span class="m-l-sm"><b>Mail:</b> {{ comparativa?.contacto?.mail }}</span>
-      </div>
-    }
-  </div>
-</div>
+<div class="comparativa-public-container">
+  <div class="comparativa-wrapper">
+    <!-- Header -->
+    <div class="comparativa-header-public">
+      <h1 class="comparativa-title">Comparar Propiedades</h1>
+      @if (comparativa?.contacto) {
+        <div class="contacto-info">
+          <span><i class="fa fa-user"></i> {{ comparativa.contacto.nombre }}</span>
+          @if (comparativa.contacto.telefono) {
+            <span><i class="fa fa-phone"></i> {{ comparativa.contacto.telefono }}</span>
+          }
+        </div>
+      }
+    </div>
 
-<div class="row m-t">
-  <div class="col-xs-12 col-md-8">
-    <div class="card">
-      <div class="card-title">Unidades</div>
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
+    <!-- Comparison Table -->
+    <div class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <tbody>
+          @if (!comparativa?.unidades || comparativa.unidades.length === 0) {
             <tr>
-              <th>Nombre</th>
-              <th>Ciudad</th>
-              <th>Barrio</th>
-              <th>Cuartos</th>
-              <th>Baños</th>
-              <th>Tamaño</th>
-              <th>Precio</th>
-              <th>Expensas</th>
+              <td colspan="100%" class="no-unidades-message">
+                <p>No hay unidades para comparar</p>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            @for (u of comparativa?.unidades; track u) {
-              <tr>
-                <td>{{ u?.nombre }}</td>
-                <td>{{ u?.ciudad }}</td>
-                <td>{{ u?.barrio }}</td>
-                <td>{{ u?.dormitorios }}</td>
-                <td>{{ u?.banos }}</td>
-                <td>{{ u?.tamanoM2 }} m²</td>
-                <td>{{ u?.precioUSD | currency:'USD' }}</td>
-                <td>{{ u?.expensasUSD | currency:'USD' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          } @else {
+            <!-- Proyecto Row -->
+            <tr>
+              <td class="attribute-label">Proyecto</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.proyectoNombre || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Nombre Row -->
+            <tr>
+              <td class="attribute-label">Nombre</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value property-name">
+                  {{ unidad.nombre || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Tipo Row -->
+            <tr>
+              <td class="attribute-label">Tipo</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.tipo || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Estado Comercial Row -->
+            <tr>
+              <td class="attribute-label">Estado</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.estadoComercial || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Precio Row -->
+            <tr>
+              <td class="attribute-label">Precio</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value property-price">
+                  {{ unidad.precioUSD ? (unidad.precioUSD | currency:'USD':'symbol':'1.0-0') : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Responsable Row -->
+            <tr>
+              <td class="attribute-label">Responsable</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.responsable || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Comisión Row -->
+            <tr>
+              <td class="attribute-label">Comisión</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.comision ? unidad.comision + '%' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Dormitorios Row -->
+            <tr>
+              <td class="attribute-label">Dormitorios</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.dormitorios ?? '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Baños Row -->
+            <tr>
+              <td class="attribute-label">Baños</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.banos ?? '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Orientación Row -->
+            <tr>
+              <td class="attribute-label">Orientación</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.orientacion || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Distribución Row -->
+            <tr>
+              <td class="attribute-label">Distribución</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.distribucion || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- M2 Totales Row -->
+            <tr>
+              <td class="attribute-label">M² Totales</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.m2Totales ? unidad.m2Totales + ' m²' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- M2 Internos Row -->
+            <tr>
+              <td class="attribute-label">M² Internos</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.m2Internos ? unidad.m2Internos + ' m²' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Superficie Edificada Row -->
+            <tr>
+              <td class="attribute-label">Superficie Edificada</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.superficieEdificada ? unidad.superficieEdificada + ' m²' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Superficie Terreno Row -->
+            <tr>
+              <td class="attribute-label">Superficie Terreno</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.superficieTerreno ? unidad.superficieTerreno + ' m²' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Piso Row -->
+            <tr>
+              <td class="attribute-label">Piso</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.piso ?? '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Plantas Row -->
+            <tr>
+              <td class="attribute-label">Plantas</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.plantas ?? '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Hectáreas Row -->
+            <tr>
+              <td class="attribute-label">Hectáreas</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.hectareas ? unidad.hectareas + ' ha' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Altura Row -->
+            <tr>
+              <td class="attribute-label">Altura</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.altura || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Entrega Row -->
+            <tr>
+              <td class="attribute-label">Entrega</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.entrega || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Terraza Row -->
+            <tr>
+              <td class="attribute-label">Terraza</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.terraza || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Tamaño Terraza Row -->
+            <tr>
+              <td class="attribute-label">Tamaño Terraza</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.tamanoTerraza ? unidad.tamanoTerraza + ' m²' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Garage Row -->
+            <tr>
+              <td class="attribute-label">Garage</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.garage || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Tamaño Garage Row -->
+            <tr>
+              <td class="attribute-label">Tamaño Garage</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.tamanoGarage ? unidad.tamanoGarage + ' m²' : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Precio Garage Row -->
+            <tr>
+              <td class="attribute-label">Precio Garage</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.precioGarage ? (unidad.precioGarage | currency:'USD':'symbol':'1.0-0') : '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Ubicación Section -->
+            <tr>
+              <td class="attribute-label">Ciudad</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.ciudad || '-' }}
+                </td>
+              }
+            </tr>
+
+            <tr>
+              <td class="attribute-label">Barrio</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  {{ unidad.barrio || '-' }}
+                </td>
+              }
+            </tr>
+
+            <!-- Extras Section -->
+            <tr class="section-row">
+              <td class="attribute-label">Características</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  @if (unidad.extras && unidad.extras.length > 0) {
+                    <div class="extras-list">
+                      @for (extra of unidad.extras; track extra) {
+                        <span class="extra-tag">{{ extra }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="muted-text">-</span>
+                  }
+                </td>
+              }
+            </tr>
+
+            <!-- Más Información Row -->
+            <tr>
+              <td class="attribute-label">Más Información</td>
+              @for (unidad of comparativa.unidades; track unidad.id) {
+                <td class="property-value">
+                  @if (unidad.id) {
+                    <button (click)="verProyecto(unidad.id)" class="btn c-btn btn-primary btn-sm">
+                      Más Información
+                    </button>
+                  } @else {
+                    <span class="muted-text">-</span>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
-    <div class="card">
-      <div class="card-title">Extras</div>
-      <div class="extras-grid">
-        @for (u of comparativa?.unidades; track u) {
-          <div class="extra-row">
-            <div class="extra-title">{{ u?.nombre }}</div>
-            <div class="extra-tags">
-              @for (e of (u?.extras || []); track e) {
-                <span class="tag">{{ e }}</span>
-              }
-              @if (!(u?.extras?.length)) {
-                <span class="muted">-</span>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xs-12 col-md-4">
-    <div class="card">
-      <div class="card-title">Mapa</div>
-      @if (mapCenter) {
-        <div>
-          <google-map height="320px" width="100%" [center]="mapCenter" [zoom]="mapZoom">
+    <!-- Map Section (if coordinates available) -->
+    @if (mapCenter) {
+      <div class="map-section">
+        <h3 class="map-title">Ubicación en el Mapa</h3>
+        <div class="map-container">
+          <google-map height="400px" width="100%" [center]="mapCenter" [zoom]="mapZoom">
             @for (m of markers; track m) {
               <map-marker [position]="m.position" [label]="m.label || ''"></map-marker>
             }
           </google-map>
         </div>
-      } @else {
-        <div class="muted">No hay coordenadas para estas unidades.</div>
-      }
-    </div>
+      </div>
+    }
   </div>
 </div>
-
-

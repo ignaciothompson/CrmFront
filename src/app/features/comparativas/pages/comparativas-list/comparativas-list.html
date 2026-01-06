@@ -30,6 +30,7 @@
               <td>{{ unitsSummary(c) }}</td>
               <td class="text-end">
                 <button class="btn-table" title="Compartir" (click)="copyLink(c)"><i class="fas fa-external-link"></i></button>
+                <button class="btn-table" title="Regenerar" (click)="regenerate(c)"><i class="fas fa-sync-alt"></i></button>
                 <button class="btn-table eliminar" title="Eliminar" (click)="delete(c)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
@@ -51,6 +52,7 @@
             <span class="clickable-card-value highlight">{{ c?.contacto?.nombre || '-' }}</span>
             <span class="d-flex align-items-center gap-2">
               <button class="btn-table" title="Compartir" (click)="copyLink(c)"><i class="fas fa-external-link"></i></button>
+              <button class="btn-table" title="Regenerar" (click)="regenerate(c)"><i class="fas fa-sync-alt"></i></button>
               <button class="btn-table eliminar" title="Eliminar" (click)="delete(c)"><i class="fas fa-trash"></i></button>
             </span>
           </div>
