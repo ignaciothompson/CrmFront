@@ -17,6 +17,7 @@
 	border-radius: 6px;
     margin-bottom: 5px;
     transition: all 0.3s ease;
+	border-left: none; /* Ensure no border by default */
 }
 
 .app-sidebar .nav-link.primary {
@@ -28,10 +29,17 @@
 	background-color: var(--primary-hover-color);
 }
 
-.app-sidebar .nav-link:hover,
-.app-sidebar .nav-link.active {
+.app-sidebar .nav-link:hover {
 	background-color: var(--primary-color);
 	color: #fff;
+    border-radius: 6px !important;
+}
+
+.app-sidebar .nav-link.active {
+	border-left: 4px solid var(--primary-color);
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	padding-left: 10px; /* Adjust padding to account for border */
 }
 
 .sidebar-footer {
@@ -48,12 +56,20 @@
 	border-radius: 6px;
 	display: inline-block;
     width: 100%;
+	border-left: none; /* Ensure no border by default */
 }
 
-.app-sidebar .sidebar-footer .nav-link:hover,
-.app-sidebar .sidebar-footer .nav-link.active {
+.app-sidebar .sidebar-footer .nav-link:hover {
 	background-color: var(--primary-color);
 	color: #fff;
+    border-radius: 6px !important;
+}
+
+.app-sidebar .sidebar-footer .nav-link.active {
+    border-left: 4px solid var(--primary-color);
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	padding-left: 10px; /* Adjust padding to account for border */
 }
 
 /* Dark theme borders */
