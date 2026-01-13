@@ -34,8 +34,6 @@ export class ComparativaDetailPage {
       if (id) {
         this.comparativaService.getComparativa(id).subscribe({
           next: (c) => {
-            console.log('Comparativa loaded:', c);
-            console.log('Unidades:', c?.unidades);
             this.comparativa = c || null;
             
             // Set CSS variable for equal column width calculation

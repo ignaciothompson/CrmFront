@@ -162,7 +162,6 @@ export class NuevaVentaModal {
       try {
         // Primero guardar la venta
         const ventaDoc = await this.ventaService.addVenta(venta);
-        console.log('Venta guardada exitosamente:', ventaDoc.id);
 
         // Solo si la venta se guardó exitosamente, actualizar la unidad
         const changes: any = {};
@@ -175,7 +174,6 @@ export class NuevaVentaModal {
           changes.estadoComercial = 'En alquiler';
         }
         await this.unidadService.updateUnidad(String(unidad.id), changes);
-        console.log('Unidad actualizada exitosamente:', unidad.id);
         exitosas.push(`Venta para ${venta.unidad.nombre || unidad.nombre || 'unidad'} guardada correctamente`);
       } catch (error: any) {
         console.error('Error al guardar venta:', error);

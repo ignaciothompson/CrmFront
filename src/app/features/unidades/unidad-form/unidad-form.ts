@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { firstValueFrom } from 'rxjs';
 import { FilterComponent } from '../../../shared/components/filter/filter';
 import { UnidadService } from '../../../core/services/unidad';
 import { ProyectoService } from '../../../core/services/proyecto';
@@ -24,6 +25,7 @@ export class UnidadForm {
   @Input() unidadId?: string;
   @Input() proyectoId?: string;
   @Input() editProyecto: boolean = false;
+  @Input() isImportMode: boolean = false; // Hide "Agregar y Repetir" button when importing
 
   constructor(
     private router: Router, 
@@ -313,6 +315,11 @@ export class UnidadForm {
   }
 
   async save(): Promise<void> {
+    // If in import mode, save as draft (don't persist to database)
+    if (this.isImportMode) {
+      return this.saveAsDraft();
+    }
+
     // If we're not editing and form is empty but we have saved unidades, just close
     // This handles the case where user clicked "Agregar y Repetir" multiple times
     // and then clicks "Guardar" with an empty form
@@ -343,8 +350,6 @@ export class UnidadForm {
       
       const payload = await this.buildPayloadWithProjectInheritance();
       
-      console.log('Payload before save:', payload);
-      
       // Si es Apartamento con proyecto, actualizar la fecha de entrega en el proyecto
       if (this.model.tipoUnidad === 'Apartamento' && this.model.proyectoId && this.model.fechaEntrega) {
         await this.proyectoService.updateProyecto(String(this.model.proyectoId), {
@@ -355,7 +360,6 @@ export class UnidadForm {
       if (this.id) {
         // Update existing unidad
         const result = await this.unidadService.updateUnidad(this.id, payload);
-        console.log('Update result:', result);
         // Update in savedUnidades if it exists
         const savedIdx = this.savedUnidades.findIndex(su => su.id === String(this.id));
         if (savedIdx >= 0) {
@@ -370,9 +374,7 @@ export class UnidadForm {
         this.toastService.success(`Unidad "${payload.nombre}" actualizada exitosamente`);
       } else {
         // Create new unidad
-        console.log('Adding new unidad with payload:', payload);
         const result = await this.unidadService.addUnidad(payload);
-        console.log('Add result:', result);
         this.toastService.success(`Unidad "${payload.nombre}" creada exitosamente`);
       }
       
@@ -398,6 +400,55 @@ export class UnidadForm {
     }
   }
 
+  /**
+   * Save as draft (for import mode) - just validate and return model data without persisting
+   */
+  async saveAsDraft(): Promise<void> {
+    // Validate before saving
+    if (!this.validateRequiredFields()) {
+      return;
+    }
+
+    try {
+      this.busy = true;
+      
+      // Handle proyecto validation (check if exists, create if not)
+      await this.ensureProyectoIdForDraft();
+      
+      // Close modal with model data (will be handled by parent component)
+      if (this.activeModal) {
+        this.activeModal.close({ draft: true, model: { ...this.model } });
+      }
+    } catch (error: any) {
+      console.error('Error saving draft:', error);
+      this.toastService.error(error?.message || 'Error al guardar el borrador');
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  /**
+   * Ensure proyecto exists for draft mode (check if nombre exists, create if not)
+   */
+  private async ensureProyectoIdForDraft(): Promise<void> {
+    // If proyectoNombre is set but proyectoId is not, check if proyecto exists
+    if (this.model.proyectoNombre && !this.model.proyectoId) {
+      const proyectos = await firstValueFrom(this.proyectoService.getProyectos());
+      const proyectoExistente = proyectos.find(
+        (p: any) => p.nombre?.toLowerCase().trim() === this.model.proyectoNombre?.toLowerCase().trim()
+      );
+      
+      if (proyectoExistente) {
+        this.model.proyectoId = String(proyectoExistente.id);
+      } else {
+        // Create new proyecto
+        const nuevoProyecto = await this.proyectoService.addProyecto({
+          nombre: this.model.proyectoNombre
+        });
+        this.model.proyectoId = String(nuevoProyecto.id);
+      }
+    }
+  }
 
   onProyectoSelectModeChange(): void {
     if (this.proyectoSelectMode === 'existente') {

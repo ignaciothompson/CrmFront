@@ -634,11 +634,33 @@ export class Unidades implements OnInit, OnDestroy {
     
     try {
       await this.unidadService.deleteUnidad(String(id));
+      
+      // Remove the deleted unidad from allUnidades array
+      this.allUnidades = this.allUnidades.filter(u => String(u.id) !== String(id));
+      
+      // Also remove from selected unidades if it was selected
+      this.selectedUnidades.delete(String(id));
+      
+      // Recompute filters to update the filtered list
       this.recomputeFilters();
+      
       this.toastService.error(`Unidad "${nombre}" eliminada exitosamente`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting unidad:', error);
-      this.toastService.error('Error al eliminar la unidad. Por favor, intente nuevamente.');
+      // Show more specific error message
+      let errorMessage = 'Error al eliminar la unidad. Por favor, intente nuevamente.';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.code === '23503') {
+        // Foreign key constraint violation
+        errorMessage = 'No se puede eliminar la unidad porque está siendo utilizada en una comparativa. Por favor, elimine primero la comparativa.';
+      } else if (error?.code === 'PGRST301') {
+        // RLS policy violation
+        errorMessage = 'No tiene permisos para eliminar esta unidad.';
+      }
+      
+      this.toastService.error(errorMessage);
     }
   }
 

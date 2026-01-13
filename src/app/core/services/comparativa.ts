@@ -69,18 +69,13 @@ export class ComparativaService {
 					)
 				`)
 				.then(response => {
-					console.log('getComparativas - Raw response:', response);
 					if (response.error) {
-						console.error('getComparativas - Error:', response.error);
 						throw response.error;
 					}
-					console.log('getComparativas - Data:', response.data);
 					// Transform to app format
 					const transformed = (response.data || []).map(c => {
-						console.log('getComparativas - Transforming:', c);
 						return this.transformComparativa(c);
 					});
-					console.log('getComparativas - Transformed:', transformed);
 					return transformed;
 				})
 		);
@@ -161,7 +156,6 @@ export class ComparativaService {
 						.maybeSingle();
 					
 					if (!response.error && response.data) {
-						console.log('Found by token:', response.data);
 						return this.transformComparativa(response.data);
 					}
 					
@@ -179,11 +173,9 @@ export class ComparativaService {
 					.single();
 				
 				if (response.error) {
-					console.error('Error fetching comparativa:', response.error);
 					throw response.error;
 				}
 				
-				console.log('Found by ID:', response.data);
 				return this.transformComparativa(response.data);
 			})()
 		);
@@ -331,12 +323,8 @@ export class ComparativaService {
 	 */
 	private transformComparativa(dbRow: any): any {
 		if (!dbRow) {
-			console.warn('transformComparativa: dbRow is null or undefined');
 			return dbRow;
 		}
-
-		console.log('transformComparativa - dbRow:', dbRow);
-		console.log('transformComparativa - comparativa_items:', dbRow.comparativa_items);
 
 		// Transform contacto
 		const contacto = dbRow.contactos ? {
@@ -351,18 +339,15 @@ export class ComparativaService {
 		let unidades: any[] = [];
 		
 		if (Array.isArray(dbRow.comparativa_items)) {
-			console.log('comparativa_items is array, length:', dbRow.comparativa_items.length);
 			unidades = dbRow.comparativa_items
 				.filter((item: any) => {
 					const hasUnidad = !!item.unidades;
 					if (!hasUnidad) {
-						console.warn('Item without unidad:', item);
 					}
 					return hasUnidad;
 				})
 				.map((item: any) => {
 					const u = item.unidades;
-					console.log('Processing unidad:', u);
 					return {
 						id: u.id,
 						nombre: u.nombre || '',
@@ -407,8 +392,6 @@ export class ComparativaService {
 			console.warn('comparativa_items is not an array:', dbRow.comparativa_items);
 		}
 
-		console.log('Transformed unidades:', unidades);
-
 		// Transform fecha to createdAt timestamp for compatibility
 		const fecha = dbRow.fecha ? new Date(dbRow.fecha).getTime() : Date.now();
 
@@ -422,7 +405,6 @@ export class ComparativaService {
 			unidades: unidades
 		};
 
-		console.log('Final transformed comparativa:', result);
 		return result;
 	}
 }

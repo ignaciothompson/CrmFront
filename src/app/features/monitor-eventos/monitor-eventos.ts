@@ -126,12 +126,6 @@ export class MonitorEventosComponent {
         filterDateEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
       }
       
-      console.log('Filtering eventos for date range:', {
-        start: filterDateStart.toISOString(),
-        end: filterDateEnd.toISOString(),
-        selectedDate: this.selectedDate
-      });
-      
       data = data.filter(r => {
         const dt = this.parseDateLike(r?.fecha);
         if (!dt) {
@@ -143,7 +137,6 @@ export class MonitorEventosComponent {
         return isInRange;
       });
       
-      console.log('Filtered eventos count:', data.length);
       if (this.categoria) data = data.filter(r => r?.categoria === this.categoria);
       if (this.tipo) data = data.filter(r => r?.tipo === this.tipo);
       // Map detalle: only show primitive changes for Editado in format: Campo: "old" a "new"

@@ -18,7 +18,6 @@ export class CiudadService {
             console.error('Error fetching ciudades:', response.error);
             throw response.error;
           }
-          console.log('Ciudades fetched from Supabase:', response.data);
           return response.data || [];
         })
     );

@@ -1,0 +1,5 @@
+nombreProyecto,ciudad,barrio,nombre,tipoUnidad,piso,dormitorios,banos,m2Internos,m2Totales,superficieEdificada,superficieTerreno,plantas,hectareas,altura,orientacion,distribucion,estadoComercial,precioUSD,responsable,comision,fechaEntrega,terraza,tamanoTerraza,garage,tamanoGarage,precioGarage,amenities
+Proyecto Residencial Montevideo,Montevideo,Pocitos,Apto 302,Apartamento,3,2,1,65,75,,,,,5,Norte,Frente/Esquinero,En venta,175000,Agente Juan Pérez,3,2024-12-31,Si,15,No,0,0,"Terraza, Piscina, Ascensor"
+Proyecto Residencial Montevideo,Montevideo,Pocitos,Apto 401,Apartamento,4,2,2,75,85,,,,,5,Norte,Frente/Central,En venta,195000,Agente Juan Pérez,3,2024-12-31,Si,20,Si,18,15000,"Terraza, Piscina, Ascensor, Garage"
+Proyecto Costa del Sol,Canelones,Ciudad de la Costa,Casa 12,Casa,,3,2,,,120,200,1,,2,Sur,Frente/Central,En venta,260000,Agente María González,3.5,2025-06-30,Si,25,Si,18,15000,"Parrillero, Garage, Jardín"
+Proyecto Prado Verde,Montevideo,Prado,Casa Prado,Casa,,4,3,,,180,300,1,,1,Este,Contrafrente/Esquinero,Reservada,350000,Agente Carlos Rodríguez,4,2024-09-15,No,0,Si,25,20000,"Garage, Jardín, Quincho"

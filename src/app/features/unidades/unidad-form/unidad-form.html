@@ -479,7 +479,7 @@
 	</div>
     <div class="frame-footer">
         <button type="button" class="btn c-btn btn-default" (click)="activeModal?.dismiss()">Cancelar</button>
-        @if (!id) {
+        @if (!id && !isImportMode) {
             <button 
                 type="button" 
                 class="btn c-btn btn-white" 

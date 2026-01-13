@@ -34,9 +34,7 @@ export class ComparativasListPage {
   ngOnInit(): void {
     this.comparativaService.getComparativas().subscribe({
       next: (cs) => {
-        console.log('ComparativasListPage - Received comparativas:', cs);
         this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
-        console.log('ComparativasListPage - Sorted comparativas:', this.comparativas);
         this.filtered = this.comparativas;
         const byContacto: Record<string, string> = {};
         for (const c of this.comparativas) {

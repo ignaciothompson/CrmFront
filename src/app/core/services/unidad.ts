@@ -161,8 +161,6 @@ export class UnidadService {
 		const dbData = this.toSnakeCase(cleaned);
 		
 		// Debug: Log the data being sent to Supabase
-		console.log('Fields being sent to Supabase (unidades table):', Object.keys(dbData));
-		console.log('Full payload:', dbData);
 		
 		const { data, error } = await this.supabase.client
 			.from('unidades')
@@ -186,7 +184,6 @@ export class UnidadService {
 			throw new Error('Error al crear la unidad: no se recibió respuesta del servidor');
 		}
 		
-		console.log('Unidad creada exitosamente:', data);
 		await this.events.new('Unidades', { id: data.id, ...sanitized });
 		return { id: data.id };
 	}
@@ -394,13 +391,24 @@ export class UnidadService {
   }
 
   async deleteUnidad(id: string) {
-    const previous = await firstValueFrom(this.getUnidadById(id));
-    const { error } = await this.supabase.client
-      .from('unidades')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
-    await this.events.delete('Unidades', previous as any);
+    try {
+      const previous = await firstValueFrom(this.getUnidadById(id));
+      const { error } = await this.supabase.client
+        .from('unidades')
+        .delete()
+        .eq('id', id);
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
+      await this.events.delete('Unidades', previous as any);
+    } catch (error: any) {
+      // Re-throw with more context
+      if (error?.code === '23503') {
+        throw new Error('No se puede eliminar la unidad porque está siendo utilizada en una comparativa. Por favor, elimine primero la comparativa.');
+      }
+      throw error;
+    }
   }
 
   private removeUndefinedDeep(value: any): any {
