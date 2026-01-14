@@ -34,3 +34,115 @@
   color: var(--text-color);
 }
 
+/* Custom multiple select styling */
+.custom-multiselect-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-multiselect-display {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--border-color-grey);
+  background-color: var(--surface-1);
+  color: var(--text-color);
+  font-size: var(--medium-font);
+  font-weight: var(--medium-fweight);
+  padding: 0 var(--padding-input);
+  height: var(--desktop-height) !important;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.custom-multiselect-display.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.multiselect-selected-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.multiselect-selected-text .placeholder {
+  color: var(--text-color);
+  opacity: 0.5;
+  background-color: transparent;
+}
+
+.multiselect-arrow {
+  margin-left: 8px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.multiselect-arrow.open {
+  transform: rotate(180deg);
+}
+
+.custom-multiselect-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--surface-1);
+  border: 1px solid var(--border-color-grey);
+  border-radius: 5px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.multiselect-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.multiselect-option:hover {
+  background-color: var(--surface-2);
+}
+
+.multiselect-option.selected {
+  background-color: var(--surface-2);
+}
+
+.multiselect-checkbox-hidden {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.multiselect-option-label {
+  cursor: pointer;
+  margin: 0;
+  flex: 1;
+  user-select: none;
+  text-align: left;
+}
+
+.multiselect-check-icon {
+  color: var(--primary-color);
+  margin-left: 8px;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+

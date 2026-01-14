@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, AfterViewInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TypeaheadComponent } from '../typeahead/typeahead';
@@ -24,8 +24,13 @@ export interface FilterOption {
     }
   ]
 })
-export class FilterComponent implements ControlValueAccessor {
+export class FilterComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
+  @ViewChild('multiSelect', { static: false }) multiSelect?: ElementRef<HTMLElement>;
   @Input() id!: string;
+  
+  private outsideClickHandler?: (event: MouseEvent) => void;
+  
+  constructor(private cdr: ChangeDetectorRef) {}
   @Input() type: FilterType = 'text';
   @Input() label: string = '';
   @Input() placeholder: string = '';
@@ -51,6 +56,7 @@ export class FilterComponent implements ControlValueAccessor {
 
   // For multiselect
   selectedValues: any[] = [];
+  multiselectOpen: boolean = false;
 
   value: any = null;
   private onChange: (value: any) => void = () => {};
@@ -68,6 +74,9 @@ export class FilterComponent implements ControlValueAccessor {
         this.rangeTo = null;
       }
     } else if (this.type === 'multiselect') {
+      this.selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
+    } else if (this.type === 'select' && this.multiple) {
+      // Select with multiple selection
       this.selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
     } else if (this.type === 'checkbox' && this.values && this.values.length > 0) {
       // Checkbox group - use selectedValues
@@ -160,7 +169,61 @@ export class FilterComponent implements ControlValueAccessor {
   }
 
   isSelected(value: any): boolean {
-    return this.selectedValues.includes(value);
+    if (!this.selectedValues || this.selectedValues.length === 0) return false;
+    // Compare both as strings to handle number/string mismatches
+    return this.selectedValues.some(v => String(v) === String(value));
+  }
+
+  toggleMultiselectDropdown(): void {
+    if (!this.disabled) {
+      this.multiselectOpen = !this.multiselectOpen;
+    }
+  }
+
+  toggleOption(value: any, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    if (this.disabled) return;
+    
+    const matchingOption = this.values?.find(v => String(v.value) === String(value));
+    const actualValue = matchingOption ? matchingOption.value : value;
+    
+    const isCurrentlySelected = this.isSelected(actualValue);
+    
+    if (isCurrentlySelected) {
+      // Deselect if already selected
+      this.selectedValues = this.selectedValues.filter(v => String(v) !== String(actualValue));
+    } else {
+      // Select if not selected
+      if (!this.selectedValues.some(v => String(v) === String(actualValue))) {
+        this.selectedValues.push(actualValue);
+      }
+    }
+    
+    const result = this.multiple ? this.selectedValues : (this.selectedValues.length > 0 ? this.selectedValues[0] : null);
+    this.onChange(result);
+    this.onTouched();
+    this.cdr.detectChanges();
+  }
+
+  getSelectedLabels(): string {
+    if (!this.selectedValues || this.selectedValues.length === 0) {
+      return '';
+    }
+    
+    const labels = this.selectedValues.map(val => {
+      const option = this.values?.find(v => String(v.value) === String(val));
+      return option ? option.label : String(val);
+    });
+    
+    if (labels.length <= 3) {
+      return labels.join(', ');
+    } else {
+      return `${labels.slice(0, 3).join(', ')} y ${labels.length - 3} más`;
+    }
   }
 
   onRadioChange(value: any): void {
@@ -210,6 +273,31 @@ export class FilterComponent implements ControlValueAccessor {
         return (this.minDate || this.maxDate) ? 'date' : 'number';
       default:
         return 'text';
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Close dropdown when clicking outside
+    if (this.type === 'select' && this.multiple) {
+      this.outsideClickHandler = (event: MouseEvent) => {
+        if (this.multiselectOpen) {
+          const target = event.target as HTMLElement;
+          const wrapper = document.querySelector(`[data-multiselect-id="${this.id}"]`);
+          if (wrapper && !wrapper.contains(target)) {
+            this.multiselectOpen = false;
+            this.cdr.detectChanges();
+          }
+        }
+      };
+      setTimeout(() => {
+        document.addEventListener('click', this.outsideClickHandler!);
+      }, 0);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.outsideClickHandler) {
+      document.removeEventListener('click', this.outsideClickHandler);
     }
   }
 }

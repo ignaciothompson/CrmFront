@@ -53,7 +53,6 @@
 /* Secondary Filters Dropdown */
 .secondary-filters-container {
   background: var(--surface-1);
-  border: 1px solid var(--border);
   border-radius: 4px;
   margin-bottom: 20px;
   overflow: hidden;
@@ -99,9 +98,90 @@
 }
 
 .secondary-filters-panel {
-  border-top: 1px solid var(--border);
   padding: 15px;
   background: var(--surface-1);
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.filters-grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 0;
+}
+
+.filter-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.filter-category-header {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.filter-category-separator {
+  height: 2px;
+  background: var(--border);
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+/* Scrollbar styling */
+.secondary-filters-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.secondary-filters-panel::-webkit-scrollbar-track {
+  background: var(--surface-2);
+  border-radius: 4px;
+}
+
+.secondary-filters-panel::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.secondary-filters-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-text-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .filters-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-grid-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .secondary-filters-panel {
+    max-height: 400px;
+  }
 }
 
 .secondary-filters-chips {

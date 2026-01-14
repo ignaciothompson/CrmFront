@@ -15,12 +15,14 @@ import { ConfirmService } from '../../../shared/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
 import { FilterSidebarComponent, FilterSidebarConfig } from '../../../shared/components/filter-sidebar/filter-sidebar';
+import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
+import { FilterComponent } from '../../../shared/components/filter/filter';
 import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
 
 @Component({
   selector: 'app-unidades',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SubheaderComponent, FilterSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SubheaderComponent, FilterSidebarComponent, TypeaheadComponent, FilterComponent],
   templateUrl: './unidades.html',
   styleUrl: './unidades.css'
 })
@@ -186,7 +188,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-tipo',
         label: 'Tipo de residencia',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.tiposResidencia.map(t => ({ value: t, label: t })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -196,7 +199,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-vis',
         label: 'Ver',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.visibilidadOpts.map(v => ({ value: v, label: v })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -206,7 +210,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-rooms',
         label: 'Cuartos',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: [1, 2, 3, 4].map(n => ({ value: n, label: n === 4 ? '4+' : String(n) })),
         getSelectedLabel: (value: number[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -216,7 +221,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-banos',
         label: 'Baños',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.banosOpts.map(n => ({ value: n, label: String(n) })),
         getSelectedLabel: (value: number[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -274,7 +280,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-extras',
         label: 'Extras',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.extrasCatalog.map(e => ({ value: e, label: e })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -284,7 +291,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-orientacion',
         label: 'Orientación',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.orientaciones.map(o => ({ value: o, label: o })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -294,7 +302,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-distribucion',
         label: 'Distribución',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.distribuciones.map(d => ({ value: d, label: d })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -304,7 +313,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-piso',
         label: 'Piso',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.pisos.map(p => ({ value: p, label: p })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -314,7 +324,8 @@ export class Unidades implements OnInit, OnDestroy {
       {
         id: 'f-ocupacion',
         label: 'Ocupación',
-        type: 'checkbox',
+        type: 'select',
+        multiple: true,
         values: this.ocupaciones.map(o => ({ value: o, label: o })),
         getSelectedLabel: (value: string[]) => {
           if (!Array.isArray(value) || value.length === 0) return '';
@@ -433,6 +444,18 @@ export class Unidades implements OnInit, OnDestroy {
     }
     
     return active;
+  }
+
+  getFiltersByCategory(category: 'col1' | 'col2' | 'col3' | 'col4'): FilterSidebarConfig[] {
+    const categoryMap: Record<string, string[]> = {
+      'col1': ['f-tipo', 'f-vis', 'f-rooms'],
+      'col2': ['f-banos', 'f-size', 'f-price'],
+      'col3': ['f-exp', 'f-extras', 'f-orientacion'],
+      'col4': ['f-distribucion', 'f-piso', 'f-ocupacion']
+    };
+
+    const filterIds = categoryMap[category] || [];
+    return this.secondaryFilterConfigs.filter(config => filterIds.includes(config.id));
   }
 
   recomputeFilters(): void {

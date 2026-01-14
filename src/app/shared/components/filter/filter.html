@@ -81,21 +81,71 @@
         }
       </label>
     }
-    <select
-      [id]="id"
-      class="form-control c-input"
-      [ngModel]="value"
-      (ngModelChange)="onInputChange($event)"
-      [disabled]="disabled"
-      [required]="required"
-    >
-      @if (!required) {
-        <option [value]="null">{{ placeholder || 'Seleccionar...' }}</option>
-      }
-      @for (option of values; track option.value) {
-        <option [value]="option.value">{{ option.label }}</option>
-      }
-    </select>
+    @if (multiple) {
+      <!-- Custom multiple select with checkboxes -->
+      <div class="custom-multiselect-wrapper" [attr.data-multiselect-id]="id">
+        <div 
+          class="custom-multiselect-display form-control c-input"
+          [class.disabled]="disabled"
+          (click)="toggleMultiselectDropdown()"
+          [attr.aria-expanded]="multiselectOpen"
+          [attr.aria-haspopup]="true"
+        >
+          <span class="multiselect-selected-text">
+            @if (selectedValues.length === 0) {
+              <span class="placeholder">{{ placeholder || 'Ninguno' }}</span>
+            } @else {
+              <span>{{ getSelectedLabels() }}</span>
+            }
+          </span>
+          <i class="fa fa-chevron-down multiselect-arrow" [class.open]="multiselectOpen"></i>
+        </div>
+        @if (multiselectOpen) {
+          <div class="custom-multiselect-dropdown">
+            @for (option of values; track option.value) {
+              <div 
+                class="multiselect-option"
+                [class.selected]="isSelected(option.value)"
+                (click)="toggleOption(option.value, $event)"
+              >
+                <input
+                  type="checkbox"
+                  [id]="id + '-' + option.value"
+                  [checked]="isSelected(option.value)"
+                  [disabled]="disabled"
+                  class="multiselect-checkbox-hidden"
+                  tabindex="-1"
+                  aria-hidden="true"
+                />
+                <span class="multiselect-option-label">
+                  {{ option.label }}
+                </span>
+                @if (isSelected(option.value)) {
+                  <i class="fa fa-check-circle multiselect-check-icon"></i>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Single select -->
+      <select
+        [id]="id"
+        class="form-control c-input"
+        [ngModel]="value"
+        (ngModelChange)="onInputChange($event)"
+        [disabled]="disabled"
+        [required]="required"
+      >
+        @if (!required) {
+          <option [value]="null">{{ placeholder || 'Seleccionar...' }}</option>
+        }
+        @for (option of values; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    }
   </div>
 } @else if (type === 'typeahead') {
   <div class="filter-wrapper">

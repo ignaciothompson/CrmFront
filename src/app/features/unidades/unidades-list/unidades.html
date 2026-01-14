@@ -21,11 +21,167 @@
 
   @if (secondaryFiltersOpen) {
     <div class="secondary-filters-panel">
-      <app-filter-sidebar
-        [filters]="secondaryFilterConfigs"
-        [filterValues]="secondaryFilterValues"
-        (filterChange)="onSecondaryFilterChange($event)"
-      ></app-filter-sidebar>
+      <div class="filters-grid-container">
+        <!-- Columna 1 -->
+        <div class="filter-column">
+          @for (filter of getFiltersByCategory('col1'); track filter.id) {
+            <div class="filter-item">
+              <label class="filter-label">{{ filter.label }}</label>
+              @if (filter.type === 'typeahead') {
+                <typeahead
+                  [(ngModel)]="secondaryFilterValues[filter.id]"
+                  [name]="filter.id"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [placeholder]="filter.placeholder || 'Buscar...'"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></typeahead>
+              } @else {
+                <app-filter
+                  [id]="filter.id"
+                  [type]="filter.type"
+                  [label]="''"
+                  [placeholder]="filter.placeholder || ''"
+                  [values]="filter.values || []"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [min]="filter.min"
+                  [max]="filter.max"
+                  [step]="filter.step"
+                  [minDate]="filter.minDate"
+                  [maxDate]="filter.maxDate"
+                  [multiple]="filter.multiple || false"
+                  [validateOnBlur]="filter.validateOnBlur || false"
+                  [ngModel]="secondaryFilterValues[filter.id]"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></app-filter>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Columna 2 -->
+        <div class="filter-column">
+          @for (filter of getFiltersByCategory('col2'); track filter.id) {
+            <div class="filter-item">
+              <label class="filter-label">{{ filter.label }}</label>
+              @if (filter.type === 'typeahead') {
+                <typeahead
+                  [(ngModel)]="secondaryFilterValues[filter.id]"
+                  [name]="filter.id"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [placeholder]="filter.placeholder || 'Buscar...'"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></typeahead>
+              } @else {
+                <app-filter
+                  [id]="filter.id"
+                  [type]="filter.type"
+                  [label]="''"
+                  [placeholder]="filter.placeholder || ''"
+                  [values]="filter.values || []"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [min]="filter.min"
+                  [max]="filter.max"
+                  [step]="filter.step"
+                  [minDate]="filter.minDate"
+                  [maxDate]="filter.maxDate"
+                  [multiple]="filter.multiple || false"
+                  [validateOnBlur]="filter.validateOnBlur || false"
+                  [ngModel]="secondaryFilterValues[filter.id]"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></app-filter>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Columna 3 -->
+        <div class="filter-column">
+          @for (filter of getFiltersByCategory('col3'); track filter.id) {
+            <div class="filter-item">
+              <label class="filter-label">{{ filter.label }}</label>
+              @if (filter.type === 'typeahead') {
+                <typeahead
+                  [(ngModel)]="secondaryFilterValues[filter.id]"
+                  [name]="filter.id"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [placeholder]="filter.placeholder || 'Buscar...'"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></typeahead>
+              } @else {
+                <app-filter
+                  [id]="filter.id"
+                  [type]="filter.type"
+                  [label]="''"
+                  [placeholder]="filter.placeholder || ''"
+                  [values]="filter.values || []"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [min]="filter.min"
+                  [max]="filter.max"
+                  [step]="filter.step"
+                  [minDate]="filter.minDate"
+                  [maxDate]="filter.maxDate"
+                  [multiple]="filter.multiple || false"
+                  [validateOnBlur]="filter.validateOnBlur || false"
+                  [ngModel]="secondaryFilterValues[filter.id]"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></app-filter>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Columna 4 -->
+        <div class="filter-column">
+          @for (filter of getFiltersByCategory('col4'); track filter.id) {
+            <div class="filter-item">
+              <label class="filter-label">{{ filter.label }}</label>
+              @if (filter.type === 'typeahead') {
+                <typeahead
+                  [(ngModel)]="secondaryFilterValues[filter.id]"
+                  [name]="filter.id"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [placeholder]="filter.placeholder || 'Buscar...'"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></typeahead>
+              } @else {
+                <app-filter
+                  [id]="filter.id"
+                  [type]="filter.type"
+                  [label]="''"
+                  [placeholder]="filter.placeholder || ''"
+                  [values]="filter.values || []"
+                  [items]="filter.items || []"
+                  [idKey]="filter.idKey || 'id'"
+                  [labelKey]="filter.labelKey || 'label'"
+                  [min]="filter.min"
+                  [max]="filter.max"
+                  [step]="filter.step"
+                  [minDate]="filter.minDate"
+                  [maxDate]="filter.maxDate"
+                  [multiple]="filter.multiple || false"
+                  [validateOnBlur]="filter.validateOnBlur || false"
+                  [ngModel]="secondaryFilterValues[filter.id]"
+                  (ngModelChange)="onSecondaryFilterChange({id: filter.id, value: $event})"
+                ></app-filter>
+              }
+            </div>
+          }
+        </div>
+      </div>
     </div>
   }
 

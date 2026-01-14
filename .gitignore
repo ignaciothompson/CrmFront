@@ -44,14 +44,6 @@ Thumbs.db
 
 .emulator-data/
 
-# Firebase (emulators and CLI)
-.firebase/
-firebase-debug.log
-firestore-debug.log
-storage-debug.log
-ui-debug.log
-firestore.rules
-
 # Tasks and notes
 TASKS.md
 *.tasks
