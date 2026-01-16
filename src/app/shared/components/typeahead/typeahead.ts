@@ -64,8 +64,28 @@ export class TypeaheadComponent implements ControlValueAccessor, OnInit, OnChang
       return true;
     }
     
+    // Search in label (primary field)
     const label = String(item[this.labelKey] || item.label || '').toLowerCase();
-    return label.includes(searchTerm);
+    if (label.includes(searchTerm)) {
+      return true;
+    }
+    
+    // Search in additional fields if available (for unidades: nombre, proyectoNombre)
+    if (item.nombre) {
+      const nombre = String(item.nombre || '').toLowerCase();
+      if (nombre.includes(searchTerm)) {
+        return true;
+      }
+    }
+    
+    if (item.proyectoNombre) {
+      const proyectoNombre = String(item.proyectoNombre || '').toLowerCase();
+      if (proyectoNombre.includes(searchTerm)) {
+        return true;
+      }
+    }
+    
+    return false;
   };
 
   writeValue(value: string | null): void {

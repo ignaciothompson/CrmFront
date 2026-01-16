@@ -7,8 +7,11 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { FilterComponent } from '../../../shared/components/filter/filter';
 import { ContactoService } from '../../../core/services/contacto';
 import { EntrevistaService } from '../../../core/services/entrevista';
+import { UnidadService } from '../../../core/services/unidad';
+import { ProyectoService } from '../../../core/services/proyecto';
 import { ToastService } from '../../../core/services/toast.service';
 import { FormValidationService } from '../../../core/services/form-validation.service';
+import { firstValueFrom } from 'rxjs';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -30,6 +33,8 @@ export class EntrevistaForm {
     private router: Router,
     private contactoService: ContactoService,
     private entrevistaService: EntrevistaService,
+    private unidadService: UnidadService,
+    private proyectoService: ProyectoService,
     public activeModal?: NgbActiveModal
   ) {}
 
@@ -37,7 +42,10 @@ export class EntrevistaForm {
   contactoItems: Array<{ id: string; label: string }> = [];
   private contactosAll: any[] = [];
   comentario: string = '';
-  unidadNombre: string = '';
+  unidadId: string | null = null;
+  unidadItems: Array<{ id: string; label: string; nombre: string; proyectoNombre: string }> = [];
+  private unidadesAll: any[] = [];
+  private proyectosAll: any[] = [];
   location: string = '';
   fechaInput: string | null = null; // YYYY-MM-DD
   horaInput: string = '09:00'; // HH:mm format
@@ -67,12 +75,19 @@ export class EntrevistaForm {
       // Allow route-based access
     }
 
+    // Load contactos
     this.contactoService.getContactos().subscribe(cs => {
       this.contactosAll = cs || [];
       this.contactoItems = this.contactosAll.map(c => ({ 
         id: String(c.id), 
-        label: `${c?.Nombre || ''} ${c?.Apellido || ''}`.trim() || String(c.id)
+        label: `${c?.nombre || c?.Nombre || ''} ${c?.apellido || c?.Apellido || ''}`.trim() || String(c.id)
       }));
+    });
+
+    // Load proyectos y unidades
+    this.proyectoService.getProyectos().subscribe(proyectos => {
+      this.proyectosAll = proyectos || [];
+      this.loadUnidades();
     });
 
     // Load existing entrevista if editing
@@ -81,22 +96,50 @@ export class EntrevistaForm {
     }
   }
 
+  private loadUnidades(): void {
+    this.unidadService.getUnidades().subscribe(unidades => {
+      this.unidadesAll = unidades || [];
+      // Crear items para el typeahead con formato "nombre unidad, nombre proyecto"
+      this.unidadItems = this.unidadesAll.map(u => {
+        const proyectoNombre = this.getProyectoNombre(u);
+        const label = proyectoNombre 
+          ? `${u.nombre || ''}, ${proyectoNombre}`.trim()
+          : (u.nombre || '');
+        return {
+          id: String(u.id),
+          label: label,
+          nombre: u.nombre || '',
+          proyectoNombre: proyectoNombre
+        };
+      });
+    });
+  }
+
+  private getProyectoNombre(unidad: any): string {
+    if (unidad?.proyectoId) {
+      const proyecto = this.proyectosAll.find(p => String(p.id) === String(unidad.proyectoId));
+      if (proyecto?.nombre) return proyecto.nombre;
+    }
+    if (unidad?.proyectoNombre) return unidad.proyectoNombre;
+    return '';
+  }
+
   private loadEntrevista(id: string): void {
     // TODO: Implement loading existing entrevista if needed
   }
 
-  save(): void {
+  async save(): Promise<void> {
     // Validate required fields
     const validationRules = [
       { field: 'contactoId', label: 'Contacto', required: true },
-      { field: 'unidadNombre', label: 'Unidad', required: true },
+      { field: 'unidadId', label: 'Unidad', required: true },
       { field: 'fechaInput', label: 'Fecha', required: true },
       { field: 'horaInput', label: 'Hora', required: true }
     ];
 
     const formData = {
       contactoId: this.contactoId,
-      unidadNombre: this.unidadNombre,
+      unidadId: this.unidadId,
       fechaInput: this.fechaInput,
       horaInput: this.horaInput
     };
@@ -107,34 +150,27 @@ export class EntrevistaForm {
       return;
     }
 
-    const contact = this.contactosAll.find(c => String(c.id) === String(this.contactoId));
-    const entrevista: any = {
-      contactoId: this.contactoId,
-      pendiente: true,
-      comentario: this.comentario,
-      fecha: this.fechaInput,
-      hora: this.horaInput,
-      location: this.location,
-      unidad: this.unidadNombre ? { nombre: this.unidadNombre } : undefined,
-      createdAt: new Date().toISOString()
-    };
-    
-    if (contact?.Nombre) entrevista.contactoNombre = contact.Nombre;
-    if (contact?.Apellido) entrevista.contactoApellido = contact.Apellido;
+    try {
+      const entrevista: any = {
+        contactoId: this.contactoId,
+        unidadId: this.unidadId,
+        comentario: this.comentario || null,
+        fechaISO: this.fechaInput, // Formato YYYY-MM-DD para fecha_iso
+        hora: this.horaInput || null,
+        lugar: this.location || null
+      };
 
-    this.entrevistaService.addEntrevista(entrevista)
-      .then(() => {
-        this.toastService.success('Entrevista creada exitosamente');
-        if (this.activeModal) {
-          this.activeModal.close(true);
-        } else {
-          this.router.navigate(['/entrevistas']);
-        }
-      })
-      .catch((error: any) => {
-        console.error('Error al guardar entrevista:', error);
-        this.toastService.error('Error al guardar la entrevista. Por favor, intente nuevamente.');
-      });
+      await this.entrevistaService.addEntrevista(entrevista);
+      this.toastService.success('Entrevista creada exitosamente');
+      if (this.activeModal) {
+        this.activeModal.close(true);
+      } else {
+        this.router.navigate(['/entrevistas']);
+      }
+    } catch (error: any) {
+      console.error('Error al guardar entrevista:', error);
+      this.toastService.error(error?.message || 'Error al guardar la entrevista. Por favor, intente nuevamente.');
+    }
   }
 
   cancel(): void {

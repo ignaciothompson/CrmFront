@@ -26,12 +26,15 @@
 			<div class="col-xs-12 col-sm-3">
 				<app-filter
 					id="unidad"
-					type="text"
+					type="typeahead"
 					label="Unidad"
-					[placeholder]="'Nombre de unidad'"
+					[placeholder]="'Buscar unidad o proyecto...'"
 					[required]="true"
-					[ngModel]="unidadNombre"
-					(ngModelChange)="unidadNombre = $event"
+					[items]="unidadItems"
+					idKey="id"
+					labelKey="label"
+					[ngModel]="unidadId"
+					(ngModelChange)="unidadId = $event"
 				></app-filter>
 			</div>
 			<div class="col-xs-12 col-sm-6">
