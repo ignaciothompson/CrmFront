@@ -1,383 +1,478 @@
-<div class="frame">
-  <div class="frame-body">
-    <!-- Tabs -->
-    <ul class="nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'mapping'" (click)="activeTab = 'mapping'">
-          Mapeo de Columnas
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'review'" (click)="activeTab = 'review'" [class.disabled]="!editableRows.length">
-          Revisión y Edición
-        </a>
-      </li>
-    </ul>
-
-    <!-- Tab 1: File Upload and Column Mapping -->
-    @if (activeTab === 'mapping') {
-      <div class="tab-content">
-        <div class="step-section">
-          <h5>1. Seleccionar Archivo Excel</h5>
-          <div class="file-upload-area">
-            <input
-              type="file"
-              id="excelFile"
-              class="form-control c-input"
-              (change)="onFileSelected($event)"
-              accept=".xlsx,.xls"
-              [disabled]="isProcessing"
-            />
-            @if (excelFile) {
-              <div class="file-info">
-                <i class="fas fa-file-excel"></i>
-                <span>{{ excelFile.name }}</span>
-                <span class="file-size">({{ (excelFile.size / 1024).toFixed(2) }} KB)</span>
-              </div>
-            }
-          </div>
-        </div>
-
-        @if (excelHeaders.length > 0) {
-          <div class="step-section">
-            <h5>2. Mapear Columnas del Excel con Campos del Sistema</h5>
-            <p class="help-text">
-              Seleccione qué campo del sistema corresponde a cada columna de su archivo Excel.
-            </p>
-            
-            <div class="mapping-table-container">
-              <table class="table c-table table-striped">
-                <thead>
-                  <tr>
-                    <th style="width: 25%;">Columna Excel</th>
-                    <th style="width: 25%;">Campo del Sistema</th>
-                    <th style="width: 25%;">Columna Excel</th>
-                    <th style="width: 25%;">Campo del Sistema</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (mappingPair of getMappingPairs(); track mappingPair[0]?.excelColumn || mappingPair[1]?.excelColumn) {
-                    <tr>
-                      <!-- First mapping pair -->
-                      <td>
-                        @if (mappingPair[0]) {
-                          <strong>{{ mappingPair[0].excelColumn }}</strong>
-                        }
-                      </td>
-                      <td>
-                        @if (mappingPair[0]) {
-                          <select
-                            class="form-control c-input"
-                            [value]="mappingPair[0].targetField || ''"
-                            (change)="updateColumnMapping(mappingPair[0].excelColumn, $any($event.target).value, 'unidad')"
-                          >
-                            <option value="">-- No mapear --</option>
-                            <optgroup label="Campos de Unidad">
-                              @for (field of getAvailableFieldsForMapping(mappingPair[0].excelColumn).unidadFields; track field.value) {
-                                <option [value]="field.value">{{ field.label }}</option>
-                              }
-                            </optgroup>
-                            <optgroup label="Campos de Proyecto">
-                              @for (field of getAvailableFieldsForMapping(mappingPair[0].excelColumn).proyectoFields; track field.value) {
-                                <option [value]="field.value">{{ field.label }}</option>
-                              }
-                            </optgroup>
-                          </select>
-                        }
-                      </td>
-                      <!-- Second mapping pair -->
-                      <td>
-                        @if (mappingPair[1]) {
-                          <strong>{{ mappingPair[1].excelColumn }}</strong>
-                        }
-                      </td>
-                      <td>
-                        @if (mappingPair[1]) {
-                          <select
-                            class="form-control c-input"
-                            [value]="mappingPair[1].targetField || ''"
-                            (change)="updateColumnMapping(mappingPair[1].excelColumn, $any($event.target).value, 'unidad')"
-                          >
-                            <option value="">-- No mapear --</option>
-                            <optgroup label="Campos de Unidad">
-                              @for (field of getAvailableFieldsForMapping(mappingPair[1].excelColumn).unidadFields; track field.value) {
-                                <option [value]="field.value">{{ field.label }}</option>
-                              }
-                            </optgroup>
-                            <optgroup label="Campos de Proyecto">
-                              @for (field of getAvailableFieldsForMapping(mappingPair[1].excelColumn).proyectoFields; track field.value) {
-                                <option [value]="field.value">{{ field.label }}</option>
-                              }
-                            </optgroup>
-                          </select>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <div class="step-actions">
-              <button
-                class="btn c-btn btn-primary"
-                (click)="validateAndContinue()"
-                [disabled]="isProcessing || !excelHeaders.length"
-              >
-                @if (isProcessing) {
-                  <span>Procesando...</span>
-                } @else {
-                  <span>Validar y Continuar</span>
-                }
-              </button>
-            </div>
-          </div>
-        }
-      </div>
-    }
-
-    <!-- Tab 2: Data Review and Editing -->
-    @if (activeTab === 'review') {
-      <div class="tab-content">
-        <div class="step-header">
-          <h5>Revisión y Edición de Datos</h5>
-          <div class="summary-stats">
-            <span class="stat valid">
-              <i class="fas fa-check-circle"></i>
-              {{ validRowsCount }} válidas
-            </span>
-            <span class="stat invalid">
-              <i class="fas fa-exclamation-circle"></i>
-              {{ invalidRowsCount }} con errores
-            </span>
-            <span class="stat deleted">
-              <i class="fas fa-trash"></i>
-              {{ deletedRowsCount }} eliminadas
-            </span>
-          </div>
-        </div>
-
-        <div class="editable-table-container">
-          <table class="table c-table table-striped editable-table">
-            <thead>
-              <tr>
-                <th style="width: 50px;">#</th>
-                <th style="min-width: 150px;">Proyecto</th>
-                <th style="min-width: 120px;">Ciudad</th>
-                <th style="min-width: 120px;">Barrio</th>
-                <th style="min-width: 120px;">Nombre</th>
-                <th style="min-width: 120px;">Tipo</th>
-                <th style="min-width: 100px;">Dormitorios</th>
-                <th style="min-width: 100px;">Baños</th>
-                <th style="min-width: 100px;">Precio</th>
-                <th style="min-width: 100px;">Estado</th>
-                <th style="width: 150px;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of editableRows; track row.originalIndex; let i = $index) {
-                @if (!row.isDeleted) {
-                  <tr [class.row-invalid]="!row.isValid" [class.row-editing]="row.isValid">
-                    <td>{{ i + 1 }}</td>
-                    
-                    <!-- Proyecto -->
-                    <td>
-                      <input
-                        type="text"
-                        class="form-control c-input input-sm"
-                        [value]="getProyectoNombre(row.data['proyectoId'] || '', row.data['nombreProyecto'])"
-                        (input)="updateRowData(i, 'nombreProyecto', $any($event.target).value)"
-                        placeholder="Nombre del Proyecto"
-                      />
-                    </td>
-
-                    <!-- Ciudad -->
-                    <td>
-                      <select
-                        class="form-control c-input input-sm"
-                        [value]="row.data['ciudadId'] || row.data['ciudad'] || ''"
-                        (change)="updateRowData(i, 'ciudadId', $any($event.target).value)"
-                      >
-                        <option value="">-- Seleccionar --</option>
-                        @for (ciudad of ciudades; track ciudad.id) {
-                          <option [value]="ciudad.id">{{ ciudad.nombre }}</option>
-                        }
-                      </select>
-                    </td>
-
-                    <!-- Barrio -->
-                    <td>
-                      <select
-                        class="form-control c-input input-sm"
-                        [value]="getBarrioSelectedValue(row.data)"
-                        (change)="updateRowData(i, 'barrioId', $any($event.target).value)"
-                      >
-                        <option value="">-- Seleccionar --</option>
-                        @for (barrio of getBarriosByCiudad(row.data['ciudadId'] || row.data['ciudad']); track barrio.id) {
-                          <option [value]="barrio.id">{{ barrio.nombre }}</option>
-                        }
-                      </select>
-                    </td>
-
-                    <!-- Nombre -->
-                    <td>
-                      <input
-                        type="text"
-                        class="form-control c-input input-sm"
-                        [value]="row.data['nombre'] || ''"
-                        (input)="updateRowData(i, 'nombre', $any($event.target).value)"
-                        placeholder="Ej: Apto 302"
-                      />
-                    </td>
-
-                    <!-- Tipo -->
-                    <td>
-                      <select
-                        class="form-control c-input input-sm"
-                        [value]="row.data['tipoUnidad'] || ''"
-                        (change)="updateRowData(i, 'tipoUnidad', $any($event.target).value)"
-                      >
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Apartamento">Apartamento</option>
-                        <option value="Casa">Casa</option>
-                        <option value="Chacra">Chacra</option>
-                        <option value="Campo">Campo</option>
-                      </select>
-                    </td>
-
-                    <!-- Dormitorios -->
-                    <td>
-                      <input
-                        type="number"
-                        class="form-control c-input input-sm"
-                        [value]="row.data['dormitorios'] || ''"
-                        (input)="updateRowData(i, 'dormitorios', +$any($event.target).value)"
-                        min="0"
-                      />
-                    </td>
-
-                    <!-- Baños -->
-                    <td>
-                      <input
-                        type="number"
-                        class="form-control c-input input-sm"
-                        [value]="row.data['banos'] || ''"
-                        (input)="updateRowData(i, 'banos', +$any($event.target).value)"
-                        min="1"
-                      />
-                    </td>
-
-                    <!-- Precio -->
-                    <td>
-                      <input
-                        type="number"
-                        class="form-control c-input input-sm"
-                        [value]="row.data['precio'] || row.data['precioUSD'] || ''"
-                        (input)="updateRowData(i, 'precio', +$any($event.target).value)"
-                        min="0"
-                        step="0.01"
-                      />
-                    </td>
-
-                    <!-- Estado Comercial -->
-                    <td>
-                      <select
-                        class="form-control c-input input-sm"
-                        [value]="row.data['estadoComercial'] || ''"
-                        (change)="updateRowData(i, 'estadoComercial', $any($event.target).value)"
-                      >
-                        <option value="">-- Seleccionar --</option>
-                        <option value="En venta">En venta</option>
-                        <option value="En alquiler">En alquiler</option>
-                        <option value="Reservada">Reservada</option>
-                        <option value="Vendida">Vendida</option>
-                        <option value="Pre-venta">Pre-venta</option>
-                        <option value="En Pozo">En Pozo</option>
-                      </select>
-                    </td>
-
-                    <!-- Acciones -->
-                    <td>
-                      <button
-                        class="btn btn-sm btn-primary m-r-sm"
-                        (click)="openUnidadModal(i)"
-                        title="Editar en modal completo"
-                      >
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-danger"
-                        (click)="deleteRow(i)"
-                        title="Eliminar fila"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                  
-                  <!-- Error row -->
-                  @if (row.errors && row.errors.length > 0) {
-                    <tr class="error-row">
-                      <td colspan="11">
-                        <div class="error-messages">
-                          <i class="fas fa-exclamation-triangle"></i>
-                          <strong>Errores:</strong>
-                          <ul>
-                            @for (error of row.errors; track error.field) {
-                              <li>{{ getFieldLabel(error.field) }}: {{ error.message }}</li>
-                            }
-                          </ul>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                }
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Show deleted rows -->
-        @if (deletedRowsCount > 0) {
-          <div class="deleted-rows-section">
-            <h6>Filas Eliminadas ({{ deletedRowsCount }})</h6>
-            <div class="deleted-rows-list">
-              @for (row of deletedRows; track row.originalIndex; let i = $index) {
-                <div class="deleted-row-item">
-                  <span>Fila {{ row.originalIndex + 1 }}: {{ row.data['nombre'] || 'Sin nombre' }}</span>
-                  <button
-                    class="btn btn-sm btn-default"
-                    (click)="restoreRow(editableRows.indexOf(row))"
-                  >
-                    <i class="fas fa-undo"></i> Restaurar
-                  </button>
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-        <div class="step-actions">
-          <button
-            class="btn c-btn btn-primary"
-            (click)="importData()"
-            [disabled]="isImporting || getRowsToImport().length === 0"
-          >
-            @if (isImporting) {
-              <span><i class="fas fa-spinner fa-spin"></i> Importando...</span>
-            } @else {
-              <span><i class="fas fa-upload"></i> Importar {{ getRowsToImport().length }} Unidades</span>
-            }
-          </button>
-        </div>
-      </div>
-    }
-
-    <!-- Result Messages -->
-    @if (resultMessage) {
-      <div class="alert" [class.alert-success]="resultType === 'success'" [class.alert-error]="resultType === 'error'" [class.alert-warning]="resultType === 'warning'">
-        {{ resultMessage }}
-      </div>
-    }
-  </div>
+<div class="frame mb-3">
+	<div class="frame-body">
+		<!-- Tabs -->
+		<ul class="nav-tabs">
+			<li class="nav-item">
+				<a
+					class="nav-link"
+					[class.active]="activeTab === 'mapping'"
+					(click)="activeTab = 'mapping'">
+					Mapeo de Columnas
+				</a>
+			</li>
+			<li class="nav-item">
+				<a
+					class="nav-link"
+					[class.active]="activeTab === 'review'"
+					(click)="activeTab = 'review'"
+					[class.disabled]="!editableRows.length">
+					Revisión y Edición
+				</a>
+			</li>
+		</ul>
+	</div>
 </div>
+
+@if (activeTab === 'mapping') {
+	<div class="frame mb-3">
+		<div class="frame-body">
+			<!-- Tab 1: File Upload and Column Mapping -->
+			<div class="step-section">
+				<h5>Seleccionar Archivo Excel que desea importar</h5>
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="file-upload-area">
+							<input
+								type="file"
+								id="excelFile"
+								class="form-control c-input"
+								(change)="onFileSelected($event)"
+								accept=".xlsx,.xls"
+								[disabled]="isProcessing" />
+							@if (excelFile) {
+							<div class="file-info">
+								<i class="fas fa-file-excel"></i>
+								<span>{{ excelFile.name }}</span>
+								<span class="file-size">({{ (excelFile.size / 1024).toFixed(2) }}
+									KB)</span>
+							</div>
+							}
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+						<button class="btn c-btn btn-primary">
+							<i class="fas fa-download"></i>
+							Descargar Archivo
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (excelHeaders.length > 0) {
+	<div class="frame">
+		<div class="frame-body">
+			<div class="step-section">
+				<h5>Mapear Columnas del Excel con Campos del Sistema</h5>
+				<p class="help-text">
+					Seleccione qué campo del sistema corresponde a cada columna de su archivo
+					Excel.
+				</p>
+				<div class="mapping-table-container">
+					<table class="table c-table table-striped">
+						<thead>
+							<tr>
+								<th>Columna Excel</th>
+								<th>Campo Unidad</th>
+								<th>Columna Excel</th>
+								<th>Campo Unidad</th>
+								<th>Columna Excel</th>
+								<th>Campo Unidad</th>
+								<th>Columna Excel</th>
+								<th>Campo Unidad</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (mappingPair of getMappingPairs(); track mappingPair[0]?.excelColumn
+							||
+							mappingPair[1]?.excelColumn
+							||
+							mappingPair[2]?.excelColumn
+							||
+							mappingPair[3]?.excelColumn) {
+							<tr>
+								<!-- First mapping pair -->
+								<td>
+									@if (mappingPair[0]) {
+										{{ mappingPair[0].excelColumn }}
+									}
+								</td>
+								<td>
+									@if (mappingPair[0]) {
+									<select class="form-control c-input"
+											[value]="mappingPair[0].targetField || ''"
+											(change)="
+											updateColumnMapping(
+												mappingPair[0].excelColumn,
+												$any($event.target).value,
+												'unidad'
+											)">
+										<option value>-- No mapear --</option>
+										<optgroup   label="Campos de Unidad">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[0].excelColumn).unidadFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+										<optgroup   label="Campos de Proyecto">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[0].excelColumn).proyectoFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+									</select>
+									}
+								</td>
+								<!-- Second mapping pair -->
+								<td>
+									@if (mappingPair[1]) {
+										{{ mappingPair[1].excelColumn }}
+									}
+								</td>
+								<td>
+									@if (mappingPair[1]) {
+									<select class="form-control c-input"
+											[value]="mappingPair[1].targetField || ''"
+											(change)="
+											updateColumnMapping(
+												mappingPair[1].excelColumn,
+												$any($event.target).value,
+												'unidad'
+											)">
+										<option value>-- No mapear --</option>
+										<optgroup label="Campos de Unidad">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[1].excelColumn).unidadFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+										<optgroup label="Campos de Proyecto">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[1].excelColumn).proyectoFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+									</select>
+									}
+								</td>
+								<!-- Third mapping pair -->
+								<td>
+									@if (mappingPair[2]) {
+										{{ mappingPair[2].excelColumn }}
+									}
+								</td>
+								<td>
+									@if (mappingPair[2]) {
+									<select class="form-control c-input"
+											[value]="mappingPair[2].targetField || ''"
+											(change)="
+											updateColumnMapping(
+												mappingPair[2].excelColumn,
+												$any($event.target).value,
+												'unidad'
+											)">
+										<option value>-- No mapear --</option>
+										<optgroup label="Campos de Unidad">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[2].excelColumn).unidadFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+										<optgroup label="Campos de Proyecto">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[2].excelColumn).proyectoFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+									</select>
+									}
+								</td>
+								<!-- Fourth mapping pair -->
+								<td>
+									@if (mappingPair[3]) {
+										{{ mappingPair[3].excelColumn }}
+									}
+								</td>
+								<td>
+									@if (mappingPair[3]) {
+									<select class="form-control c-input"
+											[value]="mappingPair[3].targetField || ''"
+											(change)="
+											updateColumnMapping(
+												mappingPair[3].excelColumn,
+												$any($event.target).value,
+												'unidad'
+											)">
+										<option value>-- No mapear --</option>
+										<optgroup label="Campos de Unidad">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[3].excelColumn).unidadFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+										<optgroup label="Campos de Proyecto">
+													@for (field of
+														getAvailableFieldsForMapping(mappingPair[3].excelColumn).proyectoFields;
+														track
+														field.value) {
+														<option [value]="field.value">{{ field.label }}</option>
+													}
+										</optgroup>
+									</select>
+									}
+								</td>
+							</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="step-actions">
+					<button class="btn c-btn btn-primary"
+							(click)="validateAndContinue()"
+							[disabled]="isProcessing || !excelHeaders.length">
+							@if (isProcessing) {
+								<span>Procesando...</span>
+							} @else {
+								<span>Validar y Continuar</span>
+							}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	} 
+} 
+
+@if (activeTab === 'review') {
+<div class="frame">
+	<div class="frame-body">
+		<!-- Tab 2: Data Review and Editing -->
+		<div class="tab-content">
+			<div class="step-header">
+				<h5>Revisión y Edición de Datos</h5>
+				<div class="summary-stats">
+					<span class="stat valid">
+						<i class="fas fa-check-circle"></i>
+						{{ validRowsCount }} válidas
+					</span>
+					<span class="stat invalid">
+						<i class="fas fa-exclamation-circle"></i>
+						{{ invalidRowsCount }} con errores
+					</span>
+					<span class="stat deleted">
+						<i class="fas fa-trash"></i>
+						{{ deletedRowsCount }} eliminadas
+					</span>
+				</div>
+			</div>
+
+			<div class="editable-table-container">
+				<table class="table c-table table-striped editable-table">
+					<thead>
+						<tr>
+							<th style="width: 50px">#</th>
+							<th style="min-width: 150px">Proyecto</th>
+							<th style="min-width: 120px">Ciudad</th>
+							<th style="min-width: 120px">Barrio</th>
+							<th style="min-width: 120px">Nombre</th>
+							<th style="min-width: 120px">Tipo</th>
+							<th style="min-width: 100px">Dormitorios</th>
+							<th style="min-width: 100px">Baños</th>
+							<th style="min-width: 100px">Precio</th>
+							<th style="min-width: 100px">Estado</th>
+							<th style="width: 65px"></th>
+						</tr>
+					</thead>
+					<tbody>
+						@for (row of editableRows; track row.originalIndex; let i = $index) { @if
+						(!row.isDeleted) {
+						<tr [class.row-invalid]="!row.isValid" [class.row-editing]="row.isValid">
+							<td>{{ i + 1 }}</td>
+							<!-- Proyecto -->
+							<td>
+								<input  type="text"
+										class="form-control c-input input-sm"
+										[value]="getProyectoNombre(row.data['proyectoId'] || '', row.data['nombreProyecto'])"
+										(input)="updateRowData(i, 'nombreProyecto', $any($event.target).value)"
+										placeholder="Nombre del Proyecto" />
+							</td>
+							<!-- Ciudad -->
+							<td>
+								<select class="form-control c-input input-sm"
+										[value]="row.data['ciudadId'] || row.data['ciudad'] || ''"
+										(change)="updateRowData(i, 'ciudadId', $any($event.target).value)">
+										<option value>-- Seleccionar --</option>
+										@for (ciudad of ciudades; track ciudad.id) {
+											<option [value]="ciudad.id">{{ ciudad.nombre }}</option>
+										}
+								</select>
+							</td>
+							<!-- Barrio -->
+							<td>
+								<select class="form-control c-input input-sm"
+										[value]="getBarrioSelectedValue(row.data)"
+										(change)="updateRowData(i, 'barrioId', $any($event.target).value)">
+										<option value>-- Seleccionar --</option>
+										@for (barrio of getBarriosByCiudad(row.data['ciudadId'] || row.data['ciudad']);
+										track barrio.id) {
+											<option [value]="barrio.id">{{ barrio.nombre }}</option>
+										}
+								</select>
+							</td>
+							<!-- Nombre -->
+							<td>
+								<input	type="text"
+										class="form-control c-input input-sm"
+										[value]="row.data['nombre'] || ''"
+										(input)="updateRowData(i, 'nombre', $any($event.target).value)"
+										placeholder="Ej: Apto 302" />
+							</td>
+							<!-- Tipo -->
+							<td>
+								<select class="form-control c-input input-sm"
+										[value]="row.data['tipoUnidad'] || ''"
+										(change)="updateRowData(i, 'tipoUnidad', $any($event.target).value)">
+										<option value>-- Seleccionar --</option>
+										<option value="Apartamento">Apartamento</option>
+										<option value="Casa">Casa</option>
+										<option value="Chacra">Chacra</option>
+										<option value="Campo">Campo</option>
+								</select>
+							</td>
+							<!-- Dormitorios -->
+							<td>
+								<input	type="number"
+										class="form-control c-input input-sm"
+										[value]="row.data['dormitorios'] || ''"
+										(input)="updateRowData(i, 'dormitorios', +$any($event.target).value)"
+										min="0" />
+							</td>
+							<!-- Baños -->
+							<td>
+								<input	type="number"
+										class="form-control c-input input-sm"
+										[value]="row.data['banos'] || ''"
+										(input)="updateRowData(i, 'banos', +$any($event.target).value)"
+										min="1" />
+							</td>
+							<!-- Precio -->
+							<td>
+								<input	type="number"
+										class="form-control c-input input-sm"
+										[value]="row.data['precio'] || row.data['precioUSD'] || ''"
+										(input)="updateRowData(i, 'precio', +$any($event.target).value)"
+										min="0"
+										step="0.01" />
+							</td>
+							<!-- Estado Comercial -->
+							<td>
+								<select class="form-control c-input input-sm"
+										[value]="row.data['estadoComercial'] || ''"
+										(change)="updateRowData(i, 'estadoComercial', $any($event.target).value)">
+										<option value>-- Seleccionar --</option>
+										<option value="En venta">En venta</option>
+										<option value="En alquiler">En alquiler</option>
+										<option value="Reservada">Reservada</option>
+										<option value="Vendida">Vendida</option>
+										<option value="Pre-venta">Pre-venta</option>
+										<option value="En Pozo">En Pozo</option>
+								</select>
+							</td>
+							<!-- Acciones -->
+							<td>
+								<button
+									class="btn-table"
+									(click)="openUnidadModal(i)"
+									title="Editar en modal completo">
+									<i class="fas fa-edit"></i>
+								</button>
+								<button class="btn-table eliminar" (click)="deleteRow(i)"
+									title="Eliminar fila">
+									<i class="fas fa-trash"></i>
+								</button>
+							</td>
+						</tr>
+
+						<!-- Error row -->
+						@if (row.errors && row.errors.length > 0) {
+						<tr class="error-row">
+							<td colspan="11">
+								<div class="error-messages">
+									<i class="fas fa-exclamation-triangle"></i>
+									<strong>Errores:</strong>
+									<ul>
+										@for (error of row.errors; track error.field) {
+										<li>{{ getFieldLabel(error.field) }}: {{ error.message }}</li>
+										}
+									</ul>
+								</div>
+							</td>
+						</tr>
+						} } }
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Show deleted rows -->
+			@if (deletedRowsCount > 0) {
+			<div class="deleted-rows-section">
+				<h6>Filas Eliminadas ({{ deletedRowsCount }})</h6>
+				<div class="deleted-rows-list">
+					@for (row of deletedRows; track row.originalIndex; let i = $index) {
+					<div class="deleted-row-item">
+						<span>Fila {{ row.originalIndex + 1 }}: {{ row.data['nombre'] ||
+							'Sin nombre' }}</span>
+						<button class="btn btn-sm btn-default"
+							(click)="restoreRow(editableRows.indexOf(row))">
+							<i class="fas fa-undo"></i> Restaurar
+						</button>
+					</div>
+					}
+				</div>
+			</div>
+			}
+
+			<div class="step-actions">
+				<button
+					class="btn c-btn btn-primary"
+					(click)="importData()"
+					[disabled]="isImporting || getRowsToImport().length === 0">
+					@if (isImporting) {
+					<span><i class="fas fa-spinner fa-spin"></i> Importando...</span>
+					} @else {
+					<span><i class="fas fa-upload"></i> Importar {{ getRowsToImport().length }}
+						Unidades</span>
+					}
+				</button>
+			</div>
+		</div>
+
+		<!-- Result Messages -->
+		@if (resultMessage) {
+		<div
+			class="alert"
+			[class.alert-success]="resultType === 'success'"
+			[class.alert-error]="resultType === 'error'"
+			[class.alert-warning]="resultType === 'warning'">
+			{{ resultMessage }}
+		</div>
+		}
+	</div>
+</div>
+}

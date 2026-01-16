@@ -169,13 +169,15 @@ export class Importar implements OnInit {
   /**
    * Get mapping pairs for displaying 2 mappings per row
    */
-  getMappingPairs(): Array<[ColumnMapping | null, ColumnMapping | null]> {
-    const pairs: Array<[ColumnMapping | null, ColumnMapping | null]> = [];
+  getMappingPairs(): Array<[ColumnMapping | null, ColumnMapping | null, ColumnMapping | null, ColumnMapping | null]> {
+    const pairs: Array<[ColumnMapping | null, ColumnMapping | null, ColumnMapping | null, ColumnMapping | null]> = [];
     
-    for (let i = 0; i < this.columnMappings.length; i += 2) {
+    for (let i = 0; i < this.columnMappings.length; i += 4) {
       const first = this.columnMappings[i] || null;
       const second = i + 1 < this.columnMappings.length ? this.columnMappings[i + 1] || null : null;
-      pairs.push([first, second]);
+      const third = i + 2 < this.columnMappings.length ? this.columnMappings[i + 2] || null : null;
+      const fourth = i + 3 < this.columnMappings.length ? this.columnMappings[i + 3] || null : null;
+      pairs.push([first, second, third, fourth]);
     }
     
     return pairs;
@@ -835,6 +837,8 @@ export class Importar implements OnInit {
     
     // Mark as import mode to hide "Agregar y Repetir" button
     component.isImportMode = true;
+    // Set a temporary id to show "Editar" in the modal title instead of "Nuevo"
+    component.unidadId = 'edit';
     
     // Prepare data for the form
     const formData: any = { ...row.data };

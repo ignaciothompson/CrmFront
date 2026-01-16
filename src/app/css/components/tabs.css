@@ -1,0 +1,57 @@
+/* Tabs */
+.nav-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color-grey);
+    padding: 0;
+    list-style: none;
+    margin-bottom: 5px;
+  }
+  
+  .nav-tabs .nav-item {
+    margin-right: 0;
+  }
+  
+  .nav-tabs .nav-link {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-color, #333);
+    text-decoration: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  
+  .nav-tabs .nav-link:hover:not(.disabled) {
+    color: var(--primary-color, #2c7be5);
+    border-bottom-color: var(--primary-color, #2c7be5);
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: var(--primary-color, #2c7be5);
+    border-bottom-color: var(--primary-color, #2c7be5);
+    font-weight: 600;
+  }
+  
+  .nav-tabs .nav-link.disabled {
+    color: var(--text-light-color);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  /* Dark theme adjustments */
+  .theme-dark .nav-tabs {
+    border-bottom-color: var(--border, #444);
+  }
+  
+  .theme-dark .nav-tabs .nav-link {
+    color: var(--text-color, #fff);
+  }
+  
+  .theme-dark .nav-tabs .nav-link:hover:not(.disabled),
+  .theme-dark .nav-tabs .nav-link.active {
+    color: var(--primary-color, #5a9);
+    border-bottom-color: var(--primary-color, #5a9);
+  }
