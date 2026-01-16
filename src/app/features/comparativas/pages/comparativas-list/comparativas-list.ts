@@ -85,6 +85,53 @@ export class ComparativasListPage {
     return us.map((u: any) => String(u?.nombre || u?.id || 'Unidad')).join(', ');
   }
 
+  getVencimientoStatus(c: any): string {
+    const fecha = c?.fecha || c?.createdAt;
+    if (!fecha) return '-';
+    
+    // Convertir fecha a timestamp si es necesario
+    const fechaTimestamp = typeof fecha === 'number' 
+      ? fecha 
+      : typeof fecha === 'string'
+      ? new Date(fecha).getTime()
+      : new Date(fecha).getTime();
+    
+    const now = Date.now();
+    const daysDiff = (fechaTimestamp + (7 * 24 * 60 * 60 * 1000) - now) / (1000 * 60 * 60 * 24);
+    
+    if (daysDiff <= 0) {
+      return 'Vencida';
+    }
+    
+    // Redondear hacia abajo para mostrar días completos
+    const diasRestantes = Math.floor(daysDiff);
+    return `${diasRestantes} día${diasRestantes !== 1 ? 's' : ''}`;
+  }
+
+  getDiasRestantes(c: any): number {
+    const fecha = c?.fecha || c?.createdAt;
+    if (!fecha) return -1;
+    
+    // Convertir fecha a timestamp si es necesario
+    const fechaTimestamp = typeof fecha === 'number' 
+      ? fecha 
+      : typeof fecha === 'string'
+      ? new Date(fecha).getTime()
+      : new Date(fecha).getTime();
+    
+    const now = Date.now();
+    const daysDiff = (fechaTimestamp + (7 * 24 * 60 * 60 * 1000) - now) / (1000 * 60 * 60 * 24);
+    
+    return Math.floor(daysDiff);
+  }
+
+  openComparativa(c: any): void {
+    // Use token if available, otherwise fallback to ID (for backward compatibility)
+    const identifier = c?.token || c?.id;
+    const url = window.location.origin + '/comparacion/' + identifier;
+    window.open(url, '_blank');
+  }
+
   copyLink(c: any): void {
     // Use token if available, otherwise fallback to ID (for backward compatibility)
     const identifier = c?.token || c?.id;
@@ -126,12 +173,21 @@ export class ComparativasListPage {
       const token = (ref as any)?.token || (ref as any)?.id;
       
       if (token) {
-        this.toastService.success('Comparativa regenerada exitosamente');
-        window.open(`/comparacion/${token}`, '_blank');
-        // Reload comparativas list
-        this.comparativaService.getComparativas().subscribe(cs => {
-          this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
-          this.applyFilters();
+        // Mostrar alerta más visible con duración extendida
+        const fechaFormateada = new Date(now).toLocaleDateString() + ' ' + new Date(now).toLocaleTimeString();
+        this.toastService.success(
+          `✓ Comparativa regenerada exitosamente\nNueva fecha: ${fechaFormateada}`,
+          7000 // 7 segundos para que sea más visible
+        );
+        // Reload comparativas list para actualizar la fecha en la tabla
+        this.comparativaService.getComparativas().subscribe({
+          next: (cs) => {
+            this.comparativas = (cs || []).sort((a, b) => (b?.createdAt || 0) - (a?.createdAt || 0));
+            this.applyFilters();
+          },
+          error: (error) => {
+            console.error('Error reloading comparativas after regeneration:', error);
+          }
         });
       }
     } catch (error) {

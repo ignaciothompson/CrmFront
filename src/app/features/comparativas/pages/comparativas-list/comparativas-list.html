@@ -18,6 +18,7 @@
             <th>Teléfono</th>
             <th>Creada</th>
             <th>Unidades</th>
+            <th>Vencimiento</th>
             <th></th>
           </tr>
         </thead>
@@ -28,8 +29,13 @@
               <td>{{ c?.contacto?.telefono || '-' }}</td>
               <td>{{ formatDate(c?.createdAt) }}</td>
               <td>{{ unitsSummary(c) }}</td>
+              <td [class.vencimiento-vencida]="getVencimientoStatus(c) === 'Vencida'" 
+                  [class.vencimiento-proxima]="getVencimientoStatus(c) !== 'Vencida' && getDiasRestantes(c) <= 2">
+                {{ getVencimientoStatus(c) }}
+              </td>
               <td class="text-end">
-                <button class="btn-table" title="Compartir" (click)="copyLink(c)"><i class="fas fa-external-link"></i></button>
+                <button class="btn-table" title="Abrir comparativa" (click)="openComparativa(c)"><i class="fas fa-external-link"></i></button>
+                <button class="btn-table" title="Copiar link" (click)="copyLink(c)"><i class="fas fa-link"></i></button>
                 <button class="btn-table" title="Regenerar" (click)="regenerate(c)"><i class="fas fa-sync-alt"></i></button>
                 <button class="btn-table eliminar" title="Eliminar" (click)="delete(c)"><i class="fas fa-trash"></i></button>
               </td>
@@ -37,7 +43,7 @@
           }
           @if (!filtered.length) {
             <tr>
-              <td colspan="5" class="text-center">Sin resultados</td>
+              <td colspan="6" class="text-center">Sin resultados</td>
             </tr>
           }
         </tbody>
@@ -51,7 +57,8 @@
           <div class="clickable-card-header d-flex align-items-center justify-content-between gap-2">
             <span class="clickable-card-value highlight">{{ c?.contacto?.nombre || '-' }}</span>
             <span class="d-flex align-items-center gap-2">
-              <button class="btn-table" title="Compartir" (click)="copyLink(c)"><i class="fas fa-external-link"></i></button>
+              <button class="btn-table" title="Abrir comparativa" (click)="openComparativa(c)"><i class="fas fa-external-link"></i></button>
+              <button class="btn-table" title="Copiar link" (click)="copyLink(c)"><i class="fas fa-link"></i></button>
               <button class="btn-table" title="Regenerar" (click)="regenerate(c)"><i class="fas fa-sync-alt"></i></button>
               <button class="btn-table eliminar" title="Eliminar" (click)="delete(c)"><i class="fas fa-trash"></i></button>
             </span>
@@ -77,6 +84,17 @@
                 <span>Unidades</span>
               </div>
               <div class="clickable-card-value">{{ unitsSummary(c) }}</div>
+            </div>
+            <div class="clickable-card-row">
+              <div class="clickable-card-label">
+                <i class="fa fa-clock"></i>
+                <span>Vencimiento</span>
+              </div>
+              <div class="clickable-card-value" 
+                   [class.vencimiento-vencida]="getVencimientoStatus(c) === 'Vencida'"
+                   [class.vencimiento-proxima]="getVencimientoStatus(c) !== 'Vencida' && getDiasRestantes(c) <= 2">
+                {{ getVencimientoStatus(c) }}
+              </div>
             </div>
           </div>
         </div>

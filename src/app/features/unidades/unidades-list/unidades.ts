@@ -14,7 +14,7 @@ import { UnidadForm } from '../unidad-form/unidad-form';
 import { ConfirmService } from '../../../shared/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { SubheaderComponent, FilterConfig } from '../../../shared/components/subheader/subheader';
-import { FilterSidebarComponent, FilterSidebarConfig } from '../../../shared/components/filter-sidebar/filter-sidebar';
+import { FilterSidebarConfig } from '../../../shared/components/filter-sidebar/filter-sidebar';
 import { TypeaheadComponent } from '../../../shared/components/typeahead/typeahead';
 import { FilterComponent } from '../../../shared/components/filter/filter';
 import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
@@ -22,7 +22,7 @@ import { EXTRAS_CATALOG } from '../../../core/extras-catalog';
 @Component({
   selector: 'app-unidades',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SubheaderComponent, FilterSidebarComponent, TypeaheadComponent, FilterComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SubheaderComponent, TypeaheadComponent, FilterComponent],
   templateUrl: './unidades.html',
   styleUrl: './unidades.css'
 })
